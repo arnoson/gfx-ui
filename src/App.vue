@@ -14,7 +14,8 @@ const frameId = frames.addFrame()
 frames.activateFrame(frameId)
 
 const { width } = useWindowSize()
-const sidebarDefaultSize = computed(() => (175 / width.value) * 100)
+const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
+const sidebarMinSize = computed(() => (175 / width.value) * 100)
 
 frames.addItem(frameId, {
   type: 'line',
@@ -43,8 +44,9 @@ frames.addItem(frameId, {
 <template>
   <SplitterGroup direction="horizontal">
     <SplitterPanel
+      class="layers-panel"
       :default-size="sidebarDefaultSize"
-      :min-size="sidebarDefaultSize"
+      :min-size="sidebarMinSize"
     >
       <LayersTree />
     </SplitterPanel>
@@ -57,7 +59,7 @@ frames.addItem(frameId, {
     <SplitterPanel
       class="properties-panel"
       :default-size="sidebarDefaultSize"
-      :min-size="sidebarDefaultSize"
+      :min-size="sidebarMinSize"
     >
       <ItemProperties v-if="frames.focusedItem" :item="frames.focusedItem" />
     </SplitterPanel>
@@ -65,7 +67,8 @@ frames.addItem(frameId, {
 </template>
 
 <style scoped>
-.properties-panel {
+.properties-panel,
+.layers-panel {
   padding: 1rem;
 }
 
