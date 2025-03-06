@@ -326,6 +326,7 @@ useEventListener('keydown', (e) => {
   width: 100%;
   height: 100%;
   image-rendering: pixelated;
+  background-color: var(--color-background);
 }
 
 .overlay {
