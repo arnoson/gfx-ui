@@ -6,10 +6,12 @@ import {
 } from '@vueuse/core'
 import {
   computed,
+  nextTick,
   onMounted,
   ref,
   toRefs,
   useTemplateRef,
+  watch,
   watchEffect,
 } from 'vue'
 import { drawBitmap } from '~/items/bitmap'
@@ -40,7 +42,7 @@ const blur = () => {
   if (editor.activeToolId === 'select') frames.blur()
 }
 
-watchEffect(() => {
+const render = () => {
   if (!ctx.value) return
   ctx.value.clearRect(0, 0, size.value.width, size.value.height)
   for (const item of items.value) {
@@ -49,6 +51,12 @@ watchEffect(() => {
     else if (item.type === 'circle') drawCircle(ctx.value, item)
     else if (item.type === 'bitmap') drawBitmap(ctx.value, item)
   }
+}
+watchEffect(render)
+watch(size, async () => {
+  // Resizing the canvas will clear it, so we have to render again.
+  await nextTick()
+  render()
 })
 
 const overlay = useTemplateRef('overlay')

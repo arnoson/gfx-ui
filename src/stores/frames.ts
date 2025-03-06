@@ -119,7 +119,10 @@ export const useFrames = defineStore('frames', () => {
     frame.children.splice(frame.children.findIndex((v) => v.id === itemId))
   }
 
-  const focusItem = (id: Id) => (focusedItemId.value = id)
+  const focusItem = (id: Id) => {
+    selectedItemIds.value.clear()
+    focusedItemId.value = id
+  }
 
   const blur = () => (focusedItemId.value = null)
 

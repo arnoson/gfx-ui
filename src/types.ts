@@ -9,6 +9,8 @@ export type Point = {
 export type Size = { width: number; height: number }
 
 export interface Bounds {
+  x: number
+  y: number
   left: number
   top: number
   right: number

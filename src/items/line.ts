@@ -123,3 +123,11 @@ export const translateLine = (line: Line, delta: Point) => {
   line.to.x += delta.x
   line.to.y += delta.y
 }
+
+export const moveLine = (line: Line, position: Point) => {
+  const delta = {
+    x: position.x - line.bounds.left,
+    y: position.y - line.bounds.top,
+  }
+  translateLine(line, delta)
+}

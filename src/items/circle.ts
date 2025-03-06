@@ -121,3 +121,8 @@ export const translateCircle = (circle: Circle, delta: Point) => {
   circle.center.x += delta.x
   circle.center.y += delta.y
 }
+
+export const moveCircle = (circle: Circle, position: Point) => {
+  circle.center.x = position.x + circle.radius
+  circle.center.y = position.y + circle.radius
+}

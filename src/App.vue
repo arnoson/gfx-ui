@@ -8,6 +8,8 @@ import { useFrames } from './stores/frames'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
 import ItemProperties from './components/ItemProperties.vue'
+import FrameProperties from './components/FrameProperties.vue'
+import SelectionProperties from './components/SelectionProperties.vue'
 
 const frames = useFrames()
 const frameId = frames.addFrame()
@@ -51,7 +53,7 @@ frames.addItem(frameId, {
       <LayersTree />
     </SplitterPanel>
     <SplitterResizeHandle />
-    <SplitterPanel style="position: relative">
+    <SplitterPanel class="editor-panel">
       <FrameEditor v-if="frames.activeFrame" :frame="frames.activeFrame" />
       <ToolBar />
     </SplitterPanel>
@@ -62,11 +64,24 @@ frames.addItem(frameId, {
       :min-size="sidebarMinSize"
     >
       <ItemProperties v-if="frames.focusedItem" :item="frames.focusedItem" />
+      <SelectionProperties
+        v-else-if="frames.selectedItems"
+        :items="frames.selectedItems"
+      />
+      <FrameProperties
+        v-else-if="frames.activeFrame"
+        :frame="frames.activeFrame"
+      />
     </SplitterPanel>
   </SplitterGroup>
 </template>
 
 <style scoped>
+.editor-panel {
+  position: relative;
+  padding: 0.3rem;
+}
+
 .properties-panel,
 .layers-panel {
   padding: 1rem;

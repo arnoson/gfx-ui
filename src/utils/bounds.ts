@@ -1,6 +1,10 @@
 import type { Bounds, Pixels, Point, Size } from '~/types'
 import { unpackPixel } from './pixels'
 import type { Item, ItemData } from '~/stores/frames'
+import { moveLine, translateLine } from '~/items/line'
+import { moveRect, translateRect } from '~/items/rect'
+import { moveCircle, translateCircle } from '~/items/circle'
+import { moveBitmap, translateBitmap } from '~/items/bitmap'
 
 export const getRectBounds = (rect: {
   position: Point
@@ -14,6 +18,8 @@ export const getRectBounds = (rect: {
   const bottom = y + height - 1
 
   return {
+    x,
+    y,
     top,
     left,
     right,
@@ -78,11 +84,15 @@ export const getBitmapBounds = (bitmap: { pixels: Pixels }): Bounds => {
   return getRectBounds({ position, size })
 }
 
-export const getItemBounds = (item: ItemData) => {
+export const getItemBounds = (item: ItemData): Bounds => {
   if (item.type === 'line') return getLineBounds(item)
   if (item.type === 'rect') return getRectBounds(item)
   if (item.type === 'circle') return getCircleBounds(item)
   if (item.type === 'bitmap') return getBitmapBounds(item)
+  return getRectBounds({
+    position: { x: 0, y: 0 },
+    size: { width: 0, height: 0 },
+  })
 }
 
 export const boundsContainPoint = (bounds: Bounds, point: Point) =>
@@ -90,3 +100,17 @@ export const boundsContainPoint = (bounds: Bounds, point: Point) =>
   point.x <= bounds.right &&
   point.y >= bounds.top &&
   point.y <= bounds.bottom
+
+export const translateItem = (item: Item, delta: Point) => {
+  if (item.type === 'line') translateLine(item, delta)
+  if (item.type === 'rect') translateRect(item, delta)
+  if (item.type === 'circle') translateCircle(item, delta)
+  if (item.type === 'bitmap') translateBitmap(item, delta)
+}
+
+export const moveItem = (item: Item, position: Point) => {
+  if (item.type === 'line') moveLine(item, position)
+  if (item.type === 'rect') moveRect(item, position)
+  if (item.type === 'circle') moveCircle(item, position)
+  if (item.type === 'bitmap') moveBitmap(item, position)
+}

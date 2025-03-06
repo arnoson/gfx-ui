@@ -27,3 +27,11 @@ export const translateBitmap = (bitmap: Bitmap, delta: Point) => {
   }
   bitmap.pixels = translatedPixels
 }
+
+export const moveBitmap = (bitmap: Bitmap, position: Point) => {
+  const delta = {
+    x: position.x - bitmap.bounds.left,
+    y: position.y - bitmap.bounds.top,
+  }
+  translateBitmap(bitmap, delta)
+}

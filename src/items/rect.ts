@@ -41,3 +41,7 @@ export const translateRect = (rect: Rect, delta: Point) => {
   rect.position.x += delta.x
   rect.position.y += delta.y
 }
+
+export const moveRect = (rect: Rect, position: Point) => {
+  rect.position = position
+}

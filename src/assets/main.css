@@ -10,7 +10,7 @@
   --color-guide: var(--color-panel-background);
   --color-panel-background: hsl(0 0% 60% / 1);
   --color-panel-text: var(--color-background);
-  --color-accent: fuchsia;
+  --color-accent: tomato;
   --color-bounds: var(--color-accent);
 
   --color-pixel-0: hsl(0, 0%, 0%);
