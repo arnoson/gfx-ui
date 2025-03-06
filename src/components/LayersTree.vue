@@ -7,14 +7,18 @@ const frames = useFrames()
 
 const list = computed(() => {
   if (!frames.activeFrame) return []
-  return Array.from(frames.activeFrame?.items.values())
+  return Array.from(frames.activeFrame?.children.values())
 })
 
 const onUpdate = console.log
 </script>
 
 <template>
-  <VueDraggable :model-value="list" @update="onUpdate">
+  <VueDraggable
+    v-if="frames.activeFrame"
+    v-model="frames.activeFrame.children"
+    @update="onUpdate"
+  >
     <div v-for="item in list" :key="item.id">{{ item.type }}@{{ item.id }}</div>
   </VueDraggable>
 </template>

@@ -3,13 +3,13 @@ import { computed, ref } from 'vue'
 import { useDraw } from '~/tools/draw'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
+import type { Bounds } from '~/types'
 
 export const useEditor = defineStore('editor', () => {
   const draw = useDraw()
   const select = useSelect()
   const rect = useRect()
   const tools = { draw, select, rect }
-
   type ToolId = keyof typeof tools
 
   const activeToolId = ref<ToolId>('select')
@@ -24,7 +24,11 @@ export const useEditor = defineStore('editor', () => {
   // Init
   activateTool(activeToolId.value)
 
-  return { activeTool, activeToolId, activateTool }
+  return {
+    activeTool,
+    activeToolId,
+    activateTool,
+  }
 })
 
 if (import.meta.hot)

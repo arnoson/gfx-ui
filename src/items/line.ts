@@ -116,3 +116,10 @@ export const getLinePixels = (from: Point, to: Point) => {
 
   return pixels
 }
+
+export const translateLine = (line: Line, delta: Point) => {
+  line.from.x += delta.x
+  line.from.y += delta.y
+  line.to.x += delta.x
+  line.to.y += delta.y
+}

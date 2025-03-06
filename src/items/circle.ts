@@ -116,3 +116,8 @@ export const drawCircle = (
   if (circle.isFilled) fillCircle(ctx, circle)
   else strokeCircle(ctx, circle)
 }
+
+export const translateCircle = (circle: Circle, delta: Point) => {
+  circle.center.x += delta.x
+  circle.center.y += delta.y
+}

@@ -36,3 +36,8 @@ export const drawRect = (
     drawLine(ctx, { from: topRight, to: bottomRight, color })
   }
 }
+
+export const translateRect = (rect: Rect, delta: Point) => {
+  rect.position.x += delta.x
+  rect.position.y += delta.y
+}

@@ -49,29 +49,31 @@ useSvgDraggable(lineHandle, {
 </script>
 
 <template>
-  <line
-    ref="lineHandle"
-    class="line-handle"
-    :x1="from.x + 0.5"
-    :y1="from.y + 0.5"
-    :x2="to.x + 0.5"
-    :y2="to.y + 0.5"
-    @mousedown="focus()"
-  />
-  <template v-if="isFocused">
-    <circle
-      ref="fromHandle"
-      :cx="from.x + 0.5"
-      :cy="from.y + 0.5"
-      class="point-handle"
+  <g :data-item="`${item.type}@${item.id}`">
+    <line
+      ref="lineHandle"
+      class="line-handle"
+      :x1="from.x + 0.5"
+      :y1="from.y + 0.5"
+      :x2="to.x + 0.5"
+      :y2="to.y + 0.5"
+      @mousedown="focus()"
     />
-    <circle
-      ref="toHandle"
-      :cx="to.x + 0.5"
-      :cy="to.y + 0.5"
-      class="point-handle"
-    />
-  </template>
+    <template v-if="isFocused">
+      <circle
+        ref="fromHandle"
+        :cx="from.x + 0.5"
+        :cy="from.y + 0.5"
+        class="point-handle"
+      />
+      <circle
+        ref="toHandle"
+        :cx="to.x + 0.5"
+        :cy="to.y + 0.5"
+        class="point-handle"
+      />
+    </template>
+  </g>
 </template>
 
 <style scoped>

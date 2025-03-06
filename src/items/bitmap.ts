@@ -1,5 +1,5 @@
-import type { Bounds, Color, Pixels } from '~/types'
-import { drawPixel, unpackPixel } from '~/utils/pixels'
+import type { Bounds, Color, Pixels, Point } from '~/types'
+import { drawPixel, packPixel, unpackPixel } from '~/utils/pixels'
 
 export interface Bitmap {
   type: 'bitmap'
@@ -17,4 +17,13 @@ export const drawBitmap = (
     const { x, y } = unpackPixel(pixel)
     drawPixel(ctx, x, y, color)
   }
+}
+
+export const translateBitmap = (bitmap: Bitmap, delta: Point) => {
+  const translatedPixels: Pixels = new Set()
+  for (const pixel of bitmap.pixels) {
+    const { x, y } = unpackPixel(pixel)
+    translatedPixels.add(packPixel(x + delta.x, y + delta.y))
+  }
+  bitmap.pixels = translatedPixels
 }

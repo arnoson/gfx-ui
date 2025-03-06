@@ -30,12 +30,6 @@ frames.addItem(frameId, {
   color: 15,
   isFilled: false,
 })
-
-frames.addItem(frameId, {
-  type: 'bitmap',
-  pixels: new Set(),
-  color: 15,
-})
 </script>
 
 <template>

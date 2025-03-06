@@ -37,7 +37,7 @@ export const useRect = defineTool(
       if (itemId === undefined) return
       if (!frame.value) return
 
-      const item = frame.value.items.get(itemId)
+      const item = frame.value.children.find((v) => v.id === itemId)
       if (!item) return
       if (item.type !== 'rect') return
 

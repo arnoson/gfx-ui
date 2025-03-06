@@ -84,3 +84,9 @@ export const getItemBounds = (item: ItemData) => {
   if (item.type === 'circle') return getCircleBounds(item)
   if (item.type === 'bitmap') return getBitmapBounds(item)
 }
+
+export const boundsContainPoint = (bounds: Bounds, point: Point) =>
+  point.x >= bounds.left &&
+  point.x <= bounds.right &&
+  point.y >= bounds.top &&
+  point.y <= bounds.bottom

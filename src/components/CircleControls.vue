@@ -91,41 +91,43 @@ useSvgDraggable(rectHandle, {
 </script>
 
 <template>
-  <circle
-    ref="circleHandle"
-    class="circle-handle"
-    :cx="bounds.left + bounds.width / 2 + 0.5"
-    :cy="bounds.top + bounds.height / 2 + 0.5"
-    :r="bounds.width / 2"
-    :fill="item.isFilled ? 'transparent' : 'none'"
-    @mousedown="focus()"
-  />
-  <template v-if="isFocused">
+  <g :data-item="`${item.type}@${item.id}`">
     <circle
-      ref="topLeftHandle"
-      :cx="bounds.topLeft.x"
-      :cy="bounds.topLeft.y"
-      class="point-handle"
+      ref="circleHandle"
+      class="circle-handle"
+      :cx="bounds.left + bounds.width / 2 + 0.5"
+      :cy="bounds.top + bounds.height / 2 + 0.5"
+      :r="bounds.width / 2"
+      :fill="item.isFilled ? 'transparent' : 'none'"
+      @mousedown="focus()"
     />
-    <circle
-      ref="topRightHandle"
-      :cx="bounds.topRight.x + 1"
-      :cy="bounds.topRight.y"
-      class="point-handle"
-    />
-    <circle
-      ref="bottomLeftHandle"
-      :cx="bounds.bottomLeft.x"
-      :cy="bounds.bottomLeft.y + 1"
-      class="point-handle"
-    />
-    <circle
-      ref="bottomRightHandle"
-      :cx="bounds.bottomRight.x + 1"
-      :cy="bounds.bottomRight.y + 1"
-      class="point-handle"
-    />
-  </template>
+    <template v-if="isFocused">
+      <circle
+        ref="topLeftHandle"
+        :cx="bounds.topLeft.x"
+        :cy="bounds.topLeft.y"
+        class="point-handle"
+      />
+      <circle
+        ref="topRightHandle"
+        :cx="bounds.topRight.x + 1"
+        :cy="bounds.topRight.y"
+        class="point-handle"
+      />
+      <circle
+        ref="bottomLeftHandle"
+        :cx="bounds.bottomLeft.x"
+        :cy="bounds.bottomLeft.y + 1"
+        class="point-handle"
+      />
+      <circle
+        ref="bottomRightHandle"
+        :cx="bounds.bottomRight.x + 1"
+        :cy="bounds.bottomRight.y + 1"
+        class="point-handle"
+      />
+    </template>
+  </g>
 </template>
 
 <style scoped>

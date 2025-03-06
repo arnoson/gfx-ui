@@ -94,42 +94,44 @@ useSvgDraggable(rectHandle, {
 </script>
 
 <template>
-  <rect
-    ref="rectHandle"
-    class="rect-handle"
-    :x="item.bounds.left"
-    :y="item.bounds.top"
-    :width="item.bounds.width"
-    :height="item.bounds.height"
-    :fill="item.isFilled ? 'transparent' : 'none'"
-    @mousedown="focus()"
-  />
-  <template v-if="isFocused">
-    <circle
-      ref="topLeftHandle"
-      :cx="item.bounds.topLeft.x"
-      :cy="item.bounds.topLeft.y"
-      class="point-handle"
+  <g :data-item="`${item.type}@${item.id}`">
+    <rect
+      ref="rectHandle"
+      class="rect-handle"
+      :x="item.bounds.left"
+      :y="item.bounds.top"
+      :width="item.bounds.width"
+      :height="item.bounds.height"
+      :fill="item.isFilled ? 'transparent' : 'none'"
+      @mousedown="focus()"
     />
-    <circle
-      ref="topRightHandle"
-      :cx="item.bounds.topRight.x + 1"
-      :cy="item.bounds.topRight.y"
-      class="point-handle"
-    />
-    <circle
-      ref="bottomLeftHandle"
-      :cx="item.bounds.bottomLeft.x"
-      :cy="item.bounds.bottomLeft.y + 1"
-      class="point-handle"
-    />
-    <circle
-      ref="bottomRightHandle"
-      :cx="item.bounds.bottomRight.x + 1"
-      :cy="item.bounds.bottomRight.y + 1"
-      class="point-handle"
-    />
-  </template>
+    <template v-if="isFocused">
+      <circle
+        ref="topLeftHandle"
+        :cx="item.bounds.topLeft.x"
+        :cy="item.bounds.topLeft.y"
+        class="point-handle"
+      />
+      <circle
+        ref="topRightHandle"
+        :cx="item.bounds.topRight.x + 1"
+        :cy="item.bounds.topRight.y"
+        class="point-handle"
+      />
+      <circle
+        ref="bottomLeftHandle"
+        :cx="item.bounds.bottomLeft.x"
+        :cy="item.bounds.bottomLeft.y + 1"
+        class="point-handle"
+      />
+      <circle
+        ref="bottomRightHandle"
+        :cx="item.bounds.bottomRight.x + 1"
+        :cy="item.bounds.bottomRight.y + 1"
+        class="point-handle"
+      />
+    </template>
+  </g>
 </template>
 
 <style scoped>

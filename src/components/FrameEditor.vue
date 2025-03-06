@@ -27,7 +27,7 @@ import RectControls from './RectControls.vue'
 const props = defineProps<{ frame: Frame }>()
 
 const { frame } = toRefs(props)
-const { size, items, scale } = toRefs(props.frame)
+const { size, children: items, scale } = toRefs(props.frame)
 const canvas = useTemplateRef('canvas')
 
 const editor = useEditor()
@@ -40,15 +40,10 @@ const blur = () => {
   if (editor.activeToolId === 'select') frames.blur()
 }
 
-const selectedItems = computed(() => {
-  if (!frames.focusedItem) return []
-  return [frames.focusedItem]
-})
-
 watchEffect(() => {
   if (!ctx.value) return
   ctx.value.clearRect(0, 0, size.value.width, size.value.height)
-  for (const [, item] of items.value) {
+  for (const item of items.value) {
     if (item.type === 'line') drawLine(ctx.value, item)
     else if (item.type === 'rect') drawRect(ctx.value, item)
     else if (item.type === 'circle') drawCircle(ctx.value, item)
@@ -57,14 +52,15 @@ watchEffect(() => {
 })
 
 const overlay = useTemplateRef('overlay')
-
+const background = useTemplateRef('background')
+const editorEl = useTemplateRef('editorEl')
 // Forward canvas mouse and key events to the active tool.
-useEventListener<MouseEvent>(overlay, 'mousedown', (e) => {
+useEventListener<MouseEvent>(background, 'mousedown', (e) => {
   if (space.value) return
   const { onMouseDown, config } = editor.activeTool
   onMouseDown?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
 })
-useEventListener<MouseEvent>(overlay, 'mousemove', (e) => {
+useEventListener('mousemove', (e) => {
   if (space.value) return
   const { onMouseMove, config } = editor.activeTool
   onMouseMove?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
@@ -76,7 +72,6 @@ useEventListener('mouseup', (e) => {
 })
 useEventListener('keydown', (e) => editor.activeTool.onKeyDown?.(e))
 
-const editorEl = useTemplateRef('editorEl')
 const editorBounds = useElementBounding(editorEl)
 useEventListener(
   'wheel',
@@ -169,12 +164,7 @@ useEventListener('keydown', (e) => {
         :style="`pointer-events: ${space ? 'none' : 'inital'}`"
       >
         <!-- Background -->
-        <rect
-          :width="size.width"
-          :height="size.height"
-          @click="blur()"
-          fill="transparent"
-        />
+        <rect ref="background" class="background" @mouseup="blur()" />
 
         <!-- Grid -->
         <g>
@@ -207,18 +197,28 @@ useEventListener('keydown', (e) => {
         <!-- Bounds -->
         <g>
           <rect
-            v-for="item of selectedItems"
+            v-for="item of frames.selectedItems"
+            :key="item.id"
             class="bounds"
             :x="item.bounds.left"
             :y="item.bounds.top"
             :width="item.bounds.width"
             :height="item.bounds.height"
           />
+          <rect
+            v-if="frames.focusedItem"
+            :key="frames.focusedItem.id"
+            class="bounds"
+            :x="frames.focusedItem.bounds.left"
+            :y="frames.focusedItem.bounds.top"
+            :width="frames.focusedItem.bounds.width"
+            :height="frames.focusedItem.bounds.height"
+          />
         </g>
 
         <!-- Controls -->
-        <g v-if="editor.activeToolId === 'select'">
-          <template v-for="[, item] of items">
+        <g v-if="editor.activeToolId === 'select' && !frames.selectedItems">
+          <template v-for="item of items" :key="item.id">
             <LineControls
               v-if="item.type === 'line'"
               :item="item"
@@ -241,6 +241,24 @@ useEventListener('keydown', (e) => {
             />
           </template>
         </g>
+
+        <!-- Selection rect -->
+        <rect
+          v-if="frames.isSelecting && frames.selectionBounds"
+          class="selection"
+          :x="frames.selectionBounds.left"
+          :y="frames.selectionBounds.top"
+          :width="frames.selectionBounds.width"
+          :height="frames.selectionBounds.height"
+        />
+        <rect
+          v-if="frames.selectedItemBounds"
+          class="bounds"
+          :x="frames.selectedItemBounds.left"
+          :y="frames.selectedItemBounds.top"
+          :width="frames.selectedItemBounds.width"
+          :height="frames.selectedItemBounds.height"
+        />
       </svg>
     </div>
   </div>
@@ -277,6 +295,13 @@ useEventListener('keydown', (e) => {
   }
 }
 
+.background {
+  fill: transparent;
+  width: 100vw;
+  height: 100vh;
+  translate: -50% -50%;
+}
+
 .canvas {
   display: block;
   width: 100%;
@@ -306,6 +331,15 @@ useEventListener('keydown', (e) => {
   fill: none;
   stroke-width: 1;
   stroke: var(--color-bounds);
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.selection {
+  fill: none;
+  stroke-width: 1;
+  stroke: var(--color-guide);
+  stroke-dasharray: 2;
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }

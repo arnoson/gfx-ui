@@ -34,15 +34,17 @@ useSvgDraggable(bitmapHandle, {
 </script>
 
 <template>
-  <rect
-    ref="bitmapHandle"
-    class="bitmap-handle"
-    :x="bounds.topLeft.x"
-    :y="bounds.topLeft.y"
-    :width="bounds.width"
-    :height="bounds.height"
-    @mousedown="focus"
-  />
+  <g :data-item="`${item.type}@${item.id}`">
+    <rect
+      ref="bitmapHandle"
+      class="bitmap-handle"
+      :x="bounds.topLeft.x"
+      :y="bounds.topLeft.y"
+      :width="bounds.width"
+      :height="bounds.height"
+      @mousedown="focus"
+    />
+  </g>
 </template>
 
 <style scoped>
