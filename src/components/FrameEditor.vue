@@ -159,6 +159,18 @@ useEventListener('keydown', (e) => {
 <template>
   <div ref="editorEl" class="editor" :data-scrolling="scrolling">
     <div ref="frameEl" class="frame">
+      <svg :viewBox="`0 0 ${size.width} ${size.height}`" class="overflow">
+        <!-- Bounds for items outside of frame -->
+        <rect
+          v-for="item of frames.activeFrame?.children"
+          :key="item.id"
+          class="bounds"
+          :x="item.bounds.left"
+          :y="item.bounds.top"
+          :width="item.bounds.width"
+          :height="item.bounds.height"
+        />
+      </svg>
       <canvas
         ref="canvas"
         class="canvas"
@@ -321,6 +333,18 @@ useEventListener('keydown', (e) => {
   display: block;
   inset: 0;
   overflow: visible;
+}
+
+.overflow {
+  position: absolute;
+  display: block;
+  inset: 0;
+  overflow: visible;
+  z-index: -1;
+
+  .bounds {
+    stroke: var(--color-grid);
+  }
 }
 
 .grid {
