@@ -267,9 +267,8 @@ useEventListener('keydown', (e) => {
 <style scoped>
 .editor {
   position: relative;
-  height: 80%;
-  outline: 1px solid red;
   overflow: auto;
+  height: 100%;
 }
 
 .frame {

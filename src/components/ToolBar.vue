@@ -5,7 +5,7 @@ const editor = useEditor()
 </script>
 
 <template>
-  <menu>
+  <menu class="tool-bar">
     <button
       @click="editor.activateTool('select')"
       :data-active="editor.activeToolId === 'select'"
@@ -28,7 +28,26 @@ const editor = useEditor()
 </template>
 
 <style scoped>
-button[data-active='true'] {
-  background-color: red;
+.tool-bar {
+  display: flex;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  flex-direction: column;
+  gap: 3px;
+  padding: 2px;
+
+  button {
+    display: block;
+    padding: 1px;
+
+    &[data-active='true'] {
+      color: var(--color-accent);
+    }
+
+    svg {
+      display: block;
+    }
+  }
 }
 </style>

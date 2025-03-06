@@ -1,0 +1,16 @@
+.field {
+  display: grid;
+  grid-template-columns: 9ch 1fr;
+  gap: 0.5rem;
+  align-items: center;
+
+  label {
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+}
+
+details .field {
+  margin-left: 2ch;
+  grid-template-columns: 9ch 1fr;
+}
