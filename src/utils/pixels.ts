@@ -55,5 +55,5 @@ export const drawPixel = (
   color: Color,
 ) => {
   ctx.fillStyle = pixelColors[color]
-  ctx.fillRect(x, y, 1, 1)
+  ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1)
 }

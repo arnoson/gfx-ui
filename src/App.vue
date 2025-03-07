@@ -32,6 +32,7 @@ frames.addItem(frameId, {
   size: { width: 20, height: 8 },
   color: 15,
   isFilled: true,
+  radius: 0,
 })
 
 frames.addItem(frameId, {

@@ -8,7 +8,6 @@ import {
   boundsContainPoint,
   getItemBounds,
   getLineBounds,
-  getRectBounds,
 } from '~/utils/bounds'
 import { defineTool } from './tool'
 

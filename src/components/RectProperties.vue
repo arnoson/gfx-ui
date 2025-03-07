@@ -6,6 +6,7 @@ import ColorField from './ColorField.vue'
 import PointField from './PointField.vue'
 import CheckboxField from './CheckboxField.vue'
 import SizeField from './SizeField.vue'
+import NumberField from './NumberField.vue'
 
 const props = defineProps<{ item: Rect }>()
 
@@ -34,6 +35,7 @@ const updateSize = (size: Size) => {
       @update:model-value="updateSize"
       label="Size"
     />
+    <NumberField v-model="item.radius" label="Radius" />
     <CheckboxField v-model="item.isFilled" label="Fill" />
   </div>
 </template>
