@@ -24,6 +24,12 @@ const editor = useEditor()
     >
       Rect
     </button>
+    <button
+      @click="editor.activateTool('circle')"
+      :data-active="editor.activeToolId === 'circle'"
+    >
+      Circle
+    </button>
   </menu>
 </template>
 
