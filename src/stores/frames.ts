@@ -100,7 +100,7 @@ export const useFrames = defineStore('frames', () => {
 
   const activateFrame = (id: Id) => (activeFrameId.value = id)
 
-  const addItem = (frameId: Id, data: ItemData) => {
+  const addItem = <T extends ItemData>(frameId: Id, data: T) => {
     const frame = frames.value.get(frameId)
     if (!frame) return
 
@@ -108,9 +108,11 @@ export const useFrames = defineStore('frames', () => {
     const bounds = getItemBounds(data)
     if (!bounds) return
 
-    const item: Item = { ...data, bounds, id }
-    frame.children.push(item)
-    return id
+    const item = { ...data, bounds, id }
+    const length = frame.children.push(item)
+    // Pushing the item makes it reactive, so in order return the reactive item
+    // we have to retrieve it from children.
+    return frame.children[length - 1] as unknown as typeof item
   }
 
   const removeItem = (frameId: Id, itemId: Id) => {
