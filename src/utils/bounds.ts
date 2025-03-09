@@ -5,6 +5,7 @@ import { moveLine, translateLine } from '~/items/line'
 import { moveRect, translateRect } from '~/items/rect'
 import { moveCircle, translateCircle } from '~/items/circle'
 import { moveBitmap, translateBitmap } from '~/items/bitmap'
+import { getTextBounds } from '~/items/text'
 
 export const getRectBounds = (rect: {
   position: Point
@@ -31,6 +32,19 @@ export const getRectBounds = (rect: {
     bottomLeft: { x: left, y: bottom },
     bottomRight: { x: right, y: bottom },
   }
+}
+
+export const getTranslatedBounds = (bounds: Bounds, delta: Point) => {
+  const { topLeft, width, height } = bounds
+  return getRectBounds({
+    position: { x: topLeft.x + delta.x, y: topLeft.y + delta.y },
+    size: { width, height },
+  })
+}
+
+export const getMovedBounds = (bounds: Bounds, position: Point) => {
+  const { width, height } = bounds
+  return getRectBounds({ position, size: { width, height } })
 }
 
 export const getCircleBounds = (circle: {
@@ -89,6 +103,7 @@ export const getItemBounds = (item: ItemData): Bounds => {
   if (item.type === 'rect') return getRectBounds(item)
   if (item.type === 'circle') return getCircleBounds(item)
   if (item.type === 'bitmap') return getBitmapBounds(item)
+  if (item.type === 'text') return getTextBounds(item)
   return getRectBounds({
     position: { x: 0, y: 0 },
     size: { width: 0, height: 0 },

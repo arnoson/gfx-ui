@@ -10,8 +10,11 @@ import { computed } from 'vue'
 import ItemProperties from './components/ItemProperties.vue'
 import FrameProperties from './components/FrameProperties.vue'
 import SelectionProperties from './components/SelectionProperties.vue'
+import { useFonts } from './stores/fonts'
+import miwos7pt from './fonts/miwos7pt.h?raw'
 
 const frames = useFrames()
+const fonts = useFonts()
 const frameId = frames.addFrame()
 frames.activateFrame(frameId)
 
@@ -19,28 +22,38 @@ const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
 const sidebarMinSize = computed(() => (175 / width.value) * 100)
 
-frames.addItem(frameId, {
-  type: 'line',
-  from: { x: 0, y: 0 },
-  to: { x: 10, y: 10 },
-  color: 15,
-})
+// frames.addItem(frameId, {
+//   type: 'line',
+//   from: { x: 0, y: 0 },
+//   to: { x: 10, y: 10 },
+//   color: 15,
+// })
+
+// frames.addItem(frameId, {
+//   type: 'rect',
+//   position: { x: 10, y: 10 },
+//   size: { width: 20, height: 8 },
+//   color: 15,
+//   isFilled: true,
+//   radius: 0,
+// })
+
+// frames.addItem(frameId, {
+//   type: 'circle',
+//   center: { x: 30, y: 30 },
+//   radius: 5,
+//   color: 15,
+//   isFilled: false,
+// })
+
+fonts.add(miwos7pt)
 
 frames.addItem(frameId, {
-  type: 'rect',
+  type: 'text',
+  content: 'Hello\nArggggh!',
+  color: 15,
+  font: 'miwos7pt',
   position: { x: 10, y: 10 },
-  size: { width: 20, height: 8 },
-  color: 15,
-  isFilled: true,
-  radius: 0,
-})
-
-frames.addItem(frameId, {
-  type: 'circle',
-  center: { x: 30, y: 30 },
-  radius: 5,
-  color: 15,
-  isFilled: false,
 })
 </script>
 

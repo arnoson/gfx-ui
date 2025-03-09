@@ -25,6 +25,8 @@ import BitmapControls from './BitmapControls.vue'
 import CircleControls from './CircleControls.vue'
 import LineControls from './LineControls.vue'
 import RectControls from './RectControls.vue'
+import { drawText } from '~/items/text'
+import TextControls from './TextControls.vue'
 
 const props = defineProps<{ frame: Frame }>()
 
@@ -50,6 +52,7 @@ const render = () => {
     else if (item.type === 'rect') drawRect(ctx.value, item)
     else if (item.type === 'circle') drawCircle(ctx.value, item)
     else if (item.type === 'bitmap') drawBitmap(ctx.value, item)
+    else if (item.type === 'text') drawText(ctx.value, item)
   }
 }
 watchEffect(render)
@@ -152,7 +155,9 @@ useEventListener('mousemove', (e) => {
 useEventListener('mouseup', () => (isPanning.value = false))
 
 useEventListener('keydown', (e) => {
-  if (e.code === 'Space') e.preventDefault()
+  const target = e.target as HTMLElement
+  if (e.code === 'Space' && target === document.scrollingElement)
+    e.preventDefault()
 })
 </script>
 
@@ -256,6 +261,11 @@ useEventListener('keydown', (e) => {
             />
             <BitmapControls
               v-else-if="item.type === 'bitmap'"
+              :item="item"
+              :frame="frame"
+            />
+            <TextControls
+              v-else-if="item.type === 'text'"
               :item="item"
               :frame="frame"
             />

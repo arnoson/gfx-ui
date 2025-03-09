@@ -4,6 +4,7 @@ import type { Bitmap } from '~/items/bitmap'
 import type { Circle } from '~/items/circle'
 import type { Line } from '~/items/line'
 import type { Rect } from '~/items/rect'
+import type { Text } from '~/items/text'
 import type { Bounds, Size } from '~/types'
 import { getItemBounds, getRectBounds } from '~/utils/bounds'
 
@@ -16,13 +17,14 @@ type Group = {
   children: Item[]
 }
 
-export type Item = Rect | Line | Circle | Bitmap | Group
+export type Item = Rect | Line | Circle | Bitmap | Text | Group
 
 export type ItemData =
   | Omit<Rect, 'id' | 'bounds'>
   | Omit<Line, 'id' | 'bounds'>
   | Omit<Circle, 'id' | 'bounds'>
   | Omit<Bitmap, 'id' | 'bounds'>
+  | Omit<Text, 'id' | 'bounds'>
 
 export interface Frame {
   id: Id
