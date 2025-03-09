@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { isTemplateExpression } from 'typescript'
 import { computed, toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import type { Circle } from '~/items/circle'
+import { getCircleBounds, type Circle } from '~/items/circle'
 import type { Frame } from '~/stores/frames'
 import { useFrames } from '~/stores/frames'
-import { getCircleBounds } from '~/utils/bounds'
+import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ frame: Frame; item: Circle }>()
 const frames = useFrames()
@@ -85,7 +84,7 @@ useSvgDraggable(rectHandle, {
   onMove: ({ x, y }) => {
     props.item.center.x = x + props.item.radius
     props.item.center.y = y + props.item.radius
-    updateBounds()
+    props.item.bounds = getMovedBounds(props.item.bounds, { x, y })
   },
 })
 </script>

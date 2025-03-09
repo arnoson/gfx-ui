@@ -1,6 +1,6 @@
 /**
  * Created with gfx-fe (github.com/arnoson/gfx-fe): a web based editor for gfx fonts.
- * Editor Settings: {"canvas":{"width":13,"height":13},"metrics":{"ascender":-7,"xHeight":-5,"descender":1},"baseline":11,"basedOn":{"name":"Vevey Positive","size":7,"guides":true,"threshold":125}}
+ * Editor Settings: {"canvas":{"width":13,"height":13},"metrics":{"ascender":-7,"xHeight":-5,"descender":1},"baseline":7,"basedOn":{"name":"Vevey Positive","size":7,"guides":true,"threshold":125}}
  */
 
 const uint8_t miwos7ptBitmaps[] PROGMEM = {
@@ -36,7 +36,7 @@ const uint8_t miwos7ptBitmaps[] PROGMEM = {
 };
 
 const GFXglyph miwos7ptGlyphs[] PROGMEM = {
-  {    0,    0,    0,    4,    4,  -10 }, // 0x20 ' '
+  {    0,    0,    0,    4,    4,   -6 }, // 0x20 ' '
   {    0,    2,    7,    3,    0,   -6 }, // 0x21 '!'
   {    0,    0,    0,    0,    0,    0 }, // 0x22 '"'
   {    2,    7,    7,    8,    0,   -6 }, // 0x23 '#'
@@ -64,7 +64,7 @@ const GFXglyph miwos7ptGlyphs[] PROGMEM = {
   {   81,    5,    7,    6,    0,   -6 }, // 0x39 '9'
   {   86,    2,    5,    3,    0,   -4 }, // 0x3a ':'
   {    0,    0,    0,    0,    0,    0 }, // 0x3b ';'
-  {   88,    3,    5,    6,    1,   -5 }, // 0x3c '<'
+  {   88,    3,    5,    4,    0,   -5 }, // 0x3c '<'
   {   90,    5,    3,    6,    0,   -4 }, // 0x3d '='
   {   92,    3,    5,    6,    1,   -5 }, // 0x3e '>'
   {   94,    5,    7,    6,    0,   -6 }, // 0x3f '?'

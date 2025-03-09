@@ -2,11 +2,12 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Bitmap } from '~/items/bitmap'
 import type { Circle } from '~/items/circle'
+import { getItemBounds } from '~/items/item'
 import type { Line } from '~/items/line'
 import type { Rect } from '~/items/rect'
 import type { Text } from '~/items/text'
 import type { Bounds, Size } from '~/types'
-import { getItemBounds, getRectBounds } from '~/utils/bounds'
+import { makeBounds } from '~/utils/bounds'
 
 type Id = number
 
@@ -64,10 +65,10 @@ export const useFrames = defineStore('frames', () => {
       if (bounds.top < top) top = bounds.top
       if (bounds.bottom > bottom) bottom = bounds.bottom
     }
-    return getRectBounds({
-      position: { x: left, y: top },
-      size: { width: right - left + 1, height: bottom - top + 1 },
-    })
+    return makeBounds(
+      { x: left, y: top },
+      { width: right - left + 1, height: bottom - top + 1 },
+    )
   })
 
   const activeFrameId = ref<Id | null>(0)

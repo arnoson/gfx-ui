@@ -38,6 +38,7 @@ import type { Bounds, Color, Point, Size } from '~/types'
 import { pixelColors } from '~/utils/pixels'
 import { drawCircleHelper, fillCircleHelper } from './circle'
 import { drawHorizontalLine, drawLine, drawVerticalLine } from './line'
+import { makeBounds } from '~/utils/bounds'
 
 export interface Rect {
   type: 'rect'
@@ -122,3 +123,6 @@ export const translateRect = (rect: Rect, delta: Point) => {
 export const moveRect = (rect: Rect, position: Point) => {
   rect.position = position
 }
+
+export const getRectBounds = (rect: Omit<Rect, 'id' | 'bounds'>) =>
+  makeBounds(rect.position, rect.size)

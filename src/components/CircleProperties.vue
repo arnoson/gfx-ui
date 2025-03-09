@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import type { Circle } from '~/items/circle'
+import { getCircleBounds, type Circle } from '~/items/circle'
 import type { Point } from '~/types'
-import { getCircleBounds } from '~/utils/bounds'
 import CheckboxField from './CheckboxField.vue'
 import ColorField from './ColorField.vue'
-import PointField from './PointField.vue'
-import SizeField from './SizeField.vue'
 import NumberField from './NumberField.vue'
+import PointField from './PointField.vue'
 
 const props = defineProps<{ item: Circle }>()
 

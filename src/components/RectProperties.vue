@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import type { Rect } from '~/items/rect'
+import { getRectBounds, type Rect } from '~/items/rect'
 import type { Point, Size } from '~/types'
-import { getRectBounds } from '~/utils/bounds'
-import ColorField from './ColorField.vue'
-import PointField from './PointField.vue'
 import CheckboxField from './CheckboxField.vue'
-import SizeField from './SizeField.vue'
+import ColorField from './ColorField.vue'
 import NumberField from './NumberField.vue'
+import PointField from './PointField.vue'
+import SizeField from './SizeField.vue'
+import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ item: Rect }>()
 
 const updatePosition = (point: Point) => {
   props.item.position = point
-  props.item.bounds = getRectBounds(props.item)
+  props.item.bounds = getMovedBounds(props.item.bounds, point)
 }
 
 const updateSize = (size: Size) => {

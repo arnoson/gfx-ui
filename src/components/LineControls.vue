@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { computed, toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import type { Line } from '~/items/line'
+import { getLineBounds, type Line } from '~/items/line'
 import type { Frame } from '~/stores/frames'
-import { getLineBounds } from '~/utils/bounds'
 import { useFrames } from '~/stores/frames'
+import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ frame: Frame; item: Line }>()
 const { from, to } = toRefs(props.item)
@@ -20,7 +20,7 @@ useSvgDraggable(fromHandle, {
   isPoint: true,
   onMove(position) {
     from.value = position
-    updateBounds()
+    props.item.bounds = getLineBounds(props.item)
   },
 })
 
@@ -29,7 +29,7 @@ useSvgDraggable(toHandle, {
   isPoint: true,
   onMove(position) {
     to.value = position
-    updateBounds()
+    props.item.bounds = getLineBounds(props.item)
   },
 })
 
@@ -43,7 +43,7 @@ useSvgDraggable(lineHandle, {
     from.value.y += delta.y
     to.value.x += delta.x
     to.value.y += delta.y
-    updateBounds()
+    props.item.bounds = getMovedBounds(props.item.bounds, { x, y })
   },
 })
 </script>

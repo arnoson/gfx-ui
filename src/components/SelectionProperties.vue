@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { getItemBounds, moveItem } from '~/items/item'
 import { useFrames } from '~/stores/frames'
-import { getItemBounds, moveItem } from '~/utils/bounds'
-import NumberField from './NumberField.vue'
 import GapField from './GapField.vue'
 
 const frames = useFrames()

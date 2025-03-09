@@ -3,8 +3,7 @@ import { useEditor } from '~/stores/editor'
 import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
-import { getCircleBounds } from '~/utils/bounds'
-import type { Circle } from '~/items/circle'
+import { getCircleBounds, type Circle } from '~/items/circle'
 
 export const useCircle = defineTool(
   'circle',

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { translateBitmap, type Bitmap } from '~/items/bitmap'
 import type { Point } from '~/types'
-import { getBitmapBounds } from '~/utils/bounds'
+import { getMovedBounds } from '~/utils/bounds'
 import ColorField from './ColorField.vue'
 import PointField from './PointField.vue'
 
@@ -12,9 +12,8 @@ const updatePosition = (point: Point) => {
     x: point.x - props.item.bounds.left,
     y: point.y - props.item.bounds.top,
   }
-  console.log(delta)
   translateBitmap(props.item, delta)
-  props.item.bounds = getBitmapBounds(props.item)
+  props.item.bounds = getMovedBounds(props.item.bounds, point)
 }
 </script>
 

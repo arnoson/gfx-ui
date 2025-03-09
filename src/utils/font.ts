@@ -45,6 +45,8 @@ export const parseFont = (code: string): GfxFont => {
     return { byteOffset, width, height, xAdvance, deltaX, deltaY }
   })
 
+  console.log({ baseline })
+
   if (!glyphs) throw new Error('No glyphs found.')
 
   return {

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import type { Rect } from '~/items/rect'
+import { getRectBounds, type Rect } from '~/items/rect'
 import type { Frame } from '~/stores/frames'
-import { getRectBounds } from '~/utils/bounds'
 import { useFrames } from '~/stores/frames'
+import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ frame: Frame; item: Rect }>()
 
@@ -88,7 +88,7 @@ const rectHandle = useTemplateRef('rectHandle')
 useSvgDraggable(rectHandle, {
   onMove: ({ x, y }) => {
     props.item.position = { x, y }
-    updateBounds()
+    props.item.bounds = getMovedBounds(props.item.bounds, { x, y })
   },
 })
 </script>

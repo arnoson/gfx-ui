@@ -1,15 +1,12 @@
 import { translateBitmap } from '~/items/bitmap'
 import { translateCircle } from '~/items/circle'
-import { translateLine } from '~/items/line'
+import { getLineBounds, translateLine } from '~/items/line'
 import { translateRect } from '~/items/rect'
 import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
-import {
-  boundsContainPoint,
-  getItemBounds,
-  getLineBounds,
-} from '~/utils/bounds'
+import { boundsContainPoint } from '~/utils/bounds'
 import { defineTool } from './tool'
+import { getItemBounds } from '~/items/item'
 
 export const useSelect = defineTool(
   'select',

@@ -1,6 +1,6 @@
 import { useFonts } from '~/stores/fonts'
 import type { Bounds, Color, Point } from '~/types'
-import { getRectBounds } from '~/utils/bounds'
+import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
 
 export interface Text {
@@ -56,7 +56,7 @@ export const drawText = (ctx: CanvasRenderingContext2D, text: Text) => {
 export const getTextBounds = (text: Omit<Text, 'id' | 'bounds'>) => {
   const fonts = useFonts()
   const font = fonts.fonts.get(text.font)
-  if (!font) return getRectBounds({ position: { x: 0, y: 0 }, size: { width: 0, height: 0 }}) // prettier-ignore
+  if (!font) return emptyBounds
 
   let offsetX = 0
   let offsetY = 0
@@ -76,8 +76,5 @@ export const getTextBounds = (text: Omit<Text, 'id' | 'bounds'>) => {
     width = Math.max(width, offsetX)
   }
 
-  return getRectBounds({
-    position: text.position,
-    size: { width, height: offsetY + font.yAdvance },
-  })
+  return makeBounds(text.position, { width, height: offsetY + font.yAdvance })
 }

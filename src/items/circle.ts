@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import type { Bounds, Color, Point } from '~/types'
 import { drawPixel } from '~/utils/pixels'
 import { drawLine, drawVerticalLine } from './line'
+import { makeBounds } from '~/utils/bounds'
 
 export interface Circle {
   type: 'circle'
@@ -201,4 +202,17 @@ export const translateCircle = (circle: Circle, delta: Point) => {
 export const moveCircle = (circle: Circle, position: Point) => {
   circle.center.x = position.x + circle.radius
   circle.center.y = position.y + circle.radius
+}
+
+export const getCircleBounds = (circle: {
+  radius: number
+  center: Point
+}): Bounds => {
+  const { center, radius } = circle
+  const position = {
+    x: center.x - radius,
+    y: center.y - radius,
+  }
+  const size = { width: radius * 2 + 1, height: radius * 2 + 1 }
+  return makeBounds(position, size)
 }

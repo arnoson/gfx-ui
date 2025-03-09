@@ -3,7 +3,7 @@ import { useEditor } from '~/stores/editor'
 import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
-import { getRectBounds } from '~/utils/bounds'
+import { makeBounds } from '~/utils/bounds'
 import type { Rect } from '~/items/rect'
 
 export const useRect = defineTool(
@@ -44,7 +44,7 @@ export const useRect = defineTool(
       const bottom = Math.max(startPoint.y, point.y)
       item.position = { x: left, y: top }
       item.size = { width: right - left, height: bottom - top }
-      item.bounds = getRectBounds(item)
+      item.bounds = makeBounds(item)
     }
 
     const onMouseUp = () => {

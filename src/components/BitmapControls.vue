@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import type { Bitmap } from '~/items/bitmap'
+import { getBitmapBounds, type Bitmap } from '~/items/bitmap'
 import type { Frame } from '~/stores/frames'
 import { useFrames } from '~/stores/frames'
 import type { Pixels } from '~/types'
-import { getBitmapBounds } from '~/utils/bounds'
+import { getMovedBounds } from '~/utils/bounds'
 import { packPixel, unpackPixel } from '~/utils/pixels'
 
 const props = defineProps<{ frame: Frame; item: Bitmap }>()
+const { bounds } = toRefs(props.item)
 const frames = useFrames()
 
 const focus = () => frames.focusItem(props.item.id)
-
-const { bounds } = toRefs(props.item)
-const updateBounds = () => (props.item.bounds = getBitmapBounds(props.item))
 
 const bitmapHandle = useTemplateRef('bitmapHandle')
 useSvgDraggable(bitmapHandle, {
@@ -28,7 +26,7 @@ useSvgDraggable(bitmapHandle, {
       translatedPixels.add(packPixel(x + deltaX, y + deltaY))
     }
     props.item.pixels = translatedPixels
-    updateBounds()
+    props.item.bounds = getMovedBounds(props.item.bounds, point)
   },
 })
 </script>

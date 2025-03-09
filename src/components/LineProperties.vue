@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { Line } from '~/items/line'
+import { getLineBounds, type Line } from '~/items/line'
 import type { Point } from '~/types'
-import { getLineBounds } from '~/utils/bounds'
 import ColorField from './ColorField.vue'
 import PointField from './PointField.vue'
 

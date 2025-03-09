@@ -35,6 +35,7 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 import type { Bounds, Color, Pixels, Point } from '~/types'
+import { makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel } from '~/utils/pixels'
 
 export interface Line {
@@ -188,4 +189,14 @@ export const moveLine = (line: Line, position: Point) => {
     y: position.y - line.bounds.top,
   }
   translateLine(line, delta)
+}
+
+export const getLineBounds = (line: { from: Point; to: Point }): Bounds => {
+  const top = Math.min(line.from.y, line.to.y)
+  const left = Math.min(line.from.x, line.to.x)
+  const bottom = Math.max(line.from.y, line.to.y)
+  const right = Math.max(line.from.x, line.to.x)
+  const position = { x: left, y: top }
+  const size = { width: right - left + 1, height: bottom - top + 1 }
+  return makeBounds(position, size)
 }

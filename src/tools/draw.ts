@@ -3,7 +3,7 @@ import { getLinePixels } from '~/items/line'
 import { useFrames } from '~/stores/frames'
 import type { Point, ToolConfig } from '~/types'
 import { defineTool } from './tool'
-import { getBitmapBounds } from '~/utils/bounds'
+import { getBitmapBounds, type Bitmap } from '~/items/bitmap'
 
 const config: ToolConfig = { pointRounding: 'floor' }
 
@@ -15,13 +15,7 @@ export const useDraw = defineTool(
 
     let isDrawing = false
 
-    const item = computed(() => {
-      const item = frames.focusedItem
-      if (!item) return null
-      if (item.type !== 'bitmap') return null
-      return item
-    })
-
+    let item: Bitmap | undefined
     let lastPoint: Point | null = null
 
     const onMouseDown = (point: Point) => {
@@ -31,11 +25,11 @@ export const useDraw = defineTool(
 
     const onMouseMove = (point: Point) => {
       if (!isDrawing) return
-      if (!item.value) return
+      if (!item) return
 
       const pixels = getLinePixels(lastPoint!, point)
-      for (const pixel of pixels) item.value.pixels.add(pixel)
-      item.value.bounds = getBitmapBounds(item.value)
+      for (const pixel of pixels) item.pixels.add(pixel)
+      item.bounds = getBitmapBounds(item)
 
       lastPoint = point
     }
@@ -44,15 +38,15 @@ export const useDraw = defineTool(
 
     const activate = () => {
       if (!frame.value) return
-      if (item.value) return
+      if (item) return
 
-      const id = frames.addItem(frame.value.id, {
+      item = frames.addItem(frame.value.id, {
         type: 'bitmap',
         pixels: new Set(),
         color: 15,
       })
 
-      if (id !== undefined) frames.focusItem(id)
+      if (item) frames.focusItem(item.id)
     }
 
     return { onMouseDown, onMouseMove, onMouseUp, activate }
