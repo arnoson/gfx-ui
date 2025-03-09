@@ -2,11 +2,10 @@
 import { computed, toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
 import { getLineBounds, type Line } from '~/items/line'
-import type { Frame } from '~/stores/frames'
 import { useFrames } from '~/stores/frames'
 import { getMovedBounds } from '~/utils/bounds'
 
-const props = defineProps<{ frame: Frame; item: Line }>()
+const props = defineProps<{ item: Line }>()
 const { from, to } = toRefs(props.item)
 const frames = useFrames()
 

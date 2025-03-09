@@ -2,11 +2,10 @@
 import { computed, toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
 import { getCircleBounds, type Circle } from '~/items/circle'
-import type { Frame } from '~/stores/frames'
 import { useFrames } from '~/stores/frames'
 import { getMovedBounds } from '~/utils/bounds'
 
-const props = defineProps<{ frame: Frame; item: Circle }>()
+const props = defineProps<{ item: Circle }>()
 const frames = useFrames()
 
 const focus = () => frames.focusItem(props.item.id)

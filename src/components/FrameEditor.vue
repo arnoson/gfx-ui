@@ -18,19 +18,13 @@ import { drawBitmap } from '~/items/bitmap'
 import { drawCircle } from '~/items/circle'
 import { drawLine } from '~/items/line'
 import { drawRect } from '~/items/rect'
+import { drawText } from '~/items/text'
 import { useEditor } from '~/stores/editor'
 import { useFrames, type Frame } from '~/stores/frames'
 import { mouseToSvg } from '~/utils/mouse'
-import BitmapControls from './BitmapControls.vue'
-import CircleControls from './CircleControls.vue'
-import LineControls from './LineControls.vue'
-import RectControls from './RectControls.vue'
-import { drawText } from '~/items/text'
-import TextControls from './TextControls.vue'
+import ItemControls from './ItemControls.vue'
 
 const props = defineProps<{ frame: Frame }>()
-
-const { frame } = toRefs(props)
 const { size, children: items, scale } = toRefs(props.frame)
 const canvas = useTemplateRef('canvas')
 
@@ -243,33 +237,7 @@ useEventListener('keydown', (e) => {
 
         <!-- Controls -->
         <g v-if="editor.activeToolId === 'select' && !frames.selectedItems">
-          <template v-for="item of items" :key="item.id">
-            <LineControls
-              v-if="item.type === 'line'"
-              :item="item"
-              :frame="frame"
-            />
-            <RectControls
-              v-else-if="item.type === 'rect'"
-              :item="item"
-              :frame="frame"
-            />
-            <CircleControls
-              v-else-if="item.type === 'circle'"
-              :item="item"
-              :frame="frame"
-            />
-            <BitmapControls
-              v-else-if="item.type === 'bitmap'"
-              :item="item"
-              :frame="frame"
-            />
-            <TextControls
-              v-else-if="item.type === 'text'"
-              :item="item"
-              :frame="frame"
-            />
-          </template>
+          <ItemControls v-for="item of items" :key="item.id" :item="item" />
         </g>
 
         <!-- Selection rect -->

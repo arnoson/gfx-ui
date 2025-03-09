@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import { getBitmapBounds, type Bitmap } from '~/items/bitmap'
-import type { Frame } from '~/stores/frames'
+import { type Bitmap } from '~/items/bitmap'
 import { useFrames } from '~/stores/frames'
 import type { Pixels } from '~/types'
 import { getMovedBounds } from '~/utils/bounds'
 import { packPixel, unpackPixel } from '~/utils/pixels'
 
-const props = defineProps<{ frame: Frame; item: Bitmap }>()
+const props = defineProps<{ item: Bitmap }>()
 const { bounds } = toRefs(props.item)
 const frames = useFrames()
 
