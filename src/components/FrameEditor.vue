@@ -77,7 +77,7 @@ useEventListener('keydown', (e) => {
     else if (e.key === 'p') editor.activateTool('draw')
     else if (e.key === 'Escape') {
       editor.activateTool('select')
-      frames.blur()
+      editor.focusedItem = null
     }
   }
 })
