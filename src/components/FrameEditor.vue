@@ -1,11 +1,6 @@
 <script setup lang="ts">
+import { useEventListener, useMagicKeys } from '@vueuse/core'
 import {
-  useElementBounding,
-  useEventListener,
-  useMagicKeys,
-} from '@vueuse/core'
-import {
-  computed,
   nextTick,
   onMounted,
   ref,
@@ -14,10 +9,11 @@ import {
   watch,
   watchEffect,
 } from 'vue'
+import { useZoomPan } from '~/composables/useZoomPan'
+import { drawItem } from '~/items/item'
 import { useEditor, type Frame } from '~/stores/editor'
 import { mouseToSvg } from '~/utils/mouse'
 import ItemControls from './ItemControls.vue'
-import { drawItem } from '~/items/item'
 
 const props = defineProps<{ frame: Frame }>()
 const { size, children: items, scale } = toRefs(props.frame)
@@ -47,6 +43,7 @@ watch(size, async () => {
 const overlay = useTemplateRef('overlay')
 const background = useTemplateRef('background')
 const editorEl = useTemplateRef('editorEl')
+const { space } = useMagicKeys()
 // Forward canvas mouse and key events to the active tool.
 useEventListener<MouseEvent>(background, 'mousedown', (e) => {
   if (space.value) return
@@ -65,81 +62,10 @@ useEventListener('mouseup', (e) => {
 })
 useEventListener('keydown', (e) => editor.activeTool.onKeyDown?.(e))
 
-const editorBounds = useElementBounding(editorEl)
-useEventListener(
-  'wheel',
-  (e) => {
-    if (!editorEl.value) return
-    if (!e.ctrlKey) return
-    e.preventDefault()
-
-    const left = editorBounds.left.value
-    const top = editorBounds.top.value
-    const mouseX = e.clientX - left + editorEl.value.scrollLeft
-    const mouseY = e.clientY - top + editorEl.value.scrollTop
-
-    const zoomFactor = 1.1
-    const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor
-    const newScale = Math.min(Math.max(scale.value * delta, 2), 20)
-
-    // Adjust scroll to keep zoom position under cursor.
-    const scaleRatio = newScale / scale.value
-    editorEl.value.scrollLeft = mouseX * scaleRatio - (e.clientX - left)
-    editorEl.value.scrollTop = mouseY * scaleRatio - (e.clientY - top)
-
-    scale.value = newScale
-  },
-  { passive: false },
-)
-
-const scrolling = computed(() => {
-  if (!editorEl.value) return
-
-  const width = editorBounds.width.value
-  const height = editorBounds.height.value
-  const isScrollingX = size.value.width * scale.value > width
-  const isScrollingY = size.value.height * scale.value > height
-
-  if (isScrollingX && isScrollingY) return 'both'
-  if (isScrollingX) return 'x'
-  if (isScrollingY) return 'y'
-  return 'none'
-})
-
-const { space } = useMagicKeys()
-let isPanning = ref(false)
-const panStartPoint = { x: 0, y: 0 }
-const scrollStart = { x: 0, y: 0 }
-
-useEventListener('mousedown', (e) => {
-  if (!space.value) return
-  if (!editorEl.value) return
-
-  isPanning.value = true
-  panStartPoint.x = e.clientX
-  panStartPoint.y = e.clientY
-  scrollStart.x = editorEl.value.scrollLeft
-  scrollStart.y = editorEl.value.scrollTop
-})
-
-useEventListener('mousemove', (e) => {
-  if (!isPanning.value) return
-  if (!space.value) return
-  if (!editorEl.value) return
-
-  const deltaX = (e.clientX - panStartPoint.x) * -1
-  const deltaY = (e.clientY - panStartPoint.y) * -1
-
-  editorEl.value.scrollLeft = scrollStart.x + deltaX
-  editorEl.value.scrollTop = scrollStart.y + deltaY
-})
-
-useEventListener('mouseup', () => (isPanning.value = false))
-
 useEventListener('keydown', (e) => {
   const target = e.target as HTMLElement
 
-  if (e.code === 'Space' && target === document.scrollingElement) {
+  if (e.code === 'Space' && target === document.body) {
     e.preventDefault()
   }
 
@@ -155,6 +81,8 @@ useEventListener('keydown', (e) => {
     }
   }
 })
+
+const { scrolling } = useZoomPan(editorEl, { size, scale })
 </script>
 
 <template>
