@@ -1,27 +1,25 @@
-import { toRef } from 'vue'
+import { getLineBounds, type Line } from '~/items/line'
 import { useEditor } from '~/stores/editor'
 import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
-import { getCircleBounds, type Circle } from '~/items/circle'
 
-export const useCircle = defineTool(
-  'circle',
+export const useLine = defineTool(
+  'line',
   () => {
     const frames = useFrames()
     const editor = useEditor()
 
-    let item: Circle | undefined
+    let item: Line | undefined
     let isDragging = false
     let startPoint = { x: 0, y: 0 }
 
     const onMouseDown = ({ x, y }: Point) => {
       item = frames.addItem({
-        type: 'circle',
-        center: { x, y },
-        radius: 0,
+        type: 'line',
+        from: { x, y },
+        to: { x, y },
         color: 15,
-        isFilled: false,
       })
       if (!item) return
 
@@ -30,14 +28,12 @@ export const useCircle = defineTool(
       isDragging = true
     }
 
-    const onMouseMove = (point: Point) => {
+    const onMouseMove = ({ x, y }: Point) => {
       if (!isDragging) return
       if (!item) return
 
-      const distanceX = point.x - startPoint.x
-      const distanceY = point.y - startPoint.y
-      item.radius = Math.round(Math.hypot(distanceX, distanceY))
-      item.bounds = getCircleBounds(item)
+      item.to = { x, y }
+      item.bounds = getLineBounds(item)
     }
 
     const onMouseUp = () => {

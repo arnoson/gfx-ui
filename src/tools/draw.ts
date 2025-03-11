@@ -11,10 +11,8 @@ export const useDraw = defineTool(
   'draw',
   () => {
     const frames = useFrames()
-    const frame = toRef(frames.activeFrame)
 
     let isDrawing = false
-
     let item: Bitmap | undefined
     let lastPoint: Point | null = null
 
@@ -37,10 +35,9 @@ export const useDraw = defineTool(
     const onMouseUp = () => (isDrawing = false)
 
     const activate = () => {
-      if (!frame.value) return
       if (item) return
 
-      item = frames.addItem(frame.value.id, {
+      item = frames.addItem({
         type: 'bitmap',
         pixels: new Set(),
         color: 15,

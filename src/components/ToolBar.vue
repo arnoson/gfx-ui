@@ -4,6 +4,7 @@ import SelectIcon from '~/assets/icons/icon-select.svg'
 import DrawIcon from '~/assets/icons/icon-draw.svg'
 import RectIcon from '~/assets/icons/icon-rect.svg'
 import CircleIcon from '~/assets/icons/icon-circle.svg'
+import LineIcon from '~/assets/icons/icon-line.svg'
 
 const editor = useEditor()
 </script>
@@ -17,10 +18,10 @@ const editor = useEditor()
       <SelectIcon />
     </button>
     <button
-      @click="editor.activateTool('draw')"
-      :data-active="editor.activeToolId === 'draw'"
+      @click="editor.activateTool('line')"
+      :data-active="editor.activeToolId === 'line'"
     >
-      <DrawIcon />
+      <LineIcon />
     </button>
     <button
       @click="editor.activateTool('rect')"
@@ -33,6 +34,12 @@ const editor = useEditor()
       :data-active="editor.activeToolId === 'circle'"
     >
       <CircleIcon />
+    </button>
+    <button
+      @click="editor.activateTool('draw')"
+      :data-active="editor.activeToolId === 'draw'"
+    >
+      <DrawIcon />
     </button>
   </menu>
 </template>

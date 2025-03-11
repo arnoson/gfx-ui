@@ -87,7 +87,7 @@ export const useFrames = defineStore('frames', () => {
   let id = 0
   const createId = () => id++
 
-  const addFrame = () => {
+  const addFrame = (): Frame => {
     const id = createId()
     frames.value.set(id, {
       id,
@@ -96,32 +96,32 @@ export const useFrames = defineStore('frames', () => {
       scale: 5,
       children: [],
     })
-    return id
+    return frames.value.get(id)!
   }
 
   const removeFrame = (id: Id) => frames.value.delete(id)
 
   const activateFrame = (id: Id) => (activeFrameId.value = id)
 
-  const addItem = <T extends ItemData>(frameId: Id, data: T) => {
-    const frame = frames.value.get(frameId)
-    if (!frame) return
+  const addItem = <T extends ItemData>(data: T) => {
+    if (!activeFrame.value) return
 
     const id = createId()
     const bounds = getItemBounds(data)
     if (!bounds) return
 
     const item = { ...data, bounds, id }
-    const length = frame.children.push(item)
+    const length = activeFrame.value.children.push(item)
     // Pushing the item makes it reactive, so in order return the reactive item
     // we have to retrieve it from children.
-    return frame.children[length - 1] as unknown as typeof item
+    return activeFrame.value.children[length - 1] as unknown as typeof item
   }
 
-  const removeItem = (frameId: Id, itemId: Id) => {
-    const frame = frames.value.get(frameId)
-    if (!frame) return
-    frame.children.splice(frame.children.findIndex((v) => v.id === itemId))
+  const removeItem = (itemId: Id) => {
+    if (!activeFrame.value) return
+
+    const index = activeFrame.value.children.findIndex((v) => v.id === itemId)
+    activeFrame.value.children.splice(index, 1)
   }
 
   const focusItem = (id: Id) => {

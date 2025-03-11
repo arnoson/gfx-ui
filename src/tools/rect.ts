@@ -10,16 +10,13 @@ export const useRect = defineTool(
   () => {
     const frames = useFrames()
     const editor = useEditor()
-    const frame = toRef(frames.activeFrame)
 
     let item: Rect | undefined
     let isDragging = false
     let startPoint = { x: 0, y: 0 }
 
     const onMouseDown = (point: Point) => {
-      if (!frame.value) return
-
-      item = frames.addItem(frame.value.id, {
+      item = frames.addItem({
         type: 'rect',
         position: point,
         size: { width: 0, height: 0 },

@@ -2,6 +2,7 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useCircle } from '~/tools/circle'
 import { useDraw } from '~/tools/draw'
+import { useLine } from '~/tools/line'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
 import type { Bounds } from '~/types'
@@ -11,7 +12,8 @@ export const useEditor = defineStore('editor', () => {
   const select = useSelect()
   const rect = useRect()
   const circle = useCircle()
-  const tools = { draw, select, rect, circle }
+  const line = useLine()
+  const tools = { draw, select, rect, circle, line }
   type ToolId = keyof typeof tools
 
   const activeToolId = ref<ToolId>('select')

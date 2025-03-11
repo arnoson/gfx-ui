@@ -1,54 +1,53 @@
 <script setup lang="ts">
 import { useWindowSize } from '@vueuse/core'
-import BitmapProperties from './components/BitmapProperties.vue'
-import FrameEditor from './components/FrameEditor.vue'
-import LayersTree from './components/LayersTree.vue'
-import ToolBar from './components/ToolBar.vue'
-import { useFrames } from './stores/frames'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
-import ItemProperties from './components/ItemProperties.vue'
+import FrameEditor from './components/FrameEditor.vue'
 import FrameProperties from './components/FrameProperties.vue'
+import ItemProperties from './components/ItemProperties.vue'
+import LayersTree from './components/LayersTree.vue'
 import SelectionProperties from './components/SelectionProperties.vue'
-import { useFonts } from './stores/fonts'
+import ToolBar from './components/ToolBar.vue'
 import miwos7pt from './fonts/miwos7pt.h?raw'
+import { useFonts } from './stores/fonts'
+import { useFrames } from './stores/frames'
 
 const frames = useFrames()
 const fonts = useFonts()
-const frameId = frames.addFrame()
-frames.activateFrame(frameId)
+const frame = frames.addFrame()
+frames.activateFrame(frame.id)
 
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
 const sidebarMinSize = computed(() => (175 / width.value) * 100)
 
-// frames.addItem(frameId, {
-//   type: 'line',
-//   from: { x: 0, y: 0 },
-//   to: { x: 10, y: 10 },
-//   color: 15,
-// })
+frames.addItem({
+  type: 'line',
+  from: { x: 0, y: 0 },
+  to: { x: 10, y: 10 },
+  color: 15,
+})
 
-// frames.addItem(frameId, {
-//   type: 'rect',
-//   position: { x: 10, y: 10 },
-//   size: { width: 20, height: 8 },
-//   color: 15,
-//   isFilled: true,
-//   radius: 0,
-// })
+frames.addItem({
+  type: 'rect',
+  position: { x: 10, y: 10 },
+  size: { width: 20, height: 8 },
+  color: 15,
+  isFilled: true,
+  radius: 0,
+})
 
-// frames.addItem(frameId, {
-//   type: 'circle',
-//   center: { x: 30, y: 30 },
-//   radius: 5,
-//   color: 15,
-//   isFilled: false,
-// })
+frames.addItem({
+  type: 'circle',
+  center: { x: 30, y: 30 },
+  radius: 5,
+  color: 15,
+  isFilled: false,
+})
 
 fonts.add(miwos7pt)
 
-frames.addItem(frameId, {
+frames.addItem({
   type: 'text',
   content: 'Hello\nArggggh!',
   color: 15,

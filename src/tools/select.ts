@@ -30,16 +30,6 @@ export const useSelect = defineTool(
     const select = (point: Point) => {
       if (!frames.activeFrame) return
 
-      // const left = Math.min(startPoint.x, point.x)
-      // const right = Math.max(startPoint.x, point.x)
-      // const top = Math.min(startPoint.y, point.y)
-      // const bottom = Math.max(startPoint.y, point.y)
-
-      // frames.selectionBounds = getRectBounds({
-      //   position: { x: left, y: top },
-      //   size: { width: right - left, height: bottom - top },
-      // })
-
       frames.selectionBounds = getLineBounds({ from: startPoint, to: point })
 
       for (const { bounds, id } of frames.activeFrame.children) {
@@ -114,7 +104,27 @@ export const useSelect = defineTool(
       else if (mode === 'move') endMove()
     }
 
-    return { onMouseDown, onMouseMove, onMouseUp }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Delete') {
+        if (e.target !== document.body) return
+
+        if (frames.focusedItem) {
+          frames.removeItem(frames.focusedItem.id)
+          frames.blur()
+        }
+
+        for (const id of frames.selectedItemIds) frames.removeItem(id)
+        frames.selectedItemIds.clear()
+        return
+      }
+
+      if (e.key === 'Escape') {
+        frames.selectedItemIds.clear()
+        return
+      }
+    }
+
+    return { onMouseDown, onMouseMove, onMouseUp, onKeyDown }
   },
   { pointRounding: 'floor' },
 )

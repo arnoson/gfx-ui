@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  onKeyDown,
   useElementBounding,
   useEventListener,
   useMagicKeys,
@@ -150,8 +151,22 @@ useEventListener('mouseup', () => (isPanning.value = false))
 
 useEventListener('keydown', (e) => {
   const target = e.target as HTMLElement
-  if (e.code === 'Space' && target === document.scrollingElement)
+
+  if (e.code === 'Space' && target === document.scrollingElement) {
     e.preventDefault()
+  }
+
+  if (target === document.body && !e.ctrlKey && !e.metaKey) {
+    if (e.key === 'v') editor.activateTool('select')
+    else if (e.key === 'l') editor.activateTool('line')
+    else if (e.key === 'r') editor.activateTool('rect')
+    else if (e.key === 'o') editor.activateTool('rect')
+    else if (e.key === 'p') editor.activateTool('draw')
+    else if (e.key === 'Escape') {
+      editor.activateTool('select')
+      frames.blur()
+    }
+  }
 })
 </script>
 
