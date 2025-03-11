@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import { computed, toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import { getCircleBounds, type Circle } from '~/items/circle'
-import { useFrames } from '~/stores/frames'
+import circle, { type Circle } from '~/items/circle'
+import { useEditor } from '~/stores/editor'
 import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ item: Circle }>()
-const frames = useFrames()
-
-const focus = () => frames.focusItem(props.item.id)
-const isFocused = computed(() => frames.focusedItemId === props.item.id)
+const editor = useEditor()
 
 const { bounds } = toRefs(props.item)
-const updateBounds = () => (props.item.bounds = getCircleBounds(props.item))
+const updateBounds = () => (props.item.bounds = circle.getBounds(props.item))
 
 const topLeftHandle = useTemplateRef('topLeftHandle')
 useSvgDraggable(topLeftHandle, {
@@ -97,9 +94,9 @@ useSvgDraggable(rectHandle, {
       :cy="bounds.top + bounds.height / 2 + 0.5"
       :r="bounds.width / 2"
       :fill="item.isFilled ? 'transparent' : 'none'"
-      @mousedown="focus()"
+      @mousedown="editor.focusedItem = item"
     />
-    <template v-if="isFocused">
+    <template v-if="editor.focusedItem === item">
       <circle
         ref="topLeftHandle"
         :cx="bounds.topLeft.x"

@@ -36,7 +36,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import type { Bounds, Color, Point } from '~/types'
 import { drawPixel } from '~/utils/pixels'
-import { drawLine, drawVerticalLine } from './line'
+import { drawVerticalLine } from './line'
 import { makeBounds } from '~/utils/bounds'
 
 export interface Circle {
@@ -93,9 +93,7 @@ const fillCircle = (
   { center, radius: r, color }: Omit<Circle, 'type' | 'id'>,
 ) => {
   const { x: x0, y: y0 } = center
-  const from = { x: x0, y: y0 - r }
-  const to = { x: from.x, y: from.y + 2 * r }
-  drawLine(ctx, { from, to, color })
+  drawVerticalLine(ctx, x0, y0 - r, 2 * r, color)
   fillCircleHelper(ctx, x0, y0, r, 3, 0, color)
 }
 
@@ -186,7 +184,7 @@ export const drawCircleHelper = (
   }
 }
 
-export const drawCircle = (
+const draw = (
   ctx: CanvasRenderingContext2D,
   circle: Omit<Circle, 'type' | 'id'>,
 ) => {
@@ -194,20 +192,17 @@ export const drawCircle = (
   else strokeCircle(ctx, circle)
 }
 
-export const translateCircle = (circle: Circle, delta: Point) => {
+const translate = (circle: Circle, delta: Point) => {
   circle.center.x += delta.x
   circle.center.y += delta.y
 }
 
-export const moveCircle = (circle: Circle, position: Point) => {
+const move = (circle: Circle, position: Point) => {
   circle.center.x = position.x + circle.radius
   circle.center.y = position.y + circle.radius
 }
 
-export const getCircleBounds = (circle: {
-  radius: number
-  center: Point
-}): Bounds => {
+const getBounds = (circle: Omit<Circle, 'id' | 'bounds'>): Bounds => {
   const { center, radius } = circle
   const position = {
     x: center.x - radius,
@@ -216,3 +211,5 @@ export const getCircleBounds = (circle: {
   const size = { width: radius * 2 + 1, height: radius * 2 + 1 }
   return makeBounds(position, size)
 }
+
+export default { draw, translate, move, getBounds }

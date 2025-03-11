@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import type { Frame } from './stores/frames'
+import type { Frame, Item } from './stores/frames'
 
 export type Point = {
   x: number
@@ -50,4 +50,11 @@ export interface Tool {
   onKeyDown?: (e: KeyboardEvent) => unknown
   activate?: () => void
   deactivate?: () => void
+}
+
+export interface ItemActions {
+  draw: (ctx: CanvasRenderingContext2D, item: Item) => void
+  translate: (item: Item, delta: Point) => void
+  move: (item: Item, position: Point) => void
+  getBounds: (item: Item) => Bounds
 }

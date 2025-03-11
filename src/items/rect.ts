@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import type { Bounds, Color, Point, Size } from '~/types'
 import { pixelColors } from '~/utils/pixels'
 import { drawCircleHelper, fillCircleHelper } from './circle'
-import { drawHorizontalLine, drawLine, drawVerticalLine } from './line'
+import { drawHorizontalLine, drawVerticalLine } from './line'
 import { makeBounds } from '~/utils/bounds'
 
 export interface Rect {
@@ -51,33 +51,24 @@ export interface Rect {
   isFilled: boolean
 }
 
-export const drawRect = (ctx: CanvasRenderingContext2D, rect: Rect) => {
-  if (rect.radius) drawRoundRect(ctx, rect)
-  else drawNormalRect(ctx, rect)
-}
-
 const drawNormalRect = (
   ctx: CanvasRenderingContext2D,
   { position, size, color, isFilled }: Omit<Rect, 'type' | 'id' | 'bounds'>,
 ) => {
+  const { width, height } = size
   const left = position.x
   const top = position.y
-  const right = position.x + size.width - 1
-  const bottom = position.y + size.height - 1
-
-  const topLeft = position
-  const topRight = { x: right, y: top }
-  const bottomLeft = { x: left, y: bottom }
-  const bottomRight = { x: right, y: bottom }
+  const right = left + width - 1
+  const bottom = top + height - 1
 
   if (isFilled) {
     ctx.fillStyle = pixelColors[color]
-    ctx.fillRect(left, top, size.width, size.height)
+    ctx.fillRect(left, top, width, height)
   } else {
-    drawLine(ctx, { from: topLeft, to: topRight, color })
-    drawLine(ctx, { from: bottomLeft, to: bottomRight, color })
-    drawLine(ctx, { from: topLeft, to: bottomLeft, color })
-    drawLine(ctx, { from: topRight, to: bottomRight, color })
+    drawHorizontalLine(ctx, left, top, width, color) // top
+    drawHorizontalLine(ctx, left, bottom, width, color) // bottom
+    drawHorizontalLine(ctx, left, top, height, color) // left
+    drawHorizontalLine(ctx, right, top, height, color) // right
   }
 }
 
@@ -115,14 +106,21 @@ const drawRoundRect = (
   }
 }
 
-export const translateRect = (rect: Rect, delta: Point) => {
+const draw = (ctx: CanvasRenderingContext2D, rect: Rect) => {
+  if (rect.radius) drawRoundRect(ctx, rect)
+  else drawNormalRect(ctx, rect)
+}
+
+const translate = (rect: Rect, delta: Point) => {
   rect.position.x += delta.x
   rect.position.y += delta.y
 }
 
-export const moveRect = (rect: Rect, position: Point) => {
+const move = (rect: Rect, position: Point) => {
   rect.position = position
 }
 
-export const getRectBounds = (rect: Omit<Rect, 'id' | 'bounds'>) =>
+const getBounds = (rect: Omit<Rect, 'id' | 'bounds'>) =>
   makeBounds(rect.position, rect.size)
+
+export default { draw, translate, move, getBounds }

@@ -1,16 +1,17 @@
-import { computed, toRef } from 'vue'
+import { type Bitmap } from '~/items/bitmap'
+import { getItemBounds } from '~/items/item'
 import { getLinePixels } from '~/items/line'
-import { useFrames } from '~/stores/frames'
+
+import { useEditor } from '~/stores/editor'
 import type { Point, ToolConfig } from '~/types'
 import { defineTool } from './tool'
-import { getBitmapBounds, type Bitmap } from '~/items/bitmap'
 
 const config: ToolConfig = { pointRounding: 'floor' }
 
 export const useDraw = defineTool(
   'draw',
   () => {
-    const frames = useFrames()
+    const editor = useEditor()
 
     let isDrawing = false
     let item: Bitmap | undefined
@@ -27,7 +28,7 @@ export const useDraw = defineTool(
 
       const pixels = getLinePixels(lastPoint!, point)
       for (const pixel of pixels) item.pixels.add(pixel)
-      item.bounds = getBitmapBounds(item)
+      item.bounds = getItemBounds(item)
 
       lastPoint = point
     }
@@ -37,13 +38,13 @@ export const useDraw = defineTool(
     const activate = () => {
       if (item) return
 
-      item = frames.addItem({
+      item = editor.addItem({
         type: 'bitmap',
         pixels: new Set(),
         color: 15,
       })
 
-      if (item) frames.focusItem(item.id)
+      if (item) editor.focusedItem = item
     }
 
     return { onMouseDown, onMouseMove, onMouseUp, activate }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Item } from '~/stores/frames'
+import type { Item } from '~/items/item'
 import BitmapControls from './BitmapControls.vue'
 import CircleControls from './CircleControls.vue'
 import LineControls from './LineControls.vue'

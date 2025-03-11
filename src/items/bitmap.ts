@@ -10,17 +10,14 @@ export interface Bitmap {
   color: Color
 }
 
-export const drawBitmap = (
-  ctx: CanvasRenderingContext2D,
-  { pixels, color }: Omit<Bitmap, 'type' | 'id' | 'bounds'>,
-) => {
+const draw = (ctx: CanvasRenderingContext2D, { pixels, color }: Bitmap) => {
   for (const pixel of pixels) {
     const { x, y } = unpackPixel(pixel)
     drawPixel(ctx, x, y, color)
   }
 }
 
-export const translateBitmap = (bitmap: Bitmap, delta: Point) => {
+const translate = (bitmap: Bitmap, delta: Point) => {
   const translatedPixels: Pixels = new Set()
   for (const pixel of bitmap.pixels) {
     const { x, y } = unpackPixel(pixel)
@@ -29,15 +26,15 @@ export const translateBitmap = (bitmap: Bitmap, delta: Point) => {
   bitmap.pixels = translatedPixels
 }
 
-export const moveBitmap = (bitmap: Bitmap, position: Point) => {
+const move = (bitmap: Bitmap, position: Point) => {
   const delta = {
     x: position.x - bitmap.bounds.left,
     y: position.y - bitmap.bounds.top,
   }
-  translateBitmap(bitmap, delta)
+  translate(bitmap, delta)
 }
 
-export const getBitmapBounds = (bitmap: { pixels: Pixels }): Bounds => {
+const getBounds = (bitmap: Omit<Bitmap, 'id' | 'bounds'>): Bounds => {
   if (!bitmap.pixels.size) return emptyBounds
 
   let top = Infinity
@@ -59,3 +56,5 @@ export const getBitmapBounds = (bitmap: { pixels: Pixels }): Bounds => {
   const size = { width: right - left + 1, height: bottom - top + 1 }
   return makeBounds(position, size)
 }
+
+export default { draw, translate, move, getBounds }

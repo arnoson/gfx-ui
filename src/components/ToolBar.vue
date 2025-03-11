@@ -13,31 +13,31 @@ const editor = useEditor()
   <menu class="tool-bar">
     <button
       @click="editor.activateTool('select')"
-      :data-active="editor.activeToolId === 'select'"
+      :data-active="editor.activeTool.id === 'select'"
     >
       <SelectIcon />
     </button>
     <button
       @click="editor.activateTool('line')"
-      :data-active="editor.activeToolId === 'line'"
+      :data-active="editor.activeTool.id === 'line'"
     >
       <LineIcon />
     </button>
     <button
       @click="editor.activateTool('rect')"
-      :data-active="editor.activeToolId === 'rect'"
+      :data-active="editor.activeTool.id === 'rect'"
     >
       <RectIcon />
     </button>
     <button
       @click="editor.activateTool('circle')"
-      :data-active="editor.activeToolId === 'circle'"
+      :data-active="editor.activeTool.id === 'circle'"
     >
       <CircleIcon />
     </button>
     <button
       @click="editor.activateTool('draw')"
-      :data-active="editor.activeToolId === 'draw'"
+      :data-active="editor.activeTool.id === 'draw'"
     >
       <DrawIcon />
     </button>

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { type Item } from '~/stores/frames'
 import BitmapProperties from './BitmapProperties.vue'
 import CircleProperties from './CircleProperties.vue'
 import RectProperties from './RectProperties.vue'
 import LineProperties from './LineProperties.vue'
 import TextProperties from './TextProperties.vue'
+import type { Item } from '~/items/item'
 
 defineProps<{ item: Item }>()
 </script>

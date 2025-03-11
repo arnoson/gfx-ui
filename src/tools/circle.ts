@@ -1,14 +1,12 @@
-import { toRef } from 'vue'
+import { type Circle } from '~/items/circle'
+import { getItemBounds } from '~/items/item'
 import { useEditor } from '~/stores/editor'
-import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
-import { getCircleBounds, type Circle } from '~/items/circle'
 
 export const useCircle = defineTool(
   'circle',
   () => {
-    const frames = useFrames()
     const editor = useEditor()
 
     let item: Circle | undefined
@@ -16,7 +14,7 @@ export const useCircle = defineTool(
     let startPoint = { x: 0, y: 0 }
 
     const onMouseDown = ({ x, y }: Point) => {
-      item = frames.addItem({
+      item = editor.addItem({
         type: 'circle',
         center: { x, y },
         radius: 0,
@@ -25,7 +23,7 @@ export const useCircle = defineTool(
       })
       if (!item) return
 
-      frames.focusItem(item.id)
+      editor.focusedItem = item
       startPoint = { x, y }
       isDragging = true
     }
@@ -37,12 +35,12 @@ export const useCircle = defineTool(
       const distanceX = point.x - startPoint.x
       const distanceY = point.y - startPoint.y
       item.radius = Math.round(Math.hypot(distanceX, distanceY))
-      item.bounds = getCircleBounds(item)
+      item.bounds = getItemBounds(item)
     }
 
     const onMouseUp = () => {
       isDragging = false
-      editor.activeToolId = 'select'
+      editor.activateTool('select')
     }
 
     return { onMouseDown, onMouseMove, onMouseUp }

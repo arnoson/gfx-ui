@@ -1,13 +1,12 @@
-import { getLineBounds, type Line } from '~/items/line'
+import { getItemBounds } from '~/items/item'
+import { type Line } from '~/items/line'
 import { useEditor } from '~/stores/editor'
-import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
 
 export const useLine = defineTool(
   'line',
   () => {
-    const frames = useFrames()
     const editor = useEditor()
 
     let item: Line | undefined
@@ -15,7 +14,7 @@ export const useLine = defineTool(
     let startPoint = { x: 0, y: 0 }
 
     const onMouseDown = ({ x, y }: Point) => {
-      item = frames.addItem({
+      item = editor.addItem({
         type: 'line',
         from: { x, y },
         to: { x, y },
@@ -23,7 +22,7 @@ export const useLine = defineTool(
       })
       if (!item) return
 
-      frames.focusItem(item.id)
+      editor.focusedItem = item
       startPoint = { x, y }
       isDragging = true
     }
@@ -33,12 +32,12 @@ export const useLine = defineTool(
       if (!item) return
 
       item.to = { x, y }
-      item.bounds = getLineBounds(item)
+      item.bounds = getItemBounds(item)
     }
 
     const onMouseUp = () => {
       isDragging = false
-      editor.activeToolId = 'select'
+      editor.activateTool('select')
     }
 
     return { onMouseDown, onMouseMove, onMouseUp }

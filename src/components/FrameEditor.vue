@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  onKeyDown,
   useElementBounding,
   useEventListener,
   useMagicKeys,
@@ -15,40 +14,28 @@ import {
   watch,
   watchEffect,
 } from 'vue'
-import { drawBitmap } from '~/items/bitmap'
-import { drawCircle } from '~/items/circle'
-import { drawLine } from '~/items/line'
-import { drawRect } from '~/items/rect'
-import { drawText } from '~/items/text'
-import { useEditor } from '~/stores/editor'
-import { useFrames, type Frame } from '~/stores/frames'
+import { useEditor, type Frame } from '~/stores/editor'
 import { mouseToSvg } from '~/utils/mouse'
 import ItemControls from './ItemControls.vue'
+import { drawItem } from '~/items/item'
 
 const props = defineProps<{ frame: Frame }>()
 const { size, children: items, scale } = toRefs(props.frame)
 const canvas = useTemplateRef('canvas')
 
 const editor = useEditor()
-const frames = useFrames()
 
 let ctx = ref<CanvasRenderingContext2D | null>()
 onMounted(() => (ctx.value = canvas.value?.getContext('2d') ?? null))
 
 const blur = () => {
-  if (editor.activeToolId === 'select') frames.blur()
+  if (editor.activeTool.id === 'select') frames.blur()
 }
 
 const render = () => {
   if (!ctx.value) return
   ctx.value.clearRect(0, 0, size.value.width, size.value.height)
-  for (const item of items.value) {
-    if (item.type === 'line') drawLine(ctx.value, item)
-    else if (item.type === 'rect') drawRect(ctx.value, item)
-    else if (item.type === 'circle') drawCircle(ctx.value, item)
-    else if (item.type === 'bitmap') drawBitmap(ctx.value, item)
-    else if (item.type === 'text') drawText(ctx.value, item)
-  }
+  for (const item of items.value) drawItem(ctx.value, item)
 }
 watchEffect(render)
 watch(size, async () => {
@@ -176,7 +163,7 @@ useEventListener('keydown', (e) => {
       <svg :viewBox="`0 0 ${size.width} ${size.height}`" class="overflow">
         <!-- Bounds for items outside of frame -->
         <rect
-          v-for="item of frames.activeFrame?.children"
+          v-for="item of frame.children"
           :key="item.id"
           class="bounds"
           :x="item.bounds.left"
@@ -231,7 +218,7 @@ useEventListener('keydown', (e) => {
         <!-- Bounds -->
         <g>
           <rect
-            v-for="item of frames.selectedItems"
+            v-for="item of editor.selectedItems"
             :key="item.id"
             class="bounds"
             :x="item.bounds.left"
@@ -240,37 +227,37 @@ useEventListener('keydown', (e) => {
             :height="item.bounds.height"
           />
           <rect
-            v-if="frames.focusedItem"
-            :key="frames.focusedItem.id"
+            v-if="editor.focusedItem"
+            :key="editor.focusedItem.id"
             class="bounds"
-            :x="frames.focusedItem.bounds.left"
-            :y="frames.focusedItem.bounds.top"
-            :width="frames.focusedItem.bounds.width"
-            :height="frames.focusedItem.bounds.height"
+            :x="editor.focusedItem.bounds.left"
+            :y="editor.focusedItem.bounds.top"
+            :width="editor.focusedItem.bounds.width"
+            :height="editor.focusedItem.bounds.height"
           />
         </g>
 
         <!-- Controls -->
-        <g v-if="editor.activeToolId === 'select' && !frames.selectedItems">
+        <g v-if="editor.activeTool.id === 'select' && !editor.selectedItems">
           <ItemControls v-for="item of items" :key="item.id" :item="item" />
         </g>
 
         <!-- Selection rect -->
         <rect
-          v-if="frames.isSelecting && frames.selectionBounds"
+          v-if="editor.isSelecting && editor.selectionBounds"
           class="selection"
-          :x="frames.selectionBounds.left"
-          :y="frames.selectionBounds.top"
-          :width="frames.selectionBounds.width"
-          :height="frames.selectionBounds.height"
+          :x="editor.selectionBounds.left"
+          :y="editor.selectionBounds.top"
+          :width="editor.selectionBounds.width"
+          :height="editor.selectionBounds.height"
         />
         <rect
-          v-if="frames.selectedItemBounds"
+          v-if="editor.selectedItemBounds"
           class="bounds"
-          :x="frames.selectedItemBounds.left"
-          :y="frames.selectedItemBounds.top"
-          :width="frames.selectedItemBounds.width"
-          :height="frames.selectedItemBounds.height"
+          :x="editor.selectedItemBounds.left"
+          :y="editor.selectedItemBounds.top"
+          :width="editor.selectedItemBounds.width"
+          :height="editor.selectedItemBounds.height"
         />
       </svg>
     </div>

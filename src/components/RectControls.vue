@@ -1,19 +1,17 @@
 <script setup lang="ts">
-import { computed, toRefs, useTemplateRef } from 'vue'
+import { toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import { getRectBounds, type Rect } from '~/items/rect'
-import { useFrames } from '~/stores/frames'
+import { getItemBounds } from '~/items/item'
+import { type Rect } from '~/items/rect'
+import { useEditor } from '~/stores/editor'
 import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ item: Rect }>()
 
-const frames = useFrames()
-
-const focus = () => frames.focusItem(props.item.id)
-const isFocused = computed(() => frames.focusedItemId === props.item.id)
+const editor = useEditor()
 
 const { bounds } = toRefs(props.item)
-const updateBounds = () => (props.item.bounds = getRectBounds(props.item))
+const updateBounds = () => (props.item.bounds = getItemBounds(props.item))
 
 const topLeftHandle = useTemplateRef('topLeftHandle')
 useSvgDraggable(topLeftHandle, {
@@ -102,9 +100,9 @@ useSvgDraggable(rectHandle, {
       :width="item.bounds.width"
       :height="item.bounds.height"
       :fill="item.isFilled ? 'transparent' : 'none'"
-      @mousedown="focus()"
+      @mousedown="editor.focusedItem = item"
     />
-    <template v-if="isFocused">
+    <template v-if="editor.focusedItem === item">
       <circle
         ref="topLeftHandle"
         :cx="item.bounds.topLeft.x"

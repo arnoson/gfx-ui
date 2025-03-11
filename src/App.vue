@@ -9,26 +9,26 @@ import LayersTree from './components/LayersTree.vue'
 import SelectionProperties from './components/SelectionProperties.vue'
 import ToolBar from './components/ToolBar.vue'
 import miwos7pt from './fonts/miwos7pt.h?raw'
+import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
-import { useFrames } from './stores/frames'
 
-const frames = useFrames()
+const editor = useEditor()
 const fonts = useFonts()
-const frame = frames.addFrame()
-frames.activateFrame(frame.id)
+const frame = editor.addFrame({})
+editor.activateFrame(frame.id)
 
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
 const sidebarMinSize = computed(() => (175 / width.value) * 100)
 
-frames.addItem({
+editor.addItem({
   type: 'line',
   from: { x: 0, y: 0 },
   to: { x: 10, y: 10 },
   color: 15,
 })
 
-frames.addItem({
+editor.addItem({
   type: 'rect',
   position: { x: 10, y: 10 },
   size: { width: 20, height: 8 },
@@ -37,7 +37,7 @@ frames.addItem({
   radius: 0,
 })
 
-frames.addItem({
+editor.addItem({
   type: 'circle',
   center: { x: 30, y: 30 },
   radius: 5,
@@ -47,7 +47,7 @@ frames.addItem({
 
 fonts.add(miwos7pt)
 
-frames.addItem({
+editor.addItem({
   type: 'text',
   content: 'Hello\nArggggh!',
   color: 15,
@@ -67,7 +67,7 @@ frames.addItem({
     </SplitterPanel>
     <SplitterResizeHandle />
     <SplitterPanel class="editor-panel">
-      <FrameEditor v-if="frames.activeFrame" :frame="frames.activeFrame" />
+      <FrameEditor v-if="editor.activeFrame" :frame="editor.activeFrame" />
       <ToolBar />
     </SplitterPanel>
     <SplitterResizeHandle />
@@ -76,14 +76,14 @@ frames.addItem({
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      <ItemProperties v-if="frames.focusedItem" :item="frames.focusedItem" />
+      <ItemProperties v-if="editor.focusedItem" :item="editor.focusedItem" />
       <SelectionProperties
-        v-else-if="frames.selectedItems"
-        :items="frames.selectedItems"
+        v-else-if="editor.selectedItems"
+        :items="editor.selectedItems"
       />
       <FrameProperties
-        v-else-if="frames.activeFrame"
-        :frame="frames.activeFrame"
+        v-else-if="editor.activeFrame"
+        :frame="editor.activeFrame"
       />
     </SplitterPanel>
   </SplitterGroup>

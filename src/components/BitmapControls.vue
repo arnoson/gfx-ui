@@ -2,16 +2,14 @@
 import { toRefs, useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
 import { type Bitmap } from '~/items/bitmap'
-import { useFrames } from '~/stores/frames'
+import { useEditor } from '~/stores/editor'
 import type { Pixels } from '~/types'
 import { getMovedBounds } from '~/utils/bounds'
 import { packPixel, unpackPixel } from '~/utils/pixels'
 
 const props = defineProps<{ item: Bitmap }>()
 const { bounds } = toRefs(props.item)
-const frames = useFrames()
-
-const focus = () => frames.focusItem(props.item.id)
+const editor = useEditor()
 
 const bitmapHandle = useTemplateRef('bitmapHandle')
 useSvgDraggable(bitmapHandle, {
@@ -39,7 +37,7 @@ useSvgDraggable(bitmapHandle, {
       :y="bounds.topLeft.y"
       :width="bounds.width"
       :height="bounds.height"
-      @mousedown="focus"
+      @mousedown="editor.focusedItem = item"
     />
   </g>
 </template>

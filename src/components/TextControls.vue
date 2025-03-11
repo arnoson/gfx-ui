@@ -2,13 +2,11 @@
 import { useTemplateRef } from 'vue'
 import { useSvgDraggable } from '~/composables/useSvgDraggable'
 import type { Text } from '~/items/text'
-import { useFrames } from '~/stores/frames'
+import { useEditor } from '~/stores/editor'
 import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ item: Text }>()
-
-const frames = useFrames()
-const focus = () => frames.focusItem(props.item.id)
+const editor = useEditor()
 
 const rectHandle = useTemplateRef('textHandle')
 useSvgDraggable(rectHandle, {
@@ -27,7 +25,7 @@ useSvgDraggable(rectHandle, {
     :y="item.bounds.top"
     :width="item.bounds.width"
     :height="item.bounds.height"
-    @mousedown="focus()"
+    @mousedown="editor.focusedItem = item"
   />
 </template>
 

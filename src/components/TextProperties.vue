@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { getTextBounds, type Text } from '~/items/text'
+import { type Text } from '~/items/text'
 import ColorField from './ColorField.vue'
+import { getItemBounds } from '~/items/item'
 
 const props = defineProps<{ item: Text }>()
 
 const updateContent = (e: Event) => {
   const value = (e.target as HTMLTextAreaElement).value
   props.item.content = value
-  props.item.bounds = getTextBounds(props.item)
+  props.item.bounds = getItemBounds(props.item)
 }
 </script>
 

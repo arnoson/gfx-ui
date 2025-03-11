@@ -1,13 +1,29 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { getItemBounds, type Item, type ItemData } from '~/items/item'
 import { useCircle } from '~/tools/circle'
 import { useDraw } from '~/tools/draw'
 import { useLine } from '~/tools/line'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
-import type { Bounds } from '~/types'
+import type { Bounds, Size } from '~/types'
+import { makeBounds } from '~/utils/bounds'
+
+type Id = number
+
+export interface Frame {
+  id: Id
+  name: string
+  scale: number
+  size: Size
+  children: Item[]
+}
+
+let id = 0
+const createId = () => id++
 
 export const useEditor = defineStore('editor', () => {
+  // Tools
   const draw = useDraw()
   const select = useSelect()
   const rect = useRect()
@@ -25,13 +41,102 @@ export const useEditor = defineStore('editor', () => {
     tools[id].activate?.()
   }
 
-  // Init
   activateTool(activeToolId.value)
+
+  // Frames
+  const frames = ref(new Map<Id, Frame>())
+  const activeFrame = ref<Frame>()
+
+  const addFrame = (data: Partial<Frame>): Frame => {
+    const id = createId()
+    frames.value.set(id, {
+      id,
+      name: `Frame${id}`,
+      size: { width: 128, height: 64 },
+      scale: 5,
+      children: [],
+      ...data,
+    })
+    return frames.value.get(id)!
+  }
+
+  const removeFrame = (id: Id) => frames.value.delete(id)
+  const activateFrame = (id: Id) => (activeFrame.value = frames.value.get(id))
+
+  // Items
+  const focusedItem = ref<Item | null>(null)
+
+  const addItem = <T extends ItemData>(data: T) => {
+    if (!activeFrame.value) return
+
+    const id = createId()
+    const bounds = getItemBounds(data)
+    if (!bounds) return
+
+    const item = { ...data, bounds, id }
+    const length = activeFrame.value.children.push(item)
+    // Pushing the item makes it reactive, so in order return the reactive item
+    // we have to retrieve it from children.
+    return activeFrame.value.children[length - 1] as unknown as typeof item
+  }
+
+  const removeItem = (itemId: Id) => {
+    if (!activeFrame.value) return
+
+    const index = activeFrame.value.children.findIndex((v) => v.id === itemId)
+    activeFrame.value.children.splice(index, 1)
+  }
+
+  // Selection
+  const selectionBounds = ref<Bounds | null>(null)
+  const isSelecting = ref(false)
+  const selectedItemIds = ref(new Set<Id>())
+
+  const selectedItems = computed(() => {
+    if (!activeFrame.value) return null
+
+    const items: Item[] = []
+    for (const id of selectedItemIds.value) {
+      const item = activeFrame.value.children.find((v) => v.id === id)
+      if (item) items.push(item)
+    }
+
+    return items.length ? items : null
+  })
+  const selectedItemBounds = computed(() => {
+    if (!selectedItems.value) return null
+    let left = Infinity
+    let right = -Infinity
+    let top = Infinity
+    let bottom = -Infinity
+    for (const { bounds } of selectedItems.value) {
+      if (bounds.left < left) left = bounds.left
+      if (bounds.right > right) right = bounds.right
+      if (bounds.top < top) top = bounds.top
+      if (bounds.bottom > bottom) bottom = bounds.bottom
+    }
+    return makeBounds(
+      { x: left, y: top },
+      { width: right - left + 1, height: bottom - top + 1 },
+    )
+  })
 
   return {
     activeTool,
-    activeToolId,
     activateTool,
+    frames,
+    activeFrame,
+    addFrame,
+    removeFrame,
+    activateFrame,
+    focusedItem,
+    addItem,
+    removeItem,
+    selectionBounds,
+    selectedItems,
+    selectedItemIds,
+    selectedItemBounds,
+    isSelecting,
   }
 })
 

@@ -1,14 +1,12 @@
-import { toRef } from 'vue'
-import { getRectBounds, type Rect } from '~/items/rect'
+import { getItemBounds } from '~/items/item'
+import { type Rect } from '~/items/rect'
 import { useEditor } from '~/stores/editor'
-import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
 
 export const useRect = defineTool(
   'rect',
   () => {
-    const frames = useFrames()
     const editor = useEditor()
 
     let item: Rect | undefined
@@ -16,7 +14,7 @@ export const useRect = defineTool(
     let startPoint = { x: 0, y: 0 }
 
     const onMouseDown = (point: Point) => {
-      item = frames.addItem({
+      item = editor.addItem({
         type: 'rect',
         position: point,
         size: { width: 0, height: 0 },
@@ -26,7 +24,7 @@ export const useRect = defineTool(
       })
       if (!item) return
 
-      frames.focusItem(item.id)
+      editor.focusedItem = item
       startPoint = point
       isDragging = true
     }
@@ -41,12 +39,12 @@ export const useRect = defineTool(
       const bottom = Math.max(startPoint.y, point.y)
       item.position = { x: left, y: top }
       item.size = { width: right - left, height: bottom - top }
-      item.bounds = getRectBounds(item)
+      item.bounds = getItemBounds(item)
     }
 
     const onMouseUp = () => {
       isDragging = false
-      editor.activeToolId = 'select'
+      editor.activateTool('select')
     }
 
     return { onMouseDown, onMouseMove, onMouseUp }

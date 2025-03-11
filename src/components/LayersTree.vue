@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import { useFrames } from '~/stores/frames'
+import { useEditor } from '~/stores/editor'
 
-const frames = useFrames()
+const editor = useEditor()
 
 const list = computed(() => {
-  if (!frames.activeFrame) return []
-  return Array.from(frames.activeFrame?.children.values())
+  if (!editor.activeFrame) return []
+  return Array.from(editor.activeFrame?.children.values())
 })
 
 const onUpdate = console.log
@@ -15,9 +15,9 @@ const onUpdate = console.log
 
 <template>
   <VueDraggable
-    v-if="frames.activeFrame"
+    v-if="editor.activeFrame"
     class="flow"
-    v-model="frames.activeFrame.children"
+    v-model="editor.activeFrame.children"
     @update="onUpdate"
   >
     <div
@@ -25,9 +25,9 @@ const onUpdate = console.log
       :key="item.id"
       class="layer"
       :data-highlight="
-        item.id === frames.focusedItemId || frames.selectedItemIds.has(item.id)
+        item === editor.focusedItem || editor.selectedItemIds.has(item.id)
       "
-      @click="frames.focusItem(item.id)"
+      @click="editor.focusedItem = item"
     >
       {{ item.type }}@{{ item.id }}
     </div>

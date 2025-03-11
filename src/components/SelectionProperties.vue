@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getItemBounds, moveItem } from '~/items/item'
-import { useFrames } from '~/stores/frames'
 import GapField from './GapField.vue'
+import { useEditor } from '~/stores/editor'
 
-const frames = useFrames()
+const editor = useEditor()
 
 const alignLeft = () => {
-  if (!frames.selectedItemBounds) return
-  const { left } = frames.selectedItemBounds
-  for (const item of frames.selectedItems ?? []) {
+  if (!editor.selectedItemBounds) return
+  const { left } = editor.selectedItemBounds
+  for (const item of editor.selectedItems ?? []) {
     moveItem(item, { x: left, y: item.bounds.y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
 
 const alignCenter = () => {
-  if (!frames.selectedItemBounds) return
-  const { left, right } = frames.selectedItemBounds
+  if (!editor.selectedItemBounds) return
+  const { left, right } = editor.selectedItemBounds
   let center = left + Math.round((right - left) / 2)
-  for (const item of frames.selectedItems ?? []) {
+  for (const item of editor.selectedItems ?? []) {
     const x = Math.round(center - item.bounds.width / 2)
     moveItem(item, { x, y: item.bounds.y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
@@ -27,9 +27,9 @@ const alignCenter = () => {
 }
 
 const alignRight = () => {
-  if (!frames.selectedItemBounds) return
-  const { right } = frames.selectedItemBounds
-  for (const item of frames.selectedItems ?? []) {
+  if (!editor.selectedItemBounds) return
+  const { right } = editor.selectedItemBounds
+  for (const item of editor.selectedItems ?? []) {
     const x = right - item.bounds.width + 1
     moveItem(item, { x, y: item.bounds.y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
@@ -37,19 +37,19 @@ const alignRight = () => {
 }
 
 const alignTop = () => {
-  if (!frames.selectedItemBounds) return
-  const { top } = frames.selectedItemBounds
-  for (const item of frames.selectedItems ?? []) {
+  if (!editor.selectedItemBounds) return
+  const { top } = editor.selectedItemBounds
+  for (const item of editor.selectedItems ?? []) {
     moveItem(item, { x: item.bounds.x, y: top })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
 
 const alignMiddle = () => {
-  if (!frames.selectedItemBounds) return
-  const { top, bottom } = frames.selectedItemBounds
+  if (!editor.selectedItemBounds) return
+  const { top, bottom } = editor.selectedItemBounds
   let middle = top + Math.round((bottom - top) / 2)
-  for (const item of frames.selectedItems ?? []) {
+  for (const item of editor.selectedItems ?? []) {
     const y = Math.round(middle - item.bounds.height / 2)
     moveItem(item, { x: item.bounds.x, y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
@@ -57,9 +57,9 @@ const alignMiddle = () => {
 }
 
 const alignBottom = () => {
-  if (!frames.selectedItemBounds) return
-  const { bottom } = frames.selectedItemBounds
-  for (const item of frames.selectedItems ?? []) {
+  if (!editor.selectedItemBounds) return
+  const { bottom } = editor.selectedItemBounds
+  for (const item of editor.selectedItems ?? []) {
     const y = bottom - item.bounds.height + 1
     moveItem(item, { x: item.bounds.x, y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
@@ -67,20 +67,20 @@ const alignBottom = () => {
 }
 
 const distributeHorizontal = (gap?: number) => {
-  if (!frames.selectedItemBounds) return
-  if (!frames.selectedItems || frames.selectedItems.length < 2) return
+  if (!editor.selectedItemBounds) return
+  if (!editor.selectedItems || editor.selectedItems.length < 2) return
 
   if (gap === undefined) {
     let allWidths = 0
-    for (const item of frames.selectedItems) allWidths += item.bounds.width
-    let space = frames.selectedItemBounds.width - allWidths - 1
-    gap = Math.round(space / (frames.selectedItems.length - 1))
+    for (const item of editor.selectedItems) allWidths += item.bounds.width
+    let space = editor.selectedItemBounds.width - allWidths - 1
+    gap = Math.round(space / (editor.selectedItems.length - 1))
   }
 
-  const itemsLeftToRight = frames.selectedItems.sort(
+  const itemsLeftToRight = editor.selectedItems.sort(
     (a, b) => a.bounds.left - b.bounds.left,
   )
-  let offset = frames.selectedItemBounds.left
+  let offset = editor.selectedItemBounds.left
   for (const item of itemsLeftToRight) {
     if (item.type === 'group') continue
     moveItem(item, { x: offset, y: item.bounds.y })
@@ -90,20 +90,20 @@ const distributeHorizontal = (gap?: number) => {
 }
 
 const distributeVertical = (gap?: number) => {
-  if (!frames.selectedItemBounds) return
-  if (!frames.selectedItems || frames.selectedItems.length < 2) return
+  if (!editor.selectedItemBounds) return
+  if (!editor.selectedItems || editor.selectedItems.length < 2) return
 
   if (gap === undefined) {
     let allHeights = 0
-    for (const item of frames.selectedItems) allHeights += item.bounds.height
-    let space = frames.selectedItemBounds.height - allHeights - 1
-    gap = Math.round(space / (frames.selectedItems.length - 1))
+    for (const item of editor.selectedItems) allHeights += item.bounds.height
+    let space = editor.selectedItemBounds.height - allHeights - 1
+    gap = Math.round(space / (editor.selectedItems.length - 1))
   }
 
-  const itemsTopToBottom = frames.selectedItems.sort(
+  const itemsTopToBottom = editor.selectedItems.sort(
     (a, b) => a.bounds.top - b.bounds.top,
   )
-  let offset = frames.selectedItemBounds.top
+  let offset = editor.selectedItemBounds.top
   for (const item of itemsTopToBottom) {
     if (item.type === 'group') continue
     moveItem(item, { x: item.bounds.x, y: offset })
@@ -113,10 +113,10 @@ const distributeVertical = (gap?: number) => {
 }
 
 const distributedVerticalGap = computed(() => {
-  if (!frames.selectedItemBounds) return
-  if (!frames.selectedItems || frames.selectedItems.length < 2) return
+  if (!editor.selectedItemBounds) return
+  if (!editor.selectedItems || editor.selectedItems.length < 2) return
 
-  const itemsTopToBottom = frames.selectedItems.sort(
+  const itemsTopToBottom = editor.selectedItems.sort(
     (a, b) => a.bounds.top - b.bounds.top,
   )
 
@@ -133,10 +133,10 @@ const distributedVerticalGap = computed(() => {
 })
 
 const distributedHorizontalGap = computed(() => {
-  if (!frames.selectedItemBounds) return
-  if (!frames.selectedItems || frames.selectedItems.length < 2) return
+  if (!editor.selectedItemBounds) return
+  if (!editor.selectedItems || editor.selectedItems.length < 2) return
 
-  const itemsLeftToRight = frames.selectedItems.sort(
+  const itemsLeftToRight = editor.selectedItems.sort(
     (a, b) => a.bounds.left - b.bounds.left,
   )
 
@@ -155,7 +155,7 @@ const distributedHorizontalGap = computed(() => {
 
 <template>
   <div class="flow">
-    <h2>{{ frames.selectedItems?.length || 0 }} selected</h2>
+    <h2>{{ editor.selectedItems?.length || 0 }} selected</h2>
     <div class="flow">
       <label>Align</label>
       <div class="buttons-align">

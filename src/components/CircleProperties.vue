@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { getCircleBounds, type Circle } from '~/items/circle'
+import { type Circle } from '~/items/circle'
+import { getItemBounds } from '~/items/item'
 import type { Point } from '~/types'
 import CheckboxField from './CheckboxField.vue'
 import ColorField from './ColorField.vue'
@@ -10,12 +11,12 @@ const props = defineProps<{ item: Circle }>()
 
 const updateCenter = (point: Point) => {
   props.item.center = point
-  props.item.bounds = getCircleBounds(props.item)
+  props.item.bounds = getItemBounds(props.item)
 }
 
 const updateRadius = (radius: number) => {
   props.item.radius = radius
-  props.item.bounds = getCircleBounds(props.item)
+  props.item.bounds = getItemBounds(props.item)
 }
 </script>
 

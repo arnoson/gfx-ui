@@ -1,17 +1,17 @@
-import { translateBitmap } from '~/items/bitmap'
-import { translateCircle } from '~/items/circle'
-import { getLineBounds, translateLine } from '~/items/line'
-import { translateRect } from '~/items/rect'
-import { useFrames } from '~/stores/frames'
+import { translateItem } from '~/items/item'
+import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
-import { boundsContainPoint } from '~/utils/bounds'
+import {
+  boundsContainPoint,
+  getTranslatedBounds,
+  makeBounds,
+} from '~/utils/bounds'
 import { defineTool } from './tool'
-import { getItemBounds } from '~/items/item'
 
 export const useSelect = defineTool(
   'select',
   () => {
-    const frames = useFrames()
+    const editor = useEditor()
 
     let mode: 'move' | 'select' | 'idle' = 'idle'
 
@@ -20,37 +20,43 @@ export const useSelect = defineTool(
 
     const startSelect = (point: Point) => {
       startPoint = point
-      frames.blur()
-      frames.selectionBounds = null
-      frames.isSelecting = true
-      frames.selectedItemIds.clear()
+      editor.focusedItem = null
+      editor.selectionBounds = null
+      editor.isSelecting = true
+      editor.selectedItemIds.clear()
       mode = 'select'
     }
 
     const select = (point: Point) => {
-      if (!frames.activeFrame) return
+      if (!editor.activeFrame) return
 
-      frames.selectionBounds = getLineBounds({ from: startPoint, to: point })
+      const top = Math.min(startPoint.y, point.y)
+      const left = Math.min(startPoint.x, point.x)
+      const bottom = Math.max(startPoint.y, point.y)
+      const right = Math.max(startPoint.x, point.x)
+      const position = { x: left, y: top }
+      const size = { width: right - left + 1, height: bottom - top + 1 }
+      editor.selectionBounds = makeBounds(position, size)
 
-      for (const { bounds, id } of frames.activeFrame.children) {
+      for (const { bounds, id } of editor.activeFrame.children) {
         const isIntersecting =
-          bounds.left <= frames.selectionBounds.right &&
-          bounds.right >= frames.selectionBounds.left &&
-          bounds.top <= frames.selectionBounds.bottom &&
-          bounds.bottom >= frames.selectionBounds.top
-        if (isIntersecting) frames.selectedItemIds.add(id)
-        else frames.selectedItemIds.delete(id)
+          bounds.left <= editor.selectionBounds.right &&
+          bounds.right >= editor.selectionBounds.left &&
+          bounds.top <= editor.selectionBounds.bottom &&
+          bounds.bottom >= editor.selectionBounds.top
+        if (isIntersecting) editor.selectedItemIds.add(id)
+        else editor.selectedItemIds.delete(id)
       }
     }
 
     const endSelect = () => {
-      if (!frames.selectedItems) {
-        frames.selectionBounds = null
-      } else if (frames.selectedItems.length === 1) {
-        frames.focusItem(frames.selectedItems[0].id)
-        frames.selectionBounds = null
+      if (!editor.selectedItems) {
+        editor.selectionBounds = null
+      } else if (editor.selectedItems.length === 1) {
+        editor.focusedItem = editor.selectedItems[0]
+        editor.selectionBounds = null
       }
-      frames.isSelecting = false
+      editor.isSelecting = false
       mode = 'idle'
     }
 
@@ -60,23 +66,17 @@ export const useSelect = defineTool(
     }
 
     const move = (point: Point) => {
-      if (!frames.selectedItems) return
+      if (!editor.selectedItems) return
 
       const delta = {
         x: point.x - lastPoint.x,
         y: point.y - lastPoint.y,
       }
 
-      for (const item of frames.selectedItems) {
+      for (const item of editor.selectedItems) {
         if (item.type === 'group') continue
-
-        if (item.type === 'rect') translateRect(item, delta)
-        else if (item.type === 'circle') translateCircle(item, delta)
-        else if (item.type === 'line') translateLine(item, delta)
-        else if (item.type === 'bitmap') translateBitmap(item, delta)
-
-        const bounds = getItemBounds(item)
-        if (bounds) item.bounds = bounds
+        translateItem(item, delta)
+        item.bounds = getTranslatedBounds(item.bounds, delta)
       }
       lastPoint = point
     }
@@ -85,8 +85,8 @@ export const useSelect = defineTool(
 
     const onMouseDown = (point: Point) => {
       if (
-        frames.selectedItemBounds &&
-        boundsContainPoint(frames.selectedItemBounds, point)
+        editor.selectedItemBounds &&
+        boundsContainPoint(editor.selectedItemBounds, point)
       ) {
         startMove(point)
       } else {
@@ -108,18 +108,18 @@ export const useSelect = defineTool(
       if (e.key === 'Delete') {
         if (e.target !== document.body) return
 
-        if (frames.focusedItem) {
-          frames.removeItem(frames.focusedItem.id)
-          frames.blur()
+        if (editor.focusedItem) {
+          editor.removeItem(editor.focusedItem.id)
+          editor.focusedItem = null
         }
 
-        for (const id of frames.selectedItemIds) frames.removeItem(id)
-        frames.selectedItemIds.clear()
+        for (const id of editor.selectedItemIds) editor.removeItem(id)
+        editor.selectedItemIds.clear()
         return
       }
 
       if (e.key === 'Escape') {
-        frames.selectedItemIds.clear()
+        editor.selectedItemIds.clear()
         return
       }
     }

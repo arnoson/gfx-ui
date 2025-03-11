@@ -16,7 +16,7 @@ export interface Text {
 const getBit = (buffer: Uint8Array, byteIndex: number, bitIndex: number) =>
   (buffer[byteIndex] & (1 << bitIndex)) === 0 ? 0 : 1
 
-export const drawText = (ctx: CanvasRenderingContext2D, text: Text) => {
+const draw = (ctx: CanvasRenderingContext2D, text: Text) => {
   const fonts = useFonts()
   const font = fonts.fonts.get(text.font)
   if (!font) return
@@ -53,7 +53,16 @@ export const drawText = (ctx: CanvasRenderingContext2D, text: Text) => {
   }
 }
 
-export const getTextBounds = (text: Omit<Text, 'id' | 'bounds'>) => {
+const translate = (text: Text, delta: Point) => {
+  text.position.x += delta.x
+  text.position.y += delta.y
+}
+
+const move = (text: Text, position: Point) => {
+  text.position = position
+}
+
+const getBounds = (text: Omit<Text, 'id' | 'bounds'>) => {
   const fonts = useFonts()
   const font = fonts.fonts.get(text.font)
   if (!font) return emptyBounds
@@ -78,3 +87,5 @@ export const getTextBounds = (text: Omit<Text, 'id' | 'bounds'>) => {
 
   return makeBounds(text.position, { width, height: offsetY + font.yAdvance })
 }
+
+export default { draw, translate, move, getBounds }
