@@ -1,10 +1,9 @@
 import { toRef } from 'vue'
+import { getRectBounds, type Rect } from '~/items/rect'
 import { useEditor } from '~/stores/editor'
 import { useFrames } from '~/stores/frames'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
-import { makeBounds } from '~/utils/bounds'
-import type { Rect } from '~/items/rect'
 
 export const useRect = defineTool(
   'rect',
@@ -25,6 +24,7 @@ export const useRect = defineTool(
         position: point,
         size: { width: 0, height: 0 },
         color: 15,
+        radius: 0,
         isFilled: false,
       })
       if (!item) return
@@ -44,7 +44,7 @@ export const useRect = defineTool(
       const bottom = Math.max(startPoint.y, point.y)
       item.position = { x: left, y: top }
       item.size = { width: right - left, height: bottom - top }
-      item.bounds = makeBounds(item)
+      item.bounds = getRectBounds(item)
     }
 
     const onMouseUp = () => {

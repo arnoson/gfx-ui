@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { useEditor } from '~/stores/editor'
+import SelectIcon from '~/assets/icons/icon-select.svg'
+import DrawIcon from '~/assets/icons/icon-draw.svg'
+import RectIcon from '~/assets/icons/icon-rect.svg'
+import CircleIcon from '~/assets/icons/icon-circle.svg'
 
 const editor = useEditor()
 </script>
@@ -10,25 +14,25 @@ const editor = useEditor()
       @click="editor.activateTool('select')"
       :data-active="editor.activeToolId === 'select'"
     >
-      Select
+      <SelectIcon />
     </button>
     <button
       @click="editor.activateTool('draw')"
       :data-active="editor.activeToolId === 'draw'"
     >
-      Draw
+      <DrawIcon />
     </button>
     <button
       @click="editor.activateTool('rect')"
       :data-active="editor.activeToolId === 'rect'"
     >
-      Rect
+      <RectIcon />
     </button>
     <button
       @click="editor.activateTool('circle')"
       :data-active="editor.activeToolId === 'circle'"
     >
-      Circle
+      <CircleIcon />
     </button>
   </menu>
 </template>
@@ -49,6 +53,7 @@ const editor = useEditor()
 
     &[data-active='true'] {
       color: var(--color-accent);
+      background-color: var(--color-text);
     }
 
     svg {
