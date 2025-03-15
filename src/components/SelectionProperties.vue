@@ -3,6 +3,12 @@ import { computed } from 'vue'
 import { getItemBounds, moveItem } from '~/items/item'
 import GapField from './GapField.vue'
 import { useEditor } from '~/stores/editor'
+import IconAlignLeft from '~/assets/icons/icon-align-left.svg'
+import IconAlignCenter from '~/assets/icons/icon-align-center.svg'
+import IconAlignRight from '~/assets/icons/icon-align-right.svg'
+import IconAlignTop from '~/assets/icons/icon-align-top.svg'
+import IconAlignMiddle from '~/assets/icons/icon-align-middle.svg'
+import IconAlignBottom from '~/assets/icons/icon-align-bottom.svg'
 
 const editor = useEditor()
 
@@ -183,12 +189,12 @@ const distributedHorizontalGap = computed(() => {
     <div class="flow">
       <label>Align</label>
       <div class="buttons-align">
-        <button @click="alignLeft">Left</button>
-        <button @click="alignCenter">Center</button>
-        <button @click="alignRight">Right</button>
-        <button @click="alignTop">top</button>
-        <button @click="alignMiddle">middle</button>
-        <button @click="alignBottom">bottom</button>
+        <button @click="alignLeft"><IconAlignLeft /></button>
+        <button @click="alignCenter"><IconAlignCenter /></button>
+        <button @click="alignRight"><IconAlignRight /></button>
+        <button @click="alignTop"><IconAlignTop /></button>
+        <button @click="alignMiddle"><IconAlignMiddle /></button>
+        <button @click="alignBottom"><IconAlignBottom /></button>
       </div>
     </div>
     <div class="flow">
@@ -219,5 +225,17 @@ const distributedHorizontalGap = computed(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.2rem;
+}
+
+button:has(svg) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: max-content;
+  padding-block: 0;
+}
+
+button svg {
+  display: block;
 }
 </style>
