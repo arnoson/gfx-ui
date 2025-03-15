@@ -9,8 +9,9 @@ const editor = useEditor()
 const alignLeft = () => {
   if (!editor.selectedItemBounds) return
   const { left } = editor.selectedItemBounds
-  for (const item of editor.selectedItems ?? []) {
-    moveItem(item, { x: left, y: item.bounds.y })
+  for (const item of editor.selectedItems) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    moveItem(item, { x: left, y: bounds.y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
@@ -19,9 +20,10 @@ const alignCenter = () => {
   if (!editor.selectedItemBounds) return
   const { left, right } = editor.selectedItemBounds
   let center = left + Math.round((right - left) / 2)
-  for (const item of editor.selectedItems ?? []) {
-    const x = Math.round(center - item.bounds.width / 2)
-    moveItem(item, { x, y: item.bounds.y })
+  for (const item of editor.selectedItems) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    const x = Math.round(center - bounds.width / 2)
+    moveItem(item, { x, y: bounds.y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
@@ -29,9 +31,10 @@ const alignCenter = () => {
 const alignRight = () => {
   if (!editor.selectedItemBounds) return
   const { right } = editor.selectedItemBounds
-  for (const item of editor.selectedItems ?? []) {
-    const x = right - item.bounds.width + 1
-    moveItem(item, { x, y: item.bounds.y })
+  for (const item of editor.selectedItems) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    const x = right - bounds.width + 1
+    moveItem(item, { x, y: bounds.y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
@@ -39,8 +42,9 @@ const alignRight = () => {
 const alignTop = () => {
   if (!editor.selectedItemBounds) return
   const { top } = editor.selectedItemBounds
-  for (const item of editor.selectedItems ?? []) {
-    moveItem(item, { x: item.bounds.x, y: top })
+  for (const item of editor.selectedItems) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    moveItem(item, { x: bounds.x, y: top })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
@@ -49,9 +53,10 @@ const alignMiddle = () => {
   if (!editor.selectedItemBounds) return
   const { top, bottom } = editor.selectedItemBounds
   let middle = top + Math.round((bottom - top) / 2)
-  for (const item of editor.selectedItems ?? []) {
-    const y = Math.round(middle - item.bounds.height / 2)
-    moveItem(item, { x: item.bounds.x, y })
+  for (const item of editor.selectedItems) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    const y = Math.round(middle - bounds.height / 2)
+    moveItem(item, { x: bounds.x, y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
@@ -59,27 +64,33 @@ const alignMiddle = () => {
 const alignBottom = () => {
   if (!editor.selectedItemBounds) return
   const { bottom } = editor.selectedItemBounds
-  for (const item of editor.selectedItems ?? []) {
-    const y = bottom - item.bounds.height + 1
-    moveItem(item, { x: item.bounds.x, y })
+  for (const item of editor.selectedItems) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    const y = bottom - bounds.height + 1
+    moveItem(item, { x: bounds.x, y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
 }
 
 const distributeHorizontal = (gap?: number) => {
   if (!editor.selectedItemBounds) return
-  if (!editor.selectedItems || editor.selectedItems.length < 2) return
+  if (!editor.selectedItems || editor.selectedItems.size < 2) return
 
   if (gap === undefined) {
     let allWidths = 0
-    for (const item of editor.selectedItems) allWidths += item.bounds.width
+    for (const item of editor.selectedItems) {
+      const { width } = item.bounds ?? getItemBounds(item)
+      allWidths += width
+    }
     let space = editor.selectedItemBounds.width - allWidths - 1
-    gap = Math.round(space / (editor.selectedItems.length - 1))
+    gap = Math.round(space / (editor.selectedItems.size - 1))
   }
 
-  const itemsLeftToRight = editor.selectedItems.sort(
-    (a, b) => a.bounds.left - b.bounds.left,
-  )
+  const itemsLeftToRight = [...editor.selectedItems].sort((a, b) => {
+    const boundsA = a.bounds ?? getItemBounds(a)
+    const boundsB = b.bounds ?? getItemBounds(b)
+    return boundsA.left - boundsB.left
+  })
   let offset = editor.selectedItemBounds.left
   for (const item of itemsLeftToRight) {
     if (item.type === 'group') continue
@@ -91,18 +102,23 @@ const distributeHorizontal = (gap?: number) => {
 
 const distributeVertical = (gap?: number) => {
   if (!editor.selectedItemBounds) return
-  if (!editor.selectedItems || editor.selectedItems.length < 2) return
+  if (!editor.selectedItems || editor.selectedItems.size < 2) return
 
   if (gap === undefined) {
     let allHeights = 0
-    for (const item of editor.selectedItems) allHeights += item.bounds.height
+    for (const item of editor.selectedItems) {
+      const { height } = item.bounds ?? getItemBounds(item)
+      allHeights += height
+    }
     let space = editor.selectedItemBounds.height - allHeights - 1
-    gap = Math.round(space / (editor.selectedItems.length - 1))
+    gap = Math.round(space / (editor.selectedItems.size - 1))
   }
 
-  const itemsTopToBottom = editor.selectedItems.sort(
-    (a, b) => a.bounds.top - b.bounds.top,
-  )
+  const itemsTopToBottom = [...editor.selectedItems].sort((a, b) => {
+    const boundsA = a.bounds ?? getItemBounds(a)
+    const boundsB = b.bounds ?? getItemBounds(b)
+    return boundsA.top - boundsB.top
+  })
   let offset = editor.selectedItemBounds.top
   for (const item of itemsTopToBottom) {
     if (item.type === 'group') continue
@@ -114,17 +130,21 @@ const distributeVertical = (gap?: number) => {
 
 const distributedVerticalGap = computed(() => {
   if (!editor.selectedItemBounds) return
-  if (!editor.selectedItems || editor.selectedItems.length < 2) return
+  if (!editor.selectedItems || editor.selectedItems.size < 2) return
 
-  const itemsTopToBottom = editor.selectedItems.sort(
-    (a, b) => a.bounds.top - b.bounds.top,
-  )
+  const itemsTopToBottom = [...editor.selectedItems].sort((a, b) => {
+    const boundsA = a.bounds ?? getItemBounds(a)
+    const boundsB = b.bounds ?? getItemBounds(b)
+    return boundsA.top - boundsB.top
+  })
 
   let lastGap: number | undefined
   for (let i = 1; i < itemsTopToBottom.length; i++) {
     const lastItem = itemsTopToBottom[i - 1]
+    const lastItemBounds = lastItem.bounds ?? getItemBounds(lastItem)
     const item = itemsTopToBottom[i]
-    const gap = item.bounds.top - lastItem.bounds.bottom - 1
+    const itemBounds = item.bounds ?? getItemBounds(item)
+    const gap = itemBounds.top - lastItemBounds.bottom - 1
     if (lastGap !== undefined && gap !== lastGap) return
     lastGap = gap
   }
@@ -134,17 +154,21 @@ const distributedVerticalGap = computed(() => {
 
 const distributedHorizontalGap = computed(() => {
   if (!editor.selectedItemBounds) return
-  if (!editor.selectedItems || editor.selectedItems.length < 2) return
+  if (!editor.selectedItems || editor.selectedItems.size < 2) return
 
-  const itemsLeftToRight = editor.selectedItems.sort(
-    (a, b) => a.bounds.left - b.bounds.left,
-  )
+  const itemsLeftToRight = [...editor.selectedItems].sort((a, b) => {
+    const boundsA = a.bounds ?? getItemBounds(a)
+    const boundsB = b.bounds ?? getItemBounds(b)
+    return boundsA.left - boundsB.left
+  })
 
   let lastGap: number | undefined
   for (let i = 1; i < itemsLeftToRight.length; i++) {
     const lastItem = itemsLeftToRight[i - 1]
+    const lastItemBounds = lastItem.bounds ?? getItemBounds(lastItem)
     const item = itemsLeftToRight[i]
-    const gap = item.bounds.left - lastItem.bounds.right - 1
+    const itemBounds = item.bounds ?? getItemBounds(item)
+    const gap = itemBounds.left - lastItemBounds.right - 1
     if (lastGap !== undefined && gap !== lastGap) return
     lastGap = gap
   }
@@ -155,7 +179,7 @@ const distributedHorizontalGap = computed(() => {
 
 <template>
   <div class="flow">
-    <h2>{{ editor.selectedItems?.length || 0 }} selected</h2>
+    <h2>{{ editor.selectedItems?.size || 0 }} selected</h2>
     <div class="flow">
       <label>Align</label>
       <div class="buttons-align">

@@ -1,37 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { VueDraggable } from 'vue-draggable-plus'
 import { useEditor } from '~/stores/editor'
-
+import LayersTreeNested from './LayersTreeNested.vue'
 const editor = useEditor()
-
-const list = computed(() => {
-  if (!editor.activeFrame) return []
-  return Array.from(editor.activeFrame?.children.values())
-})
-
-const onUpdate = console.log
 </script>
 
 <template>
-  <VueDraggable
+  <LayersTreeNested
     v-if="editor.activeFrame"
-    class="flow"
     v-model="editor.activeFrame.children"
-    @update="onUpdate"
-  >
-    <div
-      v-for="item in list"
-      :key="item.id"
-      class="layer"
-      :data-highlight="
-        item === editor.focusedItem || editor.selectedItemIds.has(item.id)
-      "
-      @click="editor.focusedItem = item"
-    >
-      {{ item.type }}@{{ item.id }}
-    </div>
-  </VueDraggable>
+  />
 </template>
 
 <style scoped>

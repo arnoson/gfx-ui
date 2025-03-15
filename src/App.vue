@@ -37,23 +37,23 @@ editor.addItem({
   radius: 0,
 })
 
-editor.addItem({
-  type: 'circle',
-  center: { x: 30, y: 30 },
-  radius: 5,
-  color: 15,
-  isFilled: false,
-})
+// editor.addItem({
+//   type: 'circle',
+//   center: { x: 30, y: 30 },
+//   radius: 5,
+//   color: 15,
+//   isFilled: false,
+// })
 
-fonts.add(miwos7pt)
+// fonts.add(miwos7pt)
 
-editor.addItem({
-  type: 'text',
-  content: 'Hello\nArggggh!',
-  color: 15,
-  font: 'miwos7pt',
-  position: { x: 10, y: 10 },
-})
+// editor.addItem({
+//   type: 'text',
+//   content: 'Hello\nArggggh!',
+//   color: 15,
+//   font: 'miwos7pt',
+//   position: { x: 10, y: 10 },
+// })
 </script>
 
 <template>
@@ -78,7 +78,7 @@ editor.addItem({
     >
       <ItemProperties v-if="editor.focusedItem" :item="editor.focusedItem" />
       <SelectionProperties
-        v-else-if="editor.selectedItems"
+        v-else-if="editor.selectedItems.size"
         :items="editor.selectedItems"
       />
       <FrameProperties

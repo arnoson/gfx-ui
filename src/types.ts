@@ -1,5 +1,6 @@
 import type { Ref } from 'vue'
-import type { Frame, Item } from './stores/frames'
+import type { Item } from './items/item'
+import type { Frame } from './stores/editor'
 
 export type Point = {
   x: number

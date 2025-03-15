@@ -1,4 +1,4 @@
-import { translateItem } from '~/items/item'
+import { getItemBounds, translateItem } from '~/items/item'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
 import {
@@ -23,7 +23,7 @@ export const useSelect = defineTool(
       editor.focusedItem = null
       editor.selectionBounds = null
       editor.isSelecting = true
-      editor.selectedItemIds.clear()
+      editor.selectedItems.clear()
       mode = 'select'
     }
 
@@ -38,23 +38,25 @@ export const useSelect = defineTool(
       const size = { width: right - left + 1, height: bottom - top + 1 }
       editor.selectionBounds = makeBounds(position, size)
 
-      for (const { bounds, id } of editor.activeFrame.children) {
+      for (const item of editor.activeFrame.children) {
+        const bounds = item.type === 'group' ? getItemBounds(item) : item.bounds
         const isIntersecting =
           bounds.left <= editor.selectionBounds.right &&
           bounds.right >= editor.selectionBounds.left &&
           bounds.top <= editor.selectionBounds.bottom &&
           bounds.bottom >= editor.selectionBounds.top
-        if (isIntersecting) editor.selectedItemIds.add(id)
-        else editor.selectedItemIds.delete(id)
+        if (isIntersecting) editor.selectedItems.add(item)
+        else editor.selectedItems.delete(item)
       }
     }
 
     const endSelect = () => {
-      if (!editor.selectedItems) {
+      if (!editor.selectedItems.size) {
         editor.selectionBounds = null
-      } else if (editor.selectedItems.length === 1) {
-        editor.focusedItem = editor.selectedItems[0]
+      } else if (editor.selectedItems.size === 1) {
+        editor.focusedItem = editor.selectedItems.values().next().value!
         editor.selectionBounds = null
+        editor.selectedItems.clear()
       }
       editor.isSelecting = false
       mode = 'idle'
@@ -66,17 +68,22 @@ export const useSelect = defineTool(
     }
 
     const move = (point: Point) => {
-      if (!editor.selectedItems) return
+      if (!editor.selectedItems.size && !editor.focusedItem) return
+
+      const items = editor.selectedItems.size
+        ? editor.selectedItems
+        : [editor.focusedItem!]
 
       const delta = {
         x: point.x - lastPoint.x,
         y: point.y - lastPoint.y,
       }
 
-      for (const item of editor.selectedItems) {
-        if (item.type === 'group') continue
+      for (const item of items) {
         translateItem(item, delta)
-        item.bounds = getTranslatedBounds(item.bounds, delta)
+        if (item.type !== 'group') {
+          item.bounds = getTranslatedBounds(item.bounds, delta)
+        }
       }
       lastPoint = point
     }
@@ -113,14 +120,26 @@ export const useSelect = defineTool(
           editor.focusedItem = null
         }
 
-        for (const id of editor.selectedItemIds) editor.removeItem(id)
-        editor.selectedItemIds.clear()
+        for (const { id } of editor.selectedItems) editor.removeItem(id)
+        editor.selectedItems.clear()
         return
       }
 
       if (e.key === 'Escape') {
-        editor.selectedItemIds.clear()
+        editor.selectedItems.clear()
         return
+      }
+
+      if (e.key === 'g' && e.ctrlKey) {
+        e.preventDefault()
+
+        if (editor.selectedItems.size) {
+          for (const item of editor.selectedItems) editor.removeItem(item.id)
+          const group = editor.addItem({
+            type: 'group',
+            children: [...editor.selectedItems],
+          })
+        }
       }
     }
 

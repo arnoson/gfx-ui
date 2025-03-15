@@ -14,6 +14,8 @@ import { drawItem } from '~/items/item'
 import { useEditor, type Frame } from '~/stores/editor'
 import { mouseToSvg } from '~/utils/mouse'
 import ItemControls from './ItemControls.vue'
+import ItemBounds from './ItemBounds.vue'
+import ItemHandle from './ItemHandle.vue'
 
 const props = defineProps<{ frame: Frame }>()
 const { size, children: items, scale } = toRefs(props.frame)
@@ -31,7 +33,7 @@ const blur = () => {
 const render = () => {
   if (!ctx.value) return
   ctx.value.clearRect(0, 0, size.value.width, size.value.height)
-  for (const item of items.value) drawItem(ctx.value, item)
+  for (const item of items.value.toReversed()) drawItem(ctx.value, item)
 }
 watchEffect(render)
 watch(size, async () => {
@@ -42,10 +44,11 @@ watch(size, async () => {
 
 const overlay = useTemplateRef('overlay')
 const background = useTemplateRef('background')
+const frameEl = useTemplateRef('frameEl')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
 // Forward canvas mouse and key events to the active tool.
-useEventListener<MouseEvent>(background, 'mousedown', (e) => {
+useEventListener<MouseEvent>(frameEl, 'mousedown', (e) => {
   if (space.value) return
   const { onMouseDown, config } = editor.activeTool
   onMouseDown?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
@@ -90,14 +93,11 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
     <div ref="frameEl" class="frame">
       <svg :viewBox="`0 0 ${size.width} ${size.height}`" class="overflow">
         <!-- Bounds for items outside of frame -->
-        <rect
+        <ItemBounds
           v-for="item of frame.children"
           :key="item.id"
+          :item="item"
           class="bounds"
-          :x="item.bounds.left"
-          :y="item.bounds.top"
-          :width="item.bounds.width"
-          :height="item.bounds.height"
         />
       </svg>
       <canvas
@@ -145,30 +145,36 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
 
         <!-- Bounds -->
         <g>
-          <rect
+          <ItemBounds
             v-for="item of editor.selectedItems"
             :key="item.id"
+            :item="item"
             class="bounds"
-            :x="item.bounds.left"
-            :y="item.bounds.top"
-            :width="item.bounds.width"
-            :height="item.bounds.height"
           />
-          <rect
+          <ItemBounds
             v-if="editor.focusedItem"
             :key="editor.focusedItem.id"
+            :item="editor.focusedItem"
             class="bounds"
-            :x="editor.focusedItem.bounds.left"
-            :y="editor.focusedItem.bounds.top"
-            :width="editor.focusedItem.bounds.width"
-            :height="editor.focusedItem.bounds.height"
           />
         </g>
 
-        <!-- Controls -->
-        <g v-if="editor.activeTool.id === 'select' && !editor.selectedItems">
-          <ItemControls v-for="item of items" :key="item.id" :item="item" />
+        <!-- Handles -->
+        <g v-if="editor.activeTool.id === 'select'">
+          <template v-for="item of items.toReversed()">
+            <ItemHandle
+              v-if="!editor.selectedItems.has(item)"
+              :key="item.id"
+              :item="item"
+            />
+          </template>
         </g>
+
+        <!-- Controls -->
+        <ItemControls
+          v-if="editor.activeTool.id === 'select' && editor.focusedItem"
+          :item="editor.focusedItem"
+        />
 
         <!-- Selection rect -->
         <rect

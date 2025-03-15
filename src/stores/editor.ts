@@ -70,14 +70,13 @@ export const useEditor = defineStore('editor', () => {
     if (!activeFrame.value) return
 
     const id = createId()
-    const bounds = getItemBounds(data)
-    if (!bounds) return
+    const bounds = data.type === 'group' ? null : getItemBounds(data)
 
     const item = { ...data, bounds, id }
-    const length = activeFrame.value.children.push(item)
+    activeFrame.value.children.unshift(item as Item)
     // Pushing the item makes it reactive, so in order return the reactive item
     // we have to retrieve it from children.
-    return activeFrame.value.children[length - 1] as unknown as typeof item
+    return activeFrame.value.children[0] as unknown as typeof item
   }
 
   const removeItem = (itemId: Id) => {
@@ -87,29 +86,27 @@ export const useEditor = defineStore('editor', () => {
     activeFrame.value.children.splice(index, 1)
   }
 
+  const focusItem = (item: Item) => {
+    focusedItem.value = item
+    selectedItems.value.clear()
+    selectedItems.value.add(item)
+  }
+
   // Selection
   const selectionBounds = ref<Bounds | null>(null)
   const isSelecting = ref(false)
-  const selectedItemIds = ref(new Set<Id>())
+  const selectedItems = ref(new Set<Item>())
 
-  const selectedItems = computed(() => {
-    if (!activeFrame.value) return null
-
-    const items: Item[] = []
-    for (const id of selectedItemIds.value) {
-      const item = activeFrame.value.children.find((v) => v.id === id)
-      if (item) items.push(item)
-    }
-
-    return items.length ? items : null
-  })
   const selectedItemBounds = computed(() => {
-    if (!selectedItems.value) return null
+    if (!selectedItems.value.size) return null
+
     let left = Infinity
     let right = -Infinity
     let top = Infinity
     let bottom = -Infinity
-    for (const { bounds } of selectedItems.value) {
+
+    for (const item of selectedItems.value) {
+      const bounds = item.bounds ?? getItemBounds(item)
       if (bounds.left < left) left = bounds.left
       if (bounds.right > right) right = bounds.right
       if (bounds.top < top) top = bounds.top
@@ -132,9 +129,9 @@ export const useEditor = defineStore('editor', () => {
     focusedItem,
     addItem,
     removeItem,
+    focusItem,
     selectionBounds,
     selectedItems,
-    selectedItemIds,
     selectedItemBounds,
     isSelecting,
   }

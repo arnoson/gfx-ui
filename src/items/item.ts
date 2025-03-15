@@ -1,11 +1,12 @@
 import type { Bounds, Point } from '~/types'
-import { emptyBounds } from '~/utils/bounds'
+import { emptyBounds, makeBounds } from '~/utils/bounds'
 import bitmap, { type Bitmap } from './bitmap'
 import circle, { type Circle } from './circle'
 import line, { type Line } from './line'
 import rect, { type Rect } from './rect'
 import text, { type Text } from './text'
 import type { Group } from './group'
+import group from './group'
 
 export type Item = Rect | Line | Circle | Bitmap | Text | Group
 export type ItemData =
@@ -14,6 +15,7 @@ export type ItemData =
   | Omit<Circle, 'id' | 'bounds'>
   | Omit<Bitmap, 'id' | 'bounds'>
   | Omit<Text, 'id' | 'bounds'>
+  | Omit<Group, 'id' | 'bounds'>
 
 // All this manual dispatching sucks, but since all the item data lives as plain
 // objects in the store, a OOP approach won't fit. Dynamically dispatching from
@@ -27,6 +29,9 @@ export const drawItem = (ctx: CanvasRenderingContext2D, item: Item) => {
   if (item.type === 'circle') circle.draw(ctx, item)
   if (item.type === 'bitmap') bitmap.draw(ctx, item)
   if (item.type === 'text') text.draw(ctx, item)
+  if (item.type === 'group') {
+    for (const child of item.children.toReversed()) drawItem(ctx, child)
+  }
 }
 
 export const translateItem = (item: Item, delta: Point) => {
@@ -35,6 +40,7 @@ export const translateItem = (item: Item, delta: Point) => {
   if (item.type === 'circle') circle.translate(item, delta)
   if (item.type === 'bitmap') bitmap.translate(item, delta)
   if (item.type === 'text') text.translate(item, delta)
+  if (item.type === 'group') group.translate(item, delta)
 }
 
 export const moveItem = (item: Item, position: Point) => {
@@ -51,5 +57,6 @@ export const getItemBounds = (item: ItemData): Bounds => {
   if (item.type === 'circle') return circle.getBounds(item)
   if (item.type === 'bitmap') return bitmap.getBounds(item)
   if (item.type === 'text') return text.getBounds(item)
+  if (item.type === 'group') return group.getBounds(item)
   return emptyBounds
 }

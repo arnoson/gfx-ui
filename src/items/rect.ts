@@ -65,10 +65,10 @@ const drawNormalRect = (
     ctx.fillStyle = pixelColors[color]
     ctx.fillRect(left, top, width, height)
   } else {
-    drawHorizontalLine(ctx, left, top, width, color) // top
-    drawHorizontalLine(ctx, left, bottom, width, color) // bottom
-    drawHorizontalLine(ctx, left, top, height, color) // left
-    drawHorizontalLine(ctx, right, top, height, color) // right
+    drawHorizontalLine(ctx, left, top, width - 1, color) // top
+    drawHorizontalLine(ctx, left, bottom, width - 1, color) // bottom
+    drawVerticalLine(ctx, left, top, height, color) // left
+    drawVerticalLine(ctx, right, top, height, color) // right
   }
 }
 
