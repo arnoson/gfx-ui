@@ -1,11 +1,13 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { Group } from '~/items/group'
 import { getItemBounds, type Item, type ItemData } from '~/items/item'
 import { useCircle } from '~/tools/circle'
 import { useDraw } from '~/tools/draw'
 import { useLine } from '~/tools/line'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
+import { useText } from '~/tools/text'
 import type { Bounds, Size } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 
@@ -29,7 +31,8 @@ export const useEditor = defineStore('editor', () => {
   const rect = useRect()
   const circle = useCircle()
   const line = useLine()
-  const tools = { draw, select, rect, circle, line }
+  const text = useText()
+  const tools = { draw, select, rect, circle, line, text }
   type ToolId = keyof typeof tools
 
   const activeToolId = ref<ToolId>('select')
@@ -70,10 +73,9 @@ export const useEditor = defineStore('editor', () => {
     if (!activeFrame.value) return
 
     const id = createId()
-    const bounds = data.type === 'group' ? null : getItemBounds(data)
-
+    const bounds = getItemBounds(data)
     const item = { ...data, bounds, id }
-    activeFrame.value.children.unshift(item as Item)
+    activeFrame.value.children.unshift(item)
     // Pushing the item makes it reactive, so in order return the reactive item
     // we have to retrieve it from children.
     return activeFrame.value.children[0] as unknown as typeof item

@@ -2,6 +2,8 @@
 import { type Text } from '~/items/text'
 import ColorField from './ColorField.vue'
 import { getItemBounds } from '~/items/item'
+import { nextTick, onMounted, useTemplateRef } from 'vue'
+import { afterTextAdded } from '~/tools/text'
 
 const props = defineProps<{ item: Text }>()
 
@@ -10,6 +12,9 @@ const updateContent = (e: Event) => {
   props.item.content = value
   props.item.bounds = getItemBounds(props.item)
 }
+
+const content = useTemplateRef('content')
+afterTextAdded.on(() => content.value?.focus())
 </script>
 
 <template>
@@ -19,6 +24,7 @@ const updateContent = (e: Event) => {
     <div class="flow">
       <label>Content</label>
       <textarea
+        ref="content"
         :value="item.content"
         @input="updateContent"
         rows="5"

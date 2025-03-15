@@ -5,6 +5,7 @@ import DrawIcon from '~/assets/icons/icon-draw.svg'
 import RectIcon from '~/assets/icons/icon-rect.svg'
 import CircleIcon from '~/assets/icons/icon-circle.svg'
 import LineIcon from '~/assets/icons/icon-line.svg'
+import TextIcon from '~/assets/icons/icon-text.svg'
 
 const editor = useEditor()
 </script>
@@ -34,6 +35,12 @@ const editor = useEditor()
       :data-active="editor.activeTool.id === 'circle'"
     >
       <CircleIcon />
+    </button>
+    <button
+      @click="editor.activateTool('text')"
+      :data-active="editor.activeTool.id === 'text'"
+    >
+      <TextIcon />
     </button>
     <button
       @click="editor.activateTool('draw')"
