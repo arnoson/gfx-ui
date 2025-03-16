@@ -41,6 +41,9 @@ import { drawPixel, packPixel } from '~/utils/pixels'
 export interface Line {
   type: 'line'
   id: number
+  name: string
+  isHidden: boolean
+  isLocked: boolean
   bounds: Bounds
   color: Color
   from: Point
@@ -126,7 +129,7 @@ export const drawHorizontalLine = (
 // Based on https://github.com/adafruit/Adafruit-GFX-Library/blob/87e15509a9e16892e60947bc4231027882edbd34/Adafruit_GFX.cpp#L132
 const draw = (
   ctx: CanvasRenderingContext2D,
-  { from, to, color }: Omit<Line, 'type' | 'id' | 'bounds'>,
+  { from, to, color }: Pick<Line, 'from' | 'to' | 'color'>,
 ) => {
   let { x: x0, y: y0 } = from
   let { x: x1, y: y1 } = to
@@ -191,7 +194,7 @@ const move = (line: Line, position: Point) => {
   translate(line, delta)
 }
 
-const getBounds = (line: Omit<Line, 'id' | 'bounds'>): Bounds => {
+const getBounds = (line: Pick<Line, 'from' | 'to'>): Bounds => {
   const top = Math.min(line.from.y, line.to.y)
   const left = Math.min(line.from.x, line.to.x)
   const bottom = Math.max(line.from.y, line.to.y)

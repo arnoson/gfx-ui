@@ -82,7 +82,7 @@ editor.addItem({
           />
           <SelectionProperties
             v-else-if="editor.selectedItems.size"
-            :items="editor.selectedItems"
+            :items="Array.from(editor.selectedItems)"
           />
           <FrameProperties
             v-else-if="editor.activeFrame"

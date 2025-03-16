@@ -1,21 +1,21 @@
 import type { Bounds, Point } from '~/types'
-import { emptyBounds, makeBounds } from '~/utils/bounds'
+import { emptyBounds } from '~/utils/bounds'
 import bitmap, { type Bitmap } from './bitmap'
 import circle, { type Circle } from './circle'
+import type { Group } from './group'
+import group from './group'
 import line, { type Line } from './line'
 import rect, { type Rect } from './rect'
 import text, { type Text } from './text'
-import type { Group } from './group'
-import group from './group'
 
 export type Item = Rect | Line | Circle | Bitmap | Text | Group
 export type ItemData =
-  | Omit<Rect, 'id' | 'bounds'>
-  | Omit<Line, 'id' | 'bounds'>
-  | Omit<Circle, 'id' | 'bounds'>
-  | Omit<Bitmap, 'id' | 'bounds'>
-  | Omit<Text, 'id' | 'bounds'>
-  | Omit<Group, 'id' | 'bounds'>
+  | Omit<Rect, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
+  | Omit<Line, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
+  | Omit<Circle, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
+  | Omit<Bitmap, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
+  | Omit<Text, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
+  | Omit<Group, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
 
 export type ItemType = 'line' | 'rect' | 'circle' | 'bitmap' | 'text' | 'group'
 
@@ -40,6 +40,8 @@ export type ItemByType<T extends ItemType> = T extends 'line'
 // work fine since be don't expect much more item behavior.
 
 export const drawItem = (ctx: CanvasRenderingContext2D, item: Item) => {
+  if (item.isHidden) return
+
   if (item.type === 'line') line.draw(ctx, item)
   if (item.type === 'rect') rect.draw(ctx, item)
   if (item.type === 'circle') circle.draw(ctx, item)

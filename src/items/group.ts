@@ -5,8 +5,11 @@ import { translateItem, type Item } from './item'
 export interface Group {
   type: 'group'
   id: number
+  name: string
+  isHidden: boolean
+  isLocked: boolean
   children: Item[]
-  bounds?: Bounds
+  bounds: null
 }
 
 // TODO: implement
@@ -35,7 +38,7 @@ const findEdges = (
   }
 }
 
-const getBounds = (item: Omit<Group, 'id' | 'bounds'>) => {
+const getBounds = (item: Pick<Group, 'type' | 'children'>) => {
   const edges = {
     top: Infinity,
     left: Infinity,

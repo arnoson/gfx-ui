@@ -8,7 +8,9 @@ defineProps<{ item: Item }>()
 </script>
 
 <template>
-  <LineControls v-if="item.type === 'line'" :item="item" />
-  <RectControls v-else-if="item.type === 'rect'" :item="item" />
-  <CircleControls v-else-if="item.type === 'circle'" :item="item" />
+  <template v-if="!item.isHidden && !item.isLocked">
+    <LineControls v-if="item.type === 'line'" :item="item" />
+    <RectControls v-else-if="item.type === 'rect'" :item="item" />
+    <CircleControls v-else-if="item.type === 'circle'" :item="item" />
+  </template>
 </template>

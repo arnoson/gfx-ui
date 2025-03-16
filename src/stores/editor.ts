@@ -20,6 +20,7 @@ import { useSelect } from '~/tools/select'
 import { useText } from '~/tools/text'
 import type { Bounds, Size } from '~/types'
 import { makeBounds } from '~/utils/bounds'
+import { capitalizeFirstLetter } from '~/utils/text'
 
 type Id = number
 
@@ -85,18 +86,26 @@ export const useEditor = defineStore('editor', () => {
     if (!activeFrame.value) return
 
     const id = createId()
-    const bounds = data.type !== 'group' ? getItemBounds(data) : undefined
-    const item = { ...data, bounds, id } as R
+    const bounds = data.type !== 'group' ? getItemBounds(data) : null
+    const name = capitalizeFirstLetter(data.type)
+    const item = {
+      ...data,
+      isLocked: false,
+      isHidden: false,
+      bounds,
+      id,
+      name,
+    } as R
     activeFrame.value.children.unshift(item as Item)
     // Pushing the item makes it reactive, so in order return the reactive item
     // we have to retrieve it from children.
     return activeFrame.value.children[0] as R
   }
 
-  const removeItem = (itemId: Id) => {
+  const removeItem = (item: Item) => {
     if (!activeFrame.value) return
 
-    const index = activeFrame.value.children.findIndex((v) => v.id === itemId)
+    const index = activeFrame.value.children.findIndex((v) => v.id === item.id)
     activeFrame.value.children.splice(index, 1)
   }
 

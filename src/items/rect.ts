@@ -43,6 +43,9 @@ import { makeBounds } from '~/utils/bounds'
 export interface Rect {
   type: 'rect'
   id: number
+  name: string
+  isHidden: boolean
+  isLocked: boolean
   bounds: Bounds
   radius: number
   position: Point
@@ -53,7 +56,12 @@ export interface Rect {
 
 const drawNormalRect = (
   ctx: CanvasRenderingContext2D,
-  { position, size, color, isFilled }: Omit<Rect, 'type' | 'id' | 'bounds'>,
+  {
+    position,
+    size,
+    color,
+    isFilled,
+  }: Pick<Rect, 'position' | 'size' | 'color' | 'isFilled'>,
 ) => {
   const { width, height } = size
   const left = position.x
@@ -88,7 +96,6 @@ const drawRoundRect = (
       position: { x: x + r, y },
       size: { width: w - 2 * r, height: h },
       color,
-      radius,
       isFilled,
     })
     fillCircleHelper(ctx, x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color)
@@ -120,7 +127,7 @@ const move = (rect: Rect, position: Point) => {
   rect.position = position
 }
 
-const getBounds = (rect: Omit<Rect, 'id' | 'bounds'>) =>
+const getBounds = (rect: Pick<Rect, 'position' | 'size'>) =>
   makeBounds(rect.position, rect.size)
 
 export default { draw, translate, move, getBounds }

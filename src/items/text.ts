@@ -6,6 +6,9 @@ import { drawPixel } from '~/utils/pixels'
 export interface Text {
   type: 'text'
   id: number
+  name: string
+  isHidden: boolean
+  isLocked: boolean
   content: string
   font: string
   color: Color
@@ -62,7 +65,7 @@ const move = (text: Text, position: Point) => {
   text.position = position
 }
 
-const getBounds = (text: Omit<Text, 'id' | 'bounds'>) => {
+const getBounds = (text: Pick<Text, 'font' | 'content' | 'position'>) => {
   const fonts = useFonts()
   const font = fonts.fonts.get(text.font)
   if (!font) return emptyBounds

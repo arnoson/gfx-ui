@@ -26,10 +26,6 @@ const editor = useEditor()
 let ctx = ref<CanvasRenderingContext2D | null>()
 onMounted(() => (ctx.value = canvas.value?.getContext('2d') ?? null))
 
-const blur = () => {
-  if (editor.activeTool.id === 'select') frames.blur()
-}
-
 const render = () => {
   if (!ctx.value) return
   ctx.value.clearRect(0, 0, size.value.width, size.value.height)
@@ -43,11 +39,10 @@ watch(size, async () => {
 })
 
 const overlay = useTemplateRef('overlay')
-const frameEl = useTemplateRef('frameEl')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
 // Forward canvas mouse and key events to the active tool.
-useEventListener<MouseEvent>(frameEl, 'mousedown', (e) => {
+useEventListener<MouseEvent>(editorEl, 'mousedown', (e) => {
   if (space.value) return
   const { onMouseDown, config } = editor.activeTool
   onMouseDown?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
@@ -77,6 +72,7 @@ useEventListener('keydown', (e) => {
     else if (e.key === 'r') editor.activateTool('rect')
     else if (e.key === 'o') editor.activateTool('rect')
     else if (e.key === 'p') editor.activateTool('draw')
+    else if (e.key === 't') editor.activateTool('text')
     else if (e.key === 'Escape') {
       editor.activateTool('select')
       editor.focusedItem = null
@@ -89,7 +85,7 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
 
 <template>
   <div ref="editorEl" class="editor" :data-scrolling="scrolling">
-    <div ref="frameEl" class="frame">
+    <div class="frame">
       <svg :viewBox="`0 0 ${size.width} ${size.height}`" class="overflow">
         <!-- Bounds for items outside of frame -->
         <ItemBounds

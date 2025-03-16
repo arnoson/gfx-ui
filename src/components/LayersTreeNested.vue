@@ -4,7 +4,7 @@ import { useDraggable } from 'vue-draggable-plus'
 import IconChevron from '~/assets/icons/icon-chevron.svg'
 import type { Item } from '~/items/item'
 import { useEditor } from '~/stores/editor'
-import LayerIcon from './LayerIcon.vue'
+import LayerItem from './LayerItem.vue'
 
 const list = defineModel<Item[]>({ required: true })
 const editor = useEditor()
@@ -27,12 +27,9 @@ useDraggable(layers, list, {
       "
     >
       <details v-if="item.type === 'group'" open>
-        <summary class="layer">
+        <summary class="row">
           <IconChevron class="chevron" />
-          <button @mousedown="editor.focusItem(item)">
-            <LayerIcon :item="item" />
-            {{ item.type }}@{{ item.id }}
-          </button>
+          <LayerItem :item="item" />
         </summary>
         <LayersTreeNested
           v-if="item.type === 'group'"
@@ -40,12 +37,9 @@ useDraggable(layers, list, {
           class="children"
         />
       </details>
-      <div v-else class="layer">
+      <div v-else class="row">
         <div class="chevron-spacer"></div>
-        <button @mousedown="editor.focusItem(item)">
-          <LayerIcon :item="item" />
-          {{ item.type }}@{{ item.id }}
-        </button>
+        <LayerItem :item="item" />
       </div>
     </li>
   </ul>
@@ -61,29 +55,10 @@ useDraggable(layers, list, {
   margin: 0;
 }
 
-.layer {
+.row {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-
-  button {
-    flex: 1;
-    text-align: left;
-    background: none;
-    color: var(--color-text);
-    align-items: center;
-    display: flex;
-    gap: 0.5rem;
-    padding-inline: 0.2rem;
-  }
-
-  button:hover {
-    background-color: var(--color-grid);
-  }
-
-  [data-highlight='true'] & button {
-    background-color: var(--color-accent);
-  }
 }
 
 details > summary {

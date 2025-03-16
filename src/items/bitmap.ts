@@ -5,6 +5,9 @@ import { drawPixel, packPixel, unpackPixel } from '~/utils/pixels'
 export interface Bitmap {
   type: 'bitmap'
   id: number
+  name: string
+  isHidden: boolean
+  isLocked: boolean
   bounds: Bounds
   pixels: Pixels
   color: Color
@@ -34,7 +37,7 @@ const move = (bitmap: Bitmap, position: Point) => {
   translate(bitmap, delta)
 }
 
-const getBounds = (bitmap: Omit<Bitmap, 'id' | 'bounds'>): Bounds => {
+const getBounds = (bitmap: Pick<Bitmap, 'pixels'>): Bounds => {
   if (!bitmap.pixels.size) return emptyBounds
 
   let top = Infinity

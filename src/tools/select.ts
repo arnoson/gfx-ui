@@ -1,4 +1,4 @@
-import { getItemBounds, translateItem } from '~/items/item'
+import { getItemBounds, translateItem, type Item } from '~/items/item'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
 import {
@@ -39,12 +39,15 @@ export const useSelect = defineTool(
       editor.selectionBounds = makeBounds(position, size)
 
       for (const item of editor.activeFrame.children) {
+        if (item.isHidden || item.isLocked) continue
+
         const bounds = item.type === 'group' ? getItemBounds(item) : item.bounds
         const isIntersecting =
           bounds.left <= editor.selectionBounds.right &&
           bounds.right >= editor.selectionBounds.left &&
           bounds.top <= editor.selectionBounds.bottom &&
           bounds.bottom >= editor.selectionBounds.top
+
         if (isIntersecting) editor.selectedItems.add(item)
         else editor.selectedItems.delete(item)
       }
@@ -80,6 +83,7 @@ export const useSelect = defineTool(
       }
 
       for (const item of items) {
+        if (item.isLocked) continue
         translateItem(item, delta)
         if (item.type !== 'group') {
           item.bounds = getTranslatedBounds(item.bounds, delta)
@@ -112,33 +116,56 @@ export const useSelect = defineTool(
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
+      // Delete item
       if (e.key === 'Delete') {
         if (e.target !== document.body) return
 
-        if (editor.focusedItem) {
-          editor.removeItem(editor.focusedItem.id)
-          editor.focusedItem = null
+        for (const item of editor.selectedItems) {
+          if (item === editor.focusedItem) editor.focusedItem = null
+          editor.removeItem(item)
         }
-
-        for (const { id } of editor.selectedItems) editor.removeItem(id)
         editor.selectedItems.clear()
         return
       }
 
+      // End selection
       if (e.key === 'Escape') {
         editor.selectedItems.clear()
         return
       }
 
-      if (e.key === 'g' && e.ctrlKey) {
+      // Group
+      if (e.key === 'g' && e.ctrlKey && !e.shiftKey) {
         e.preventDefault()
 
         if (editor.selectedItems.size) {
-          for (const item of editor.selectedItems) editor.removeItem(item.id)
+          for (const item of editor.selectedItems) editor.removeItem(item)
           const group = editor.addItem({
             type: 'group',
             children: [...editor.selectedItems],
           })
+          if (group) editor.focusItem(group)
+        }
+      }
+
+      // Ungroup
+      if (e.key.toLowerCase() === 'g' && e.ctrlKey && e.shiftKey) {
+        e.preventDefault()
+
+        if (editor.selectedItems.size) {
+          const newSelectedItems = new Set<Item>()
+          for (const item of editor.selectedItems) {
+            if (item.type !== 'group') continue
+
+            // TODO: insert at correct position and parent.
+            for (const child of item.children) {
+              editor.addItem(child)
+              newSelectedItems.add(child)
+            }
+            editor.removeItem(item)
+            if (editor.focusedItem === item) editor.focusedItem === null
+          }
+          editor.selectedItems = newSelectedItems
         }
       }
     }

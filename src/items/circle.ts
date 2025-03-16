@@ -42,6 +42,9 @@ import { makeBounds } from '~/utils/bounds'
 export interface Circle {
   type: 'circle'
   id: number
+  name: string
+  isHidden: boolean
+  isLocked: boolean
   bounds: Bounds
   color: Color
   center: Point
@@ -202,7 +205,7 @@ const move = (circle: Circle, position: Point) => {
   circle.center.y = position.y + circle.radius
 }
 
-const getBounds = (circle: Omit<Circle, 'id' | 'bounds'>): Bounds => {
+const getBounds = (circle: Pick<Circle, 'center' | 'radius'>): Bounds => {
   const { center, radius } = circle
   const position = {
     x: center.x - radius,

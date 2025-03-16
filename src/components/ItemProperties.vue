@@ -5,6 +5,7 @@ import RectProperties from './RectProperties.vue'
 import LineProperties from './LineProperties.vue'
 import TextProperties from './TextProperties.vue'
 import type { Item } from '~/items/item'
+import SelectionProperties from './SelectionProperties.vue'
 
 defineProps<{ item: Item }>()
 </script>
@@ -15,4 +16,8 @@ defineProps<{ item: Item }>()
   <CircleProperties v-else-if="item.type === 'circle'" :item />
   <LineProperties v-else-if="item.type === 'line'" :item />
   <TextProperties v-else-if="item.type === 'text'" :item />
+  <SelectionProperties
+    v-else-if="item.type === 'group'"
+    :items="item.children"
+  />
 </template>
