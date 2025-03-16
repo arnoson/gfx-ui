@@ -43,7 +43,6 @@ watch(size, async () => {
 })
 
 const overlay = useTemplateRef('overlay')
-const background = useTemplateRef('background')
 const frameEl = useTemplateRef('frameEl')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
@@ -112,9 +111,6 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
         class="overlay"
         :style="`pointer-events: ${space ? 'none' : 'inital'}`"
       >
-        <!-- Background -->
-        <rect ref="background" class="background" @mouseup="blur()" />
-
         <!-- Grid -->
         <g>
           <rect
@@ -226,13 +222,6 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
     left: 50%;
     transform: translate(-50%, -50%);
   }
-}
-
-.background {
-  fill: transparent;
-  width: 100vw;
-  height: 100vh;
-  translate: -50% -50%;
 }
 
 .canvas {

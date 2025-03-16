@@ -14,7 +14,11 @@ const updateContent = (e: Event) => {
 }
 
 const content = useTemplateRef('content')
-afterTextAdded.on(() => content.value?.focus())
+afterTextAdded.on(() => {
+  if (!content.value) return
+  content.value.focus()
+  content.value.select()
+})
 </script>
 
 <template>

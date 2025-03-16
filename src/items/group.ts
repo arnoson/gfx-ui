@@ -1,4 +1,4 @@
-import type { Point } from '~/types'
+import type { Bounds, Point } from '~/types'
 import { getTranslatedBounds, makeBounds } from '~/utils/bounds'
 import { translateItem, type Item } from './item'
 
@@ -6,7 +6,7 @@ export interface Group {
   type: 'group'
   id: number
   children: Item[]
-  bounds: null
+  bounds?: Bounds
 }
 
 // TODO: implement

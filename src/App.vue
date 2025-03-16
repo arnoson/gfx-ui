@@ -37,33 +37,32 @@ editor.addItem({
   radius: 0,
 })
 
-// editor.addItem({
-//   type: 'circle',
-//   center: { x: 30, y: 30 },
-//   radius: 5,
-//   color: 15,
-//   isFilled: false,
-// })
+editor.addItem({
+  type: 'circle',
+  center: { x: 30, y: 30 },
+  radius: 5,
+  color: 15,
+  isFilled: false,
+})
 
-// fonts.add(miwos7pt)
+fonts.add(miwos7pt)
 
-// editor.addItem({
-//   type: 'text',
-//   content: 'Hello\nArggggh!',
-//   color: 15,
-//   font: 'miwos7pt',
-//   position: { x: 10, y: 10 },
-// })
+editor.addItem({
+  type: 'text',
+  content: 'Hello\nArggggh!',
+  color: 15,
+  font: 'miwos7pt',
+  position: { x: 10, y: 10 },
+})
 </script>
 
 <template>
   <SplitterGroup direction="horizontal">
     <SplitterPanel
-      class="layers-panel"
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      <LayersTree />
+      Frames
     </SplitterPanel>
     <SplitterResizeHandle />
     <SplitterPanel class="editor-panel">
@@ -72,19 +71,29 @@ editor.addItem({
     </SplitterPanel>
     <SplitterResizeHandle />
     <SplitterPanel
-      class="properties-panel"
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      <ItemProperties v-if="editor.focusedItem" :item="editor.focusedItem" />
-      <SelectionProperties
-        v-else-if="editor.selectedItems.size"
-        :items="editor.selectedItems"
-      />
-      <FrameProperties
-        v-else-if="editor.activeFrame"
-        :frame="editor.activeFrame"
-      />
+      <SplitterGroup direction="vertical">
+        <SplitterPanel class="properties-panel">
+          <ItemProperties
+            v-if="editor.focusedItem"
+            :item="editor.focusedItem"
+          />
+          <SelectionProperties
+            v-else-if="editor.selectedItems.size"
+            :items="editor.selectedItems"
+          />
+          <FrameProperties
+            v-else-if="editor.activeFrame"
+            :frame="editor.activeFrame"
+          />
+        </SplitterPanel>
+        <SplitterResizeHandle />
+        <SplitterPanel class="layers-panel">
+          <LayersTree />
+        </SplitterPanel>
+      </SplitterGroup>
     </SplitterPanel>
   </SplitterGroup>
 </template>
@@ -98,6 +107,10 @@ editor.addItem({
 .properties-panel,
 .layers-panel {
   padding: 1rem;
+}
+
+.layers-panel {
+  padding-left: 0.6rem;
 }
 
 [data-resize-handle] {

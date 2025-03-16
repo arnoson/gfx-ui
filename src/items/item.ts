@@ -17,6 +17,22 @@ export type ItemData =
   | Omit<Text, 'id' | 'bounds'>
   | Omit<Group, 'id' | 'bounds'>
 
+export type ItemType = 'line' | 'rect' | 'circle' | 'bitmap' | 'text' | 'group'
+
+export type ItemByType<T extends ItemType> = T extends 'line'
+  ? Line
+  : T extends 'rect'
+    ? Rect
+    : T extends 'circle'
+      ? Circle
+      : T extends 'bitmap'
+        ? Bitmap
+        : T extends 'text'
+          ? Text
+          : T extends 'group'
+            ? Group
+            : never
+
 // All this manual dispatching sucks, but since all the item data lives as plain
 // objects in the store, a OOP approach won't fit. Dynamically dispatching from
 // a map like `itemActions[item.type].translate()` would be better, but I had

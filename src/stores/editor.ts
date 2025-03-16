@@ -1,7 +1,17 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { Bitmap } from '~/items/bitmap'
+import type { Circle } from '~/items/circle'
 import type { Group } from '~/items/group'
-import { getItemBounds, type Item, type ItemData } from '~/items/item'
+import {
+  getItemBounds,
+  type Item,
+  type ItemByType,
+  type ItemData,
+} from '~/items/item'
+import type { Line } from '~/items/line'
+import type { Rect } from '~/items/rect'
+import type { Text } from '~/items/text'
 import { useCircle } from '~/tools/circle'
 import { useDraw } from '~/tools/draw'
 import { useLine } from '~/tools/line'
@@ -69,16 +79,18 @@ export const useEditor = defineStore('editor', () => {
   // Items
   const focusedItem = ref<Item | null>(null)
 
-  const addItem = <T extends ItemData>(data: T) => {
+  const addItem = <T extends ItemData, R = ItemByType<T['type']>>(
+    data: T,
+  ): R | undefined => {
     if (!activeFrame.value) return
 
     const id = createId()
-    const bounds = getItemBounds(data)
-    const item = { ...data, bounds, id }
-    activeFrame.value.children.unshift(item)
+    const bounds = data.type !== 'group' ? getItemBounds(data) : undefined
+    const item = { ...data, bounds, id } as R
+    activeFrame.value.children.unshift(item as Item)
     // Pushing the item makes it reactive, so in order return the reactive item
     // we have to retrieve it from children.
-    return activeFrame.value.children[0] as unknown as typeof item
+    return activeFrame.value.children[0] as R
   }
 
   const removeItem = (itemId: Id) => {
