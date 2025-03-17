@@ -5,8 +5,8 @@ export const makeBounds = (position: Point, size: Size): Bounds => {
   const { width, height } = size
   const top = y
   const left = x
-  const right = left + width - 1
-  const bottom = y + height - 1
+  const right = left + width
+  const bottom = y + height
 
   return {
     x,
@@ -21,6 +21,7 @@ export const makeBounds = (position: Point, size: Size): Bounds => {
     topRight: { x: right, y: top },
     bottomLeft: { x: left, y: bottom },
     bottomRight: { x: right, y: bottom },
+    center: { x: left + width / 2, y: top + height / 2 },
   }
 }
 

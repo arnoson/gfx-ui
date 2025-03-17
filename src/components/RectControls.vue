@@ -12,8 +12,8 @@ const topLeftHandle = useTemplateRef('topLeftHandle')
 useSvgDraggable(topLeftHandle, {
   isPoint: true,
   onMove: ({ x, y }) => {
-    const width = bounds.value.right - x + 1
-    const height = bounds.value.bottom - y + 1
+    const width = bounds.value.right - x
+    const height = bounds.value.bottom - y
     if (width > 1) {
       props.item.position.x = x
       props.item.size.width = width
@@ -30,8 +30,8 @@ const topRightHandle = useTemplateRef('topRightHandle')
 useSvgDraggable(topRightHandle, {
   isPoint: true,
   onMove: ({ x, y }) => {
-    const width = x - bounds.value.left + 1
-    const height = bounds.value.bottom - y + 1
+    const width = x - bounds.value.left
+    const height = bounds.value.bottom - y
     if (width > 1) {
       props.item.size.width = width
     }
@@ -47,8 +47,8 @@ const bottomLeftHandle = useTemplateRef('bottomLeftHandle')
 useSvgDraggable(bottomLeftHandle, {
   isPoint: true,
   onMove: ({ x, y }) => {
-    const width = bounds.value.right - x + 1
-    const height = y - bounds.value.top + 1
+    const width = bounds.value.right - x
+    const height = y - bounds.value.top
     if (width > 1) {
       props.item.position.x = x
       props.item.size.width = width
@@ -64,8 +64,8 @@ const bottomRightHandle = useTemplateRef('bottomRightHandle')
 useSvgDraggable(bottomRightHandle, {
   isPoint: true,
   onMove: ({ x, y }) => {
-    const width = x - bounds.value.left + 1
-    const height = y - bounds.value.top + 1
+    const width = x - bounds.value.left
+    const height = y - bounds.value.top
     if (width > 1) {
       props.item.size.width = width
     }
@@ -87,20 +87,20 @@ useSvgDraggable(bottomRightHandle, {
     />
     <circle
       ref="topRightHandle"
-      :cx="item.bounds.topRight.x + 1"
+      :cx="item.bounds.topRight.x"
       :cy="item.bounds.topRight.y"
       class="point-handle"
     />
     <circle
       ref="bottomLeftHandle"
       :cx="item.bounds.bottomLeft.x"
-      :cy="item.bounds.bottomLeft.y + 1"
+      :cy="item.bounds.bottomLeft.y"
       class="point-handle"
     />
     <circle
       ref="bottomRightHandle"
-      :cx="item.bounds.bottomRight.x + 1"
-      :cy="item.bounds.bottomRight.y + 1"
+      :cx="item.bounds.bottomRight.x"
+      :cy="item.bounds.bottomRight.y"
       class="point-handle"
     />
   </g>

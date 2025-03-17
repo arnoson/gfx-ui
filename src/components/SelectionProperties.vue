@@ -40,7 +40,7 @@ const alignRight = () => {
   const { right } = editor.selectedItemBounds
   for (const item of props.items) {
     const bounds = item.bounds ?? getItemBounds(item)
-    const x = right - bounds.width + 1
+    const x = right - bounds.width
     moveItem(item, { x, y: bounds.y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }
@@ -73,7 +73,7 @@ const alignBottom = () => {
   const { bottom } = editor.selectedItemBounds
   for (const item of props.items) {
     const bounds = item.bounds ?? getItemBounds(item)
-    const y = bottom - bounds.height + 1
+    const y = bottom - bounds.height
     moveItem(item, { x: bounds.x, y })
     if (item.type !== 'group') item.bounds = getItemBounds(item)
   }

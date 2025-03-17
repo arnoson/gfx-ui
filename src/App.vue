@@ -21,12 +21,12 @@ const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
 const sidebarMinSize = computed(() => (175 / width.value) * 100)
 
-editor.addItem({
-  type: 'line',
-  from: { x: 0, y: 0 },
-  to: { x: 10, y: 10 },
-  color: 15,
-})
+// editor.addItem({
+//   type: 'line',
+//   from: { x: 0, y: 0 },
+//   to: { x: 10, y: 10 },
+//   color: 15,
+// })
 
 editor.addItem({
   type: 'rect',
@@ -45,15 +45,15 @@ editor.addItem({
   isFilled: false,
 })
 
-fonts.add(miwos7pt)
+// fonts.add(miwos7pt)
 
-editor.addItem({
-  type: 'text',
-  content: 'Hello\nArggggh!',
-  color: 15,
-  font: 'miwos7pt',
-  position: { x: 10, y: 10 },
-})
+// editor.addItem({
+//   type: 'text',
+//   content: 'Hello\nArggggh!',
+//   color: 15,
+//   font: 'miwos7pt',
+//   position: { x: 10, y: 10 },
+// })
 </script>
 
 <template>

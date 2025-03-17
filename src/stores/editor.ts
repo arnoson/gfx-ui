@@ -18,7 +18,7 @@ import { useLine } from '~/tools/line'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
 import { useText } from '~/tools/text'
-import type { Bounds, Size } from '~/types'
+import type { Bounds, Point, Size } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 import { capitalizeFirstLetter } from '~/utils/text'
 
@@ -118,6 +118,7 @@ export const useEditor = defineStore('editor', () => {
   // Selection
   const selectionBounds = ref<Bounds | null>(null)
   const isSelecting = ref(false)
+  const isMoving = ref(false)
   const selectedItems = ref(new Set<Item>())
 
   const selectedItemBounds = computed(() => {
@@ -137,9 +138,13 @@ export const useEditor = defineStore('editor', () => {
     }
     return makeBounds(
       { x: left, y: top },
-      { width: right - left + 1, height: bottom - top + 1 },
+      { width: right - left, height: bottom - top },
     )
   })
+
+  // Snapping
+  const snapLineHorizontal = ref<{ from: Point; to: Point } | null>(null)
+  const snapLineVertical = ref<{ from: Point; to: Point } | null>(null)
 
   return {
     activeTool,
@@ -157,6 +162,9 @@ export const useEditor = defineStore('editor', () => {
     selectedItems,
     selectedItemBounds,
     isSelecting,
+    isMoving,
+    snapLineHorizontal,
+    snapLineVertical,
   }
 })
 

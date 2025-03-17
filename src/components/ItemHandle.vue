@@ -10,7 +10,7 @@ const editor = useEditor()
 const { ctrl } = useMagicKeys()
 
 const handle = useTemplateRef('handle')
-useEventListener(handle, 'mousedown', () => {
+useEventListener(handle, 'mousedown', (e) => {
   // Allow focusing grouped items when ctrl key is pressed.
   // TODO: once an grouped item is focused it should act as an ungrouped item
   // even if the ctrl key isn't pressed afterwards.

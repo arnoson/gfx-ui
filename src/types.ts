@@ -22,6 +22,7 @@ export interface Bounds {
   topRight: Point
   bottomRight: Point
   bottomLeft: Point
+  center: Point
 }
 
 /**

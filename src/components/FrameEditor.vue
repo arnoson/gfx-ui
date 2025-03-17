@@ -136,17 +136,11 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
         </g>
 
         <!-- Bounds -->
-        <g>
+        <g v-if="!editor.isMoving">
           <ItemBounds
             v-for="item of editor.selectedItems"
             :key="item.id"
             :item="item"
-            class="bounds"
-          />
-          <ItemBounds
-            v-if="editor.focusedItem"
-            :key="editor.focusedItem.id"
-            :item="editor.focusedItem"
             class="bounds"
           />
         </g>
@@ -164,7 +158,11 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
 
         <!-- Controls -->
         <ItemControls
-          v-if="editor.activeTool.id === 'select' && editor.focusedItem"
+          v-if="
+            editor.activeTool.id === 'select' &&
+            editor.focusedItem &&
+            !editor.isMoving
+          "
           :item="editor.focusedItem"
         />
 
@@ -178,12 +176,30 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
           :height="editor.selectionBounds.height"
         />
         <rect
-          v-if="editor.selectedItemBounds"
+          v-if="editor.selectedItemBounds && !editor.isMoving"
           class="bounds"
           :x="editor.selectedItemBounds.left"
           :y="editor.selectedItemBounds.top"
           :width="editor.selectedItemBounds.width"
           :height="editor.selectedItemBounds.height"
+        />
+
+        <!-- Snapping -->
+        <line
+          v-if="editor.snapLineVertical"
+          class="snap"
+          :x1="editor.snapLineVertical.from.x"
+          :y1="editor.snapLineVertical.from.y"
+          :x2="editor.snapLineVertical.to.x"
+          :y2="editor.snapLineVertical.to.y"
+        />
+        <line
+          v-if="editor.snapLineHorizontal"
+          class="snap"
+          :x1="editor.snapLineHorizontal.from.x"
+          :y1="editor.snapLineHorizontal.from.y"
+          :x2="editor.snapLineHorizontal.to.x"
+          :y2="editor.snapLineHorizontal.to.y"
         />
       </svg>
     </div>
@@ -254,6 +270,11 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
   vector-effect: non-scaling-stroke;
   pointer-events: none;
   stroke-width: var(--stroke-width);
+}
+
+.snap {
+  stroke: var(--color-accent);
+  vector-effect: non-scaling-stroke;
 }
 </style>
 

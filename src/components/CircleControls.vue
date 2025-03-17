@@ -17,8 +17,8 @@ useSvgDraggable(topLeftHandle, {
     const distance = Math.max(distanceX, distanceY)
     const radius = Math.round(distance / 2)
 
-    props.item.center.x = bounds.value.right - radius
-    props.item.center.y = bounds.value.bottom - radius
+    props.item.center.x = bounds.value.right - 1 - radius
+    props.item.center.y = bounds.value.bottom - 1 - radius
     props.item.radius = radius
     updateBounds()
   },
@@ -34,7 +34,7 @@ useSvgDraggable(topRightHandle, {
     const radius = Math.round(distance / 2)
 
     props.item.center.x = bounds.value.left + radius
-    props.item.center.y = bounds.value.bottom - radius
+    props.item.center.y = bounds.value.bottom - 1 - radius
     props.item.radius = radius
     updateBounds()
   },
@@ -49,7 +49,7 @@ useSvgDraggable(bottomLeftHandle, {
     const distance = Math.max(distanceX, distanceY)
     const radius = Math.round(distance / 2)
 
-    props.item.center.x = bounds.value.right - radius
+    props.item.center.x = bounds.value.right - 1 - radius
     props.item.center.y = bounds.value.top + radius
     props.item.radius = radius
     updateBounds()
@@ -83,20 +83,20 @@ useSvgDraggable(bottomRightHandle, {
     />
     <circle
       ref="topRightHandle"
-      :cx="bounds.topRight.x + 1"
+      :cx="bounds.topRight.x"
       :cy="bounds.topRight.y"
       class="point-handle"
     />
     <circle
       ref="bottomLeftHandle"
       :cx="bounds.bottomLeft.x"
-      :cy="bounds.bottomLeft.y + 1"
+      :cy="bounds.bottomLeft.y"
       class="point-handle"
     />
     <circle
       ref="bottomRightHandle"
-      :cx="bounds.bottomRight.x + 1"
-      :cy="bounds.bottomRight.y + 1"
+      :cx="bounds.bottomRight.x"
+      :cy="bounds.bottomRight.y"
       class="point-handle"
     />
   </g>

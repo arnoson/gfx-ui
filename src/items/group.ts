@@ -46,8 +46,8 @@ const getBounds = (item: Pick<Group, 'type' | 'children'>) => {
     right: -Infinity,
   }
   findEdges(item as Item, edges)
-  const width = edges.right - edges.left + 1
-  const height = edges.bottom - edges.top + 1
+  const width = edges.right - edges.left
+  const height = edges.bottom - edges.top
   return makeBounds({ x: edges.left, y: edges.top }, { width, height })
 }
 
