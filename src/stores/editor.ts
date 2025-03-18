@@ -19,7 +19,7 @@ import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
 import { useText } from '~/tools/text'
 import type { Bounds, Point, Size } from '~/types'
-import { makeBounds } from '~/utils/bounds'
+import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { capitalizeFirstLetter } from '~/utils/text'
 
 type Id = number
@@ -60,6 +60,10 @@ export const useEditor = defineStore('editor', () => {
   // Frames
   const frames = ref(new Map<Id, Frame>())
   const activeFrame = ref<Frame>()
+  const frameBounds = computed(() => {
+    if (!activeFrame.value) return emptyBounds
+    return makeBounds({ x: 0, y: 0 }, activeFrame.value.size)
+  })
 
   const addFrame = (data: Partial<Frame>): Frame => {
     const id = createId()
@@ -78,6 +82,22 @@ export const useEditor = defineStore('editor', () => {
   const activateFrame = (id: Id) => (activeFrame.value = frames.value.get(id))
 
   // Items
+  const items = computed(() => activeFrame.value?.children ?? [])
+  const itemsFlat = computed(() => {
+    if (!activeFrame.value) return []
+
+    const result: Item[] = []
+    const stack: Item[] = [...activeFrame.value.children]
+
+    while (stack.length) {
+      const current = stack.pop()!
+      result.push(current)
+      if (current.type === 'group') stack.push(...current.children)
+    }
+    console.log('compute items')
+    return result
+  })
+
   const focusedItem = ref<Item | null>(null)
 
   const addItem = <T extends ItemData, R = ItemByType<T['type']>>(
@@ -143,17 +163,27 @@ export const useEditor = defineStore('editor', () => {
   })
 
   // Snapping
-  const snapLineHorizontal = ref<{ from: Point; to: Point } | null>(null)
-  const snapLineVertical = ref<{ from: Point; to: Point } | null>(null)
+  const snapThreshold = computed(() => {
+    // Allow more precise alignment when zoomed in.
+    const scale = activeFrame.value?.scale ?? 1
+    return Math.ceil(5 / scale)
+  })
+  const snapGuides = ref<{
+    vertical?: { from: Point; to: Point }
+    horizontal?: { from: Point; to: Point }
+  } | null>(null)
 
   return {
     activeTool,
     activateTool,
     frames,
     activeFrame,
+    frameBounds,
     addFrame,
     removeFrame,
     activateFrame,
+    items,
+    itemsFlat,
     focusedItem,
     addItem,
     removeItem,
@@ -163,8 +193,8 @@ export const useEditor = defineStore('editor', () => {
     selectedItemBounds,
     isSelecting,
     isMoving,
-    snapLineHorizontal,
-    snapLineVertical,
+    snapThreshold,
+    snapGuides,
   }
 })
 

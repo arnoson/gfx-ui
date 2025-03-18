@@ -45,15 +45,15 @@ editor.addItem({
   isFilled: false,
 })
 
-// fonts.add(miwos7pt)
+fonts.add(miwos7pt)
 
-// editor.addItem({
-//   type: 'text',
-//   content: 'Hello\nArggggh!',
-//   color: 15,
-//   font: 'miwos7pt',
-//   position: { x: 10, y: 10 },
-// })
+editor.addItem({
+  type: 'text',
+  content: 'Hello\nArggggh!',
+  color: 15,
+  font: 'miwos7pt',
+  position: { x: 10, y: 10 },
+})
 </script>
 
 <template>

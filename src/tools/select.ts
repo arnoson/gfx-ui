@@ -8,6 +8,7 @@ import {
 } from '~/utils/bounds'
 import { defineTool } from './tool'
 import { useMagicKeys } from '@vueuse/core'
+import { getBoundsSnap } from '~/utils/snap'
 
 export const useSelect = defineTool(
   'select',
@@ -71,126 +72,6 @@ export const useSelect = defineTool(
       mode = 'move'
     }
 
-    const snap = (delta: Point) => {
-      if (!editor.activeFrame || !editor.selectedItemBounds)
-        return { x: 0, y: 0 }
-
-      const bounds = editor.selectedItemBounds
-      const snapAmount = { x: 0, y: 0 }
-      let minDistanceX = 2
-      let minDistanceY = 2
-
-      const snapX = [
-        bounds.left + delta.x,
-        bounds.center.x + delta.x,
-        bounds.right + delta.x,
-      ]
-      const snapY = [
-        bounds.top + delta.y,
-        bounds.center.y + delta.y,
-        bounds.bottom + delta.y,
-      ]
-
-      const frameBounds = makeBounds({ x: 0, y: 0 }, editor.activeFrame.size)
-
-      for (const snap of snapX) {
-        for (const x of [
-          frameBounds.left,
-          frameBounds.center.x,
-          frameBounds.right,
-        ]) {
-          const dist = Math.abs(snap - x)
-          if (dist < minDistanceX) {
-            minDistanceX = dist
-            snapAmount.x = Math.floor(x - snap)
-            // prettier-ignore
-            const edges = [bounds.top, bounds.bottom, frameBounds.top, frameBounds.bottom]
-            editor.snapLineHorizontal = {
-              from: { x, y: Math.min(...edges) },
-              to: { x, y: Math.max(...edges) },
-            }
-          }
-        }
-      }
-
-      for (const snap of snapY) {
-        for (const y of [
-          frameBounds.top,
-          frameBounds.center.y,
-          frameBounds.bottom,
-        ]) {
-          const dist = Math.abs(snap - y)
-          if (dist < minDistanceY) {
-            minDistanceY = dist
-            snapAmount.y = Math.floor(y - snap)
-            // prettier-ignore
-            const edges = [bounds.left, bounds.right, frameBounds.left, frameBounds.right]
-            editor.snapLineVertical = {
-              from: { x: Math.min(...edges), y },
-              to: { x: Math.max(...edges), y },
-            }
-          }
-        }
-      }
-
-      const queue: Item[] = [...editor.activeFrame.children]
-      while (queue.length > 0) {
-        const current = queue.shift()
-        if (!current) break
-        if (editor.selectedItems.has(current)) continue
-        if (current.isHidden) continue
-
-        if (current.type === 'group') {
-          queue.push(...current.children)
-        } else {
-          const xValues = [
-            current.bounds.left,
-            current.bounds.center.x,
-            current.bounds.right,
-          ]
-          const yValues = [
-            current.bounds.top,
-            current.bounds.center.y,
-            current.bounds.bottom,
-          ]
-
-          for (const snap of snapX) {
-            for (const x of xValues) {
-              const dist = Math.abs(snap - x)
-              if (dist < minDistanceX) {
-                minDistanceX = dist
-                snapAmount.x = Math.floor(x - snap)
-                // prettier-ignore
-                const edges = [bounds.top, bounds.bottom, current.bounds.top, current.bounds.bottom]
-                editor.snapLineHorizontal = {
-                  from: { x, y: Math.min(...edges) },
-                  to: { x, y: Math.max(...edges) },
-                }
-              }
-            }
-          }
-
-          for (const snap of snapY) {
-            for (const y of yValues) {
-              const dist = Math.abs(snap - y)
-              if (dist < minDistanceY) {
-                minDistanceY = dist
-                snapAmount.y = Math.floor(y - snap)
-                // prettier-ignore
-                const edges = [bounds.left, bounds.right, current.bounds.left, current.bounds.right]
-                editor.snapLineVertical = {
-                  from: { x: Math.min(...edges), y },
-                  to: { x: Math.max(...edges), y },
-                }
-              }
-            }
-          }
-        }
-      }
-
-      return snapAmount
-    }
-
     const move = (point: Point) => {
       // Wait to perform the actual move until the user has moved the mouse a bit.
       if (!editor.isMoving) {
@@ -203,15 +84,26 @@ export const useSelect = defineTool(
       }
 
       if (!editor.selectedItems.size) return
-      editor.snapLineHorizontal = null
-      editor.snapLineVertical = null
+      editor.snapGuides = null
 
-      const delta = {
-        x: point.x - lastPoint.x,
-        y: point.y - lastPoint.y,
+      const delta = { x: point.x - lastPoint.x, y: point.y - lastPoint.y }
+      let snapAmount = { x: 0, y: 0 }
+
+      if (!ctrl.value) {
+        const snapTargets = editor.itemsFlat
+          .filter((v) => v.type !== 'group' && !editor.selectedItems.has(v))
+          .map((v) => v.bounds!)
+
+        const frameBounds = makeBounds({ x: 0, y: 0 }, editor.activeFrame!.size)
+        snapTargets.push(frameBounds)
+
+        const threshold = editor.snapThreshold
+        const bounds = getTranslatedBounds(editor.selectedItemBounds!, delta)
+        const { amount, guides } = getBoundsSnap(bounds, snapTargets, threshold)
+        snapAmount = amount
+        editor.snapGuides = guides
       }
 
-      const snapAmount = ctrl.value ? { x: 0, y: 0 } : snap(delta)
       delta.x += snapAmount.x
       delta.y += snapAmount.y
 
@@ -231,8 +123,7 @@ export const useSelect = defineTool(
     const endMove = () => {
       mode = 'idle'
       editor.isMoving = false
-      editor.snapLineHorizontal = null
-      editor.snapLineVertical = null
+      editor.snapGuides = null
     }
 
     const remove = () => {

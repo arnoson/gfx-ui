@@ -185,22 +185,24 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
         />
 
         <!-- Snapping -->
-        <line
-          v-if="editor.snapLineVertical"
-          class="snap"
-          :x1="editor.snapLineVertical.from.x"
-          :y1="editor.snapLineVertical.from.y"
-          :x2="editor.snapLineVertical.to.x"
-          :y2="editor.snapLineVertical.to.y"
-        />
-        <line
-          v-if="editor.snapLineHorizontal"
-          class="snap"
-          :x1="editor.snapLineHorizontal.from.x"
-          :y1="editor.snapLineHorizontal.from.y"
-          :x2="editor.snapLineHorizontal.to.x"
-          :y2="editor.snapLineHorizontal.to.y"
-        />
+        <g v-if="editor.snapGuides">
+          <line
+            v-if="editor.snapGuides.vertical"
+            class="snap"
+            :x1="editor.snapGuides.vertical.from.x"
+            :y1="editor.snapGuides.vertical.from.y"
+            :x2="editor.snapGuides.vertical.to.x"
+            :y2="editor.snapGuides.vertical.to.y"
+          />
+          <line
+            v-if="editor.snapGuides.horizontal"
+            class="snap"
+            :x1="editor.snapGuides.horizontal.from.x"
+            :y1="editor.snapGuides.horizontal.from.y"
+            :x2="editor.snapGuides.horizontal.to.x"
+            :y2="editor.snapGuides.horizontal.to.y"
+          />
+        </g>
       </svg>
     </div>
   </div>

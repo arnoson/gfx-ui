@@ -5,12 +5,13 @@ import { mouseToSvg } from '~/utils/mouse'
 
 interface UseDraggableSvgOptions {
   onMove: (position: Point, delta: Point) => void
+  onEnd?: () => void
   isPoint?: boolean
 }
 
 export const useSvgDraggable = (
   el: Ref<SVGGraphicsElement | null>,
-  { isPoint, onMove }: UseDraggableSvgOptions,
+  { isPoint, onMove, onEnd }: UseDraggableSvgOptions,
 ) => {
   const isDragging = ref(false)
   let clickDelta = { x: 0, y: 0 }
@@ -79,6 +80,7 @@ export const useSvgDraggable = (
 
     el.value?.removeAttribute('dragging')
     document.body.style.cursor = ''
+    onEnd?.()
   }
 
   useEventListener(el, 'mousedown', start)
