@@ -28,14 +28,14 @@ const sidebarMinSize = computed(() => (175 / width.value) * 100)
 //   color: 15,
 // })
 
-editor.addItem({
-  type: 'rect',
-  position: { x: 10, y: 10 },
-  size: { width: 20, height: 8 },
-  color: 15,
-  isFilled: true,
-  radius: 0,
-})
+// editor.addItem({
+//   type: 'rect',
+//   position: { x: 10, y: 10 },
+//   size: { width: 20, height: 8 },
+//   color: 15,
+//   isFilled: true,
+//   radius: 0,
+// })
 
 editor.addItem({
   type: 'circle',
@@ -45,15 +45,15 @@ editor.addItem({
   isFilled: false,
 })
 
-fonts.add(miwos7pt)
+// fonts.add(miwos7pt)
 
-editor.addItem({
-  type: 'text',
-  content: 'Hello\nArggggh!',
-  color: 15,
-  font: 'miwos7pt',
-  position: { x: 10, y: 10 },
-})
+// editor.addItem({
+//   type: 'text',
+//   content: 'Hello\nArggggh!',
+//   color: 15,
+//   font: 'miwos7pt',
+//   position: { x: 10, y: 10 },
+// })
 </script>
 
 <template>

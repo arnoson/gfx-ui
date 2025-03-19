@@ -34,3 +34,8 @@ export const dividePoints = (a: Point, b: Point) => ({
   x: a.x / b.x,
   y: a.y / b.y,
 })
+
+export const clonePoint = (point: Point) => ({
+  x: point.x,
+  y: point.y,
+})

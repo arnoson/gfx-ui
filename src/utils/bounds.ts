@@ -1,4 +1,4 @@
-import type { Bounds, Point, Size } from '~/types'
+import type { Bounds, Corner, Point, Size } from '~/types'
 
 export const makeBounds = (position: Point, size: Size): Bounds => {
   const { x, y } = position
@@ -43,3 +43,10 @@ export const boundsContainPoint = (bounds: Bounds, point: Point) =>
   point.x <= bounds.right &&
   point.y >= bounds.top &&
   point.y <= bounds.bottom
+
+export const getOppositeCorner = (corner: Corner): Corner => {
+  if (corner === 'topLeft') return 'bottomRight'
+  else if (corner === 'topRight') return 'bottomLeft'
+  else if (corner === 'bottomRight') return 'topLeft'
+  else return 'topRight'
+}

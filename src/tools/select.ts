@@ -84,7 +84,7 @@ export const useSelect = defineTool(
       }
 
       if (!editor.selectedItems.size) return
-      editor.snapGuides = null
+      editor.resetSnapGuides()
 
       const delta = { x: point.x - lastPoint.x, y: point.y - lastPoint.y }
       let snapAmount = { x: 0, y: 0 }
@@ -123,7 +123,7 @@ export const useSelect = defineTool(
     const endMove = () => {
       mode = 'idle'
       editor.isMoving = false
-      editor.snapGuides = null
+      editor.resetSnapGuides()
     }
 
     const remove = () => {

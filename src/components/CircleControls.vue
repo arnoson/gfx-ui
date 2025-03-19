@@ -1,117 +1,89 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core'
-import { computed, toRefs, useTemplateRef } from 'vue'
-import { useSvgDraggable } from '~/composables/useSvgDraggable'
-import circle, { type Circle } from '~/items/circle'
+import { type Circle } from '~/items/circle'
+import { getItemBounds } from '~/items/item'
 import { useEditor } from '~/stores/editor'
-import type { Point } from '~/types'
-import { getPointSnap } from '~/utils/snap'
+import { getOppositeCorner } from '~/utils/bounds'
+import { mouseToSvg } from '~/utils/mouse'
+import { roundPoint } from '~/utils/point'
 
 const props = defineProps<{ item: Circle }>()
-const { bounds } = toRefs(props.item)
-const updateBounds = () => (props.item.bounds = circle.getBounds(props.item))
 const editor = useEditor()
+const { ctrl: snapDisabled } = useMagicKeys()
 
-const snapTargets = computed(() => {
-  const targets = editor.itemsFlat
-    .filter((v) => v.type !== 'group' && v !== props.item)
-    .map((v) => v.bounds!)
-  targets.push(editor.frameBounds)
-  return targets
-})
+let dragEl: SVGGraphicsElement | null = null
+let startPoint = { x: 0, y: 0 }
 
-const { ctrl } = useMagicKeys()
-const snap = (point: Point) => {
-  if (ctrl.value) return point
-  const threshold = editor.snapThreshold
-  const { amount, guides } = getPointSnap(point, snapTargets.value, threshold)
-  editor.snapGuides = guides
-  return { x: point.x + amount.x, y: point.y + amount.y }
-}
-
-const handleMove = (
-  point: { x: number; y: number },
+const startDrag = (
+  e: MouseEvent,
   corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight',
 ) => {
-  const { x, y } = snap(point)
+  e.stopPropagation()
+  dragEl = e.target as SVGGraphicsElement
 
-  const isLeft = corner === 'topLeft' || corner === 'bottomLeft'
-  const isTop = corner === 'topLeft' || corner === 'topRight'
+  const oppositeCorner = getOppositeCorner(corner)
+  startPoint = props.item.bounds[oppositeCorner]
 
-  const oppositeX = isLeft ? bounds.value.right : bounds.value.left
-  const oppositeY = isTop ? bounds.value.bottom : bounds.value.top
-
-  // It just feels more natural if we decrease the distance by 2. This way the
-  // mouse doesn't "lag" behind.
-  const distanceX = Math.max(2, Math.abs(oppositeX - x) - 2)
-  const distanceY = Math.max(2, Math.abs(oppositeY - y) - 2)
-  const distance = Math.max(distanceX, distanceY)
-  const radius = Math.round(distance / 2)
-
-  // The circles size can only be odd (2 * radius + 1).
-  if (distanceY % 2 === 0) editor.snapGuides!.vertical = undefined
-  if (distanceX % 2 === 0) editor.snapGuides!.horizontal = undefined
-
-  props.item.center.x = isLeft ? oppositeX - 1 - radius : oppositeX + radius
-  props.item.center.y = isTop ? oppositeY - 1 - radius : oppositeY + radius
-  props.item.radius = radius
-  updateBounds()
+  window.addEventListener('mousemove', drag)
+  window.addEventListener('mouseup', endDrag)
 }
 
-const topLeftHandle = useTemplateRef('topLeftHandle')
-useSvgDraggable(topLeftHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'topLeft'),
-  onEnd: () => (editor.snapGuides = null),
-})
+const drag = (e: MouseEvent) => {
+  if (!dragEl) return
 
-const topRightHandle = useTemplateRef('topRightHandle')
-useSvgDraggable(topRightHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'topRight'),
-  onEnd: () => (editor.snapGuides = null),
-})
+  let point = roundPoint(mouseToSvg(e, dragEl))
+  editor.resetSnapGuides()
+  if (!snapDisabled.value) point = editor.snapPoint(point, [props.item])
 
-const bottomLeftHandle = useTemplateRef('bottomLeftHandle')
-useSvgDraggable(bottomLeftHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'bottomLeft'),
-  onEnd: () => (editor.snapGuides = null),
-})
+  const distanceX = point.x - startPoint.x
+  const distanceY = point.y - startPoint.y
+  const diameter = Math.max(Math.abs(distanceX), Math.abs(distanceY))
+  const radius = Math.max(1, Math.floor(diameter / 2))
 
-const bottomRightHandle = useTemplateRef('bottomRightHandle')
-useSvgDraggable(bottomRightHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'bottomRight'),
-  onEnd: () => (editor.snapGuides = null),
-})
+  // The circles size can only be odd (2 * radius + 1).
+  if (distanceX % 2 === 0) editor.resetSnapGuides('horizontal')
+  if (distanceY % 2 === 0) editor.resetSnapGuides('vertical')
+
+  const x = distanceX > 0 ? startPoint.x + radius : startPoint.x - radius - 1
+  const y = distanceY > 0 ? startPoint.y + radius : startPoint.y - radius - 1
+
+  props.item.center = { x, y }
+  props.item.radius = radius
+  props.item.bounds = getItemBounds(props.item)
+}
+
+const endDrag = () => {
+  window.removeEventListener('mousemove', drag)
+  window.removeEventListener('mouseup', endDrag)
+  editor.resetSnapGuides()
+}
 </script>
 
 <template>
   <g :data-item="`${item.type}@${item.id}`">
     <circle
-      ref="topLeftHandle"
-      :cx="bounds.topLeft.x"
-      :cy="bounds.topLeft.y"
       class="point-handle"
+      :cx="item.bounds.topLeft.x"
+      :cy="item.bounds.topLeft.y"
+      @mousedown="startDrag($event, 'topLeft')"
     />
     <circle
-      ref="topRightHandle"
-      :cx="bounds.topRight.x"
-      :cy="bounds.topRight.y"
       class="point-handle"
+      :cx="item.bounds.topRight.x"
+      :cy="item.bounds.topRight.y"
+      @mousedown="startDrag($event, 'topRight')"
     />
     <circle
-      ref="bottomLeftHandle"
-      :cx="bounds.bottomLeft.x"
-      :cy="bounds.bottomLeft.y"
       class="point-handle"
+      :cx="item.bounds.bottomRight.x"
+      :cy="item.bounds.bottomRight.y"
+      @mousedown="startDrag($event, 'bottomRight')"
     />
     <circle
-      ref="bottomRightHandle"
-      :cx="bounds.bottomRight.x"
-      :cy="bounds.bottomRight.y"
       class="point-handle"
+      :cx="item.bounds.bottomLeft.x"
+      :cy="item.bounds.bottomLeft.y"
+      @mousedown="startDrag($event, 'bottomLeft')"
     />
   </g>
 </template>

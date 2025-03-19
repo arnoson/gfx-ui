@@ -275,7 +275,8 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
 }
 
 .snap {
-  stroke: var(--color-accent);
+  /* stroke: var(--color-accent); */
+  stroke: seagreen;
   vector-effect: non-scaling-stroke;
 }
 </style>

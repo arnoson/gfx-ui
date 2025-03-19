@@ -18,7 +18,7 @@ const bounds = computed(() => {
     class="bounds"
     :x="bounds.left"
     :y="bounds.top"
-    :width="bounds.width"
-    :height="bounds.height"
+    :width="bounds.width || 0.00001"
+    :height="bounds.height || 0.00001"
   />
 </template>

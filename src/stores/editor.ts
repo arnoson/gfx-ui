@@ -169,10 +169,20 @@ export const useEditor = defineStore('editor', () => {
     const scale = activeFrame.value?.scale ?? 1
     return Math.ceil(5 / scale)
   })
+
   const snapGuides = ref<{
     vertical?: { from: Point; to: Point }
     horizontal?: { from: Point; to: Point }
   } | null>(null)
+
+  const resetSnapGuides = (
+    direction: 'horizontal' | 'vertical' | 'both' = 'both',
+  ) => {
+    if (!snapGuides.value) return
+    if (direction === 'both') snapGuides.value = null
+    if (direction === 'vertical') snapGuides.value!.vertical = undefined
+    if (direction === 'horizontal') snapGuides.value!.horizontal = undefined
+  }
 
   const snapPoint = (point: Point, ignoreTargets: Item[] = []) => {
     const targets = itemsFlat.value
@@ -207,6 +217,7 @@ export const useEditor = defineStore('editor', () => {
     isMoving,
     snapThreshold,
     snapGuides,
+    resetSnapGuides,
     snapPoint,
   }
 })

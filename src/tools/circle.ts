@@ -3,45 +3,76 @@ import { getItemBounds } from '~/items/item'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
+import { useMagicKeys } from '@vueuse/core'
+import { clonePoint } from '~/utils/point'
 
 export const useCircle = defineTool(
   'circle',
   () => {
     const editor = useEditor()
+    const { ctrl: snapDisabled } = useMagicKeys()
+    let mode: 'drag' | 'idle' = 'idle'
 
     let item: Circle | undefined
-    let isDragging = false
     let startPoint = { x: 0, y: 0 }
 
-    const onMouseDown = ({ x, y }: Point) => {
+    const startDrag = (point: Point) => {
+      if (!snapDisabled.value) point = editor.snapPoint(point)
+
       item = editor.addItem({
         type: 'circle',
-        center: { x, y },
+        center: clonePoint(point),
         radius: 0,
         color: 15,
         isFilled: false,
       })
       if (!item) return
 
-      editor.focusedItem = item
-      startPoint = { x, y }
-      isDragging = true
+      editor.focusItem(item)
+      startPoint = point
+      mode = 'drag'
     }
 
-    const onMouseMove = (point: Point) => {
-      if (!isDragging) return
+    const drag = (point: Point) => {
       if (!item) return
+
+      editor.resetSnapGuides()
+      if (!snapDisabled.value) point = editor.snapPoint(point, [item])
 
       const distanceX = point.x - startPoint.x
       const distanceY = point.y - startPoint.y
-      item.radius = Math.round(Math.hypot(distanceX, distanceY))
+      const diameter = Math.max(Math.abs(distanceX), Math.abs(distanceY))
+      const radius = Math.max(1, Math.floor(diameter / 2))
+
+      // The circles size can only be odd (2 * radius + 1).
+      if (distanceX % 2 === 0) editor.resetSnapGuides('horizontal')
+      if (distanceY % 2 === 0) editor.resetSnapGuides('vertical')
+
+      const x =
+        distanceX > 0 ? startPoint.x + radius : startPoint.x - radius - 1
+      const y =
+        distanceY > 0 ? startPoint.y + radius : startPoint.y - radius - 1
+
+      item.center = { x, y }
+      item.radius = radius
       item.bounds = getItemBounds(item)
     }
 
-    const onMouseUp = () => {
-      isDragging = false
+    const endDrag = () => {
       editor.activateTool('select')
+      mode = 'idle'
     }
+
+    const onMouseDown = startDrag
+    const onMouseMove = (point: Point) => {
+      if (mode === 'idle') {
+        editor.resetSnapGuides()
+        if (!snapDisabled.value) editor.snapPoint(point)
+      } else {
+        drag(point)
+      }
+    }
+    const onMouseUp = endDrag
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },

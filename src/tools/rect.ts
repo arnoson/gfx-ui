@@ -36,7 +36,7 @@ export const useRect = defineTool(
     const drag = (point: Point) => {
       if (!item) return
 
-      editor.snapGuides = null
+      editor.resetSnapGuides()
       if (!snapDisabled.value) point = editor.snapPoint(point, [item])
 
       const left = Math.min(startPoint.x, point.x)
@@ -49,7 +49,7 @@ export const useRect = defineTool(
     }
 
     const endDrag = () => {
-      editor.snapGuides = null
+      editor.resetSnapGuides()
       editor.activateTool('select')
       mode = 'idle'
     }
@@ -57,7 +57,7 @@ export const useRect = defineTool(
     const onMouseDown = startDrag
     const onMouseMove = (point: Point) => {
       if (mode === 'idle') {
-        editor.snapGuides = null
+        editor.resetSnapGuides()
         if (!snapDisabled.value) editor.snapPoint(point)
       } else {
         drag(point)

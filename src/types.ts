@@ -25,6 +25,8 @@ export interface Bounds {
   center: Point
 }
 
+export type Corner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft'
+
 /**
  * A 4-bit grayscale color value
  */

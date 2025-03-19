@@ -3,6 +3,7 @@ import { useMagicKeys } from '@vueuse/core'
 import { getItemBounds } from '~/items/item'
 import { type Rect } from '~/items/rect'
 import { useEditor } from '~/stores/editor'
+import { getOppositeCorner } from '~/utils/bounds'
 import { mouseToSvg } from '~/utils/mouse'
 import { floorPoint } from '~/utils/point'
 
@@ -19,11 +20,10 @@ const startDrag = (
 ) => {
   e.stopPropagation()
   dragEl = e.target as SVGGraphicsElement
-  const { bounds } = props.item
-  if (corner === 'topLeft') startPoint = bounds.bottomRight
-  else if (corner === 'topRight') startPoint = bounds.bottomLeft
-  else if (corner === 'bottomRight') startPoint = bounds.topLeft
-  else if (corner === 'bottomLeft') startPoint = bounds.topRight
+
+  const oppositeCorner = getOppositeCorner(corner)
+  startPoint = props.item.bounds[oppositeCorner]
+
   window.addEventListener('mousemove', drag)
   window.addEventListener('mouseup', endDrag)
 }
@@ -32,7 +32,7 @@ const drag = (e: MouseEvent) => {
   if (!dragEl) return
 
   let point = floorPoint(mouseToSvg(e, dragEl))
-  editor.snapGuides = null
+  editor.resetSnapGuides()
   if (!snapDisabled.value) point = editor.snapPoint(point, [props.item])
 
   const distanceX = point.x - startPoint.x
@@ -52,7 +52,7 @@ const drag = (e: MouseEvent) => {
 const endDrag = () => {
   window.removeEventListener('mousemove', drag)
   window.removeEventListener('mouseup', endDrag)
-  editor.snapGuides = null
+  editor.resetSnapGuides()
 }
 </script>
 
