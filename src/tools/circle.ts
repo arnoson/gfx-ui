@@ -76,5 +76,5 @@ export const useCircle = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  { pointRounding: 'floor' },
+  { pointRounding: 'floor', shortcut: 'o' },
 )

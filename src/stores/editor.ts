@@ -13,7 +13,7 @@ import type { Line } from '~/items/line'
 import type { Rect } from '~/items/rect'
 import type { Text } from '~/items/text'
 import { useCircle } from '~/tools/circle'
-import { useDraw } from '~/tools/draw'
+import { usePencil } from '~/tools/pencil'
 import { useLine } from '~/tools/line'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
@@ -39,13 +39,13 @@ const createId = () => id++
 
 export const useEditor = defineStore('editor', () => {
   // Tools
-  const draw = useDraw()
+  const pencil = usePencil()
   const select = useSelect()
   const rect = useRect()
   const circle = useCircle()
   const line = useLine()
   const text = useText()
-  const tools = { draw, select, rect, circle, line, text }
+  const tools = { select, rect, circle, line, text, pencil }
   type ToolId = keyof typeof tools
 
   const activeToolId = ref<ToolId>('select')
@@ -196,6 +196,7 @@ export const useEditor = defineStore('editor', () => {
   }
 
   return {
+    tools,
     activeTool,
     activateTool,
     frames,

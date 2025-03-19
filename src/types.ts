@@ -37,12 +37,9 @@ export type Color = number
  * */
 export type Pixels = Set<number>
 
-export type ToolContext = {
-  frame: Ref<Frame>
-}
-
 export type ToolConfig = {
   pointRounding?: 'floor' | 'round' | 'ceil'
+  shortcut?: string
 }
 
 export interface Tool {

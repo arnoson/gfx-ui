@@ -61,5 +61,5 @@ export const useLine = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  { pointRounding: 'round' },
+  { pointRounding: 'round', shortcut: 'l' },
 )

@@ -1,16 +1,12 @@
-import { type Bitmap } from '~/items/bitmap'
+import { computed } from 'vue'
 import { getItemBounds } from '~/items/item'
 import { getLinePixels } from '~/items/line'
-
 import { useEditor } from '~/stores/editor'
-import type { Point, ToolConfig } from '~/types'
+import type { Point } from '~/types'
 import { defineTool } from './tool'
-import { computed } from 'vue'
 
-const config: ToolConfig = { pointRounding: 'floor' }
-
-export const useDraw = defineTool(
-  'draw',
+export const usePencil = defineTool(
+  'pencil',
   () => {
     const editor = useEditor()
 
@@ -52,5 +48,5 @@ export const useDraw = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  config,
+  { pointRounding: 'floor', shortcut: 'p' },
 )

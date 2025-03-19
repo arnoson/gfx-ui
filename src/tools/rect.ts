@@ -67,5 +67,5 @@ export const useRect = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  { pointRounding: 'floor' },
+  { pointRounding: 'floor', shortcut: 'r' },
 )

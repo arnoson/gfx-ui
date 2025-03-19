@@ -197,5 +197,5 @@ export const useSelect = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp, onKeyDown }
   },
-  { pointRounding: 'floor' },
+  { pointRounding: 'floor', shortcut: 'v' },
 )

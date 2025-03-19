@@ -29,5 +29,5 @@ export const useText = defineTool(
 
     return { onMouseDown }
   },
-  { pointRounding: 'floor' },
+  { pointRounding: 'floor', shortcut: 't' },
 )

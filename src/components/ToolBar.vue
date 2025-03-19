@@ -13,40 +13,17 @@ const editor = useEditor()
 <template>
   <menu class="tool-bar">
     <button
-      @click="editor.activateTool('select')"
-      :data-active="editor.activeTool.id === 'select'"
+      v-for="tool of editor.tools"
+      @click="editor.activateTool(tool.id as any)"
+      :data-active="editor.activeTool.id === tool.id"
+      :title="`${tool.id} ${tool.config?.shortcut}`"
     >
-      <SelectIcon />
-    </button>
-    <button
-      @click="editor.activateTool('line')"
-      :data-active="editor.activeTool.id === 'line'"
-    >
-      <LineIcon />
-    </button>
-    <button
-      @click="editor.activateTool('rect')"
-      :data-active="editor.activeTool.id === 'rect'"
-    >
-      <RectIcon />
-    </button>
-    <button
-      @click="editor.activateTool('circle')"
-      :data-active="editor.activeTool.id === 'circle'"
-    >
-      <CircleIcon />
-    </button>
-    <button
-      @click="editor.activateTool('text')"
-      :data-active="editor.activeTool.id === 'text'"
-    >
-      <TextIcon />
-    </button>
-    <button
-      @click="editor.activateTool('draw')"
-      :data-active="editor.activeTool.id === 'draw'"
-    >
-      <DrawIcon />
+      <SelectIcon v-if="tool.id === 'select'" />
+      <LineIcon v-else-if="tool.id === 'line'" />
+      <RectIcon v-else-if="tool.id === 'rect'" />
+      <CircleIcon v-else-if="tool.id === 'circle'" />
+      <TextIcon v-else-if="tool.id === 'text'" />
+      <DrawIcon v-else-if="tool.id === 'pencil'" />
     </button>
   </menu>
 </template>

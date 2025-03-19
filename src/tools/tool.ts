@@ -1,4 +1,4 @@
-import type { Tool, ToolConfig, ToolContext } from '~/types'
+import type { Tool, ToolConfig } from '~/types'
 
 export const defineTool =
   <R>(id: string, fn: () => R, config: ToolConfig = {}) =>
