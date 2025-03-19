@@ -1,116 +1,86 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core'
-import { computed, toRefs, useTemplateRef } from 'vue'
-import { useSvgDraggable } from '~/composables/useSvgDraggable'
 import { getItemBounds } from '~/items/item'
 import { type Rect } from '~/items/rect'
 import { useEditor } from '~/stores/editor'
-import type { Point } from '~/types'
-import { getPointSnap } from '~/utils/snap'
+import { mouseToSvg } from '~/utils/mouse'
+import { floorPoint } from '~/utils/point'
 
 const props = defineProps<{ item: Rect }>()
-const { bounds } = toRefs(props.item)
-const updateBounds = () => (props.item.bounds = getItemBounds(props.item))
 const editor = useEditor()
+const { ctrl: snapDisabled } = useMagicKeys()
 
-const snapTargets = computed(() => {
-  const targets = editor.itemsFlat
-    .filter((v) => v.type !== 'group' && v !== props.item)
-    .map((v) => v.bounds!)
-  targets.push(editor.frameBounds)
-  return targets
-})
+let dragEl: SVGGraphicsElement | null = null
+let startPoint = { x: 0, y: 0 }
 
-const { ctrl } = useMagicKeys()
-const snap = (point: Point) => {
-  if (ctrl.value) return point
-  const threshold = editor.snapThreshold
-  const { amount, guides } = getPointSnap(point, snapTargets.value, threshold)
-  editor.snapGuides = guides
-  return { x: point.x + amount.x, y: point.y + amount.y }
-}
-
-const handleMove = (
-  point: { x: number; y: number },
+const startDrag = (
+  e: MouseEvent,
   corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight',
 ) => {
-  const { x, y } = snap(point)
-
-  const isLeft = corner === 'topLeft' || corner === 'bottomLeft'
-  const isTop = corner === 'topLeft' || corner === 'topRight'
-
-  const oppositeX = isLeft ? bounds.value.right : bounds.value.left
-  const oppositeY = isTop ? bounds.value.bottom : bounds.value.top
-
-  const width = isLeft ? oppositeX - x : x - oppositeX
-  const height = isTop ? oppositeY - y : y - oppositeY
-
-  if (width > 1) {
-    if (isLeft) props.item.position.x = x
-    props.item.size.width = width
-  }
-  if (height > 1) {
-    if (isTop) props.item.position.y = y
-    props.item.size.height = height
-  }
-
-  updateBounds()
+  e.stopPropagation()
+  dragEl = e.target as SVGGraphicsElement
+  const { bounds } = props.item
+  if (corner === 'topLeft') startPoint = bounds.bottomRight
+  else if (corner === 'topRight') startPoint = bounds.bottomLeft
+  else if (corner === 'bottomRight') startPoint = bounds.topLeft
+  else if (corner === 'bottomLeft') startPoint = bounds.topRight
+  window.addEventListener('mousemove', drag)
+  window.addEventListener('mouseup', endDrag)
 }
 
-const topLeftHandle = useTemplateRef('topLeftHandle')
-useSvgDraggable(topLeftHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'topLeft'),
-  onEnd: () => (editor.snapGuides = null),
-})
+const drag = (e: MouseEvent) => {
+  if (!dragEl) return
 
-const topRightHandle = useTemplateRef('topRightHandle')
-useSvgDraggable(topRightHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'topRight'),
-  onEnd: () => (editor.snapGuides = null),
-})
+  let point = floorPoint(mouseToSvg(e, dragEl))
+  editor.snapGuides = null
+  if (!snapDisabled.value) point = editor.snapPoint(point, [props.item])
 
-const bottomLeftHandle = useTemplateRef('bottomLeftHandle')
-useSvgDraggable(bottomLeftHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'bottomLeft'),
-  onEnd: () => (editor.snapGuides = null),
-})
+  const distanceX = point.x - startPoint.x
+  const distanceY = point.y - startPoint.y
 
-const bottomRightHandle = useTemplateRef('bottomRightHandle')
-useSvgDraggable(bottomRightHandle, {
-  isPoint: true,
-  onMove: (point) => handleMove(point, 'bottomRight'),
-  onEnd: () => (editor.snapGuides = null),
-})
+  const width = Math.abs(distanceX)
+  const height = Math.abs(distanceY)
+
+  const x = distanceX > 0 ? startPoint.x : startPoint.x - width
+  const y = distanceY > 0 ? startPoint.y : startPoint.y - height
+
+  props.item.position = { x, y }
+  props.item.size = { width, height }
+  props.item.bounds = getItemBounds(props.item)
+}
+
+const endDrag = () => {
+  window.removeEventListener('mousemove', drag)
+  window.removeEventListener('mouseup', endDrag)
+  editor.snapGuides = null
+}
 </script>
 
 <template>
   <g :data-item="`${item.type}@${item.id}`">
     <circle
-      ref="topLeftHandle"
+      class="point-handle"
       :cx="item.bounds.topLeft.x"
       :cy="item.bounds.topLeft.y"
-      class="point-handle"
+      @mousedown="startDrag($event, 'topLeft')"
     />
     <circle
-      ref="topRightHandle"
+      class="point-handle"
       :cx="item.bounds.topRight.x"
       :cy="item.bounds.topRight.y"
-      class="point-handle"
+      @mousedown="startDrag($event, 'topRight')"
     />
     <circle
-      ref="bottomLeftHandle"
-      :cx="item.bounds.bottomLeft.x"
-      :cy="item.bounds.bottomLeft.y"
       class="point-handle"
-    />
-    <circle
-      ref="bottomRightHandle"
       :cx="item.bounds.bottomRight.x"
       :cy="item.bounds.bottomRight.y"
+      @mousedown="startDrag($event, 'bottomRight')"
+    />
+    <circle
       class="point-handle"
+      :cx="item.bounds.bottomLeft.x"
+      :cy="item.bounds.bottomLeft.y"
+      @mousedown="startDrag($event, 'bottomLeft')"
     />
   </g>
 </template>

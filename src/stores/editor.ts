@@ -20,6 +20,8 @@ import { useSelect } from '~/tools/select'
 import { useText } from '~/tools/text'
 import type { Bounds, Point, Size } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
+import { addPoints } from '~/utils/point'
+import { getPointSnap } from '~/utils/snap'
 import { capitalizeFirstLetter } from '~/utils/text'
 
 type Id = number
@@ -94,7 +96,6 @@ export const useEditor = defineStore('editor', () => {
       result.push(current)
       if (current.type === 'group') stack.push(...current.children)
     }
-    console.log('compute items')
     return result
   })
 
@@ -173,6 +174,17 @@ export const useEditor = defineStore('editor', () => {
     horizontal?: { from: Point; to: Point }
   } | null>(null)
 
+  const snapPoint = (point: Point, ignoreTargets: Item[] = []) => {
+    const targets = itemsFlat.value
+      .filter((v) => v.type !== 'group' && !ignoreTargets.includes(v))
+      .map((v) => v.bounds!)
+
+    targets.push(frameBounds.value)
+    const { amount, guides } = getPointSnap(point, targets, snapThreshold.value)
+    snapGuides.value = guides
+    return addPoints(point, amount)
+  }
+
   return {
     activeTool,
     activateTool,
@@ -195,6 +207,7 @@ export const useEditor = defineStore('editor', () => {
     isMoving,
     snapThreshold,
     snapGuides,
+    snapPoint,
   }
 })
 
