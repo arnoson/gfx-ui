@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useWindowSize } from '@vueuse/core'
+import { useEventListener, useWindowSize } from '@vueuse/core'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
-import FrameEditor from './components/FrameEditor.vue'
+import EditorPanel from './components/EditorPanel.vue'
 import FrameProperties from './components/FrameProperties.vue'
 import ItemProperties from './components/ItemProperties.vue'
 import LayersTree from './components/LayersTree.vue'
@@ -11,6 +11,7 @@ import ToolBar from './components/ToolBar.vue'
 import miwos7pt from './fonts/miwos7pt.h?raw'
 import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
+import FramesPanel from './components/FramesPanel.vue'
 
 const editor = useEditor()
 const fonts = useFonts()
@@ -20,6 +21,16 @@ editor.activateFrame(frame.id)
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
 const sidebarMinSize = computed(() => (175 / width.value) * 100)
+
+const activateFrame = () => {
+  if (!location.hash.startsWith('#/frame/')) return
+  const id = location.hash.split('/').at(-1)
+  if (id === undefined) return
+  editor.activateFrame(+id)
+}
+
+useEventListener(window, 'hashchange', activateFrame)
+activateFrame()
 
 // editor.addItem({
 //   type: 'line',
@@ -62,11 +73,11 @@ fonts.add(miwos7pt)
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      Frames
+      <FramesPanel />
     </SplitterPanel>
     <SplitterResizeHandle />
     <SplitterPanel class="editor-panel">
-      <FrameEditor v-if="editor.activeFrame" :frame="editor.activeFrame" />
+      <EditorPanel v-if="editor.activeFrame" :frame="editor.activeFrame" />
       <ToolBar />
     </SplitterPanel>
     <SplitterResizeHandle />

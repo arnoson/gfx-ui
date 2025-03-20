@@ -1,46 +1,28 @@
 <script setup lang="ts">
-import { useEventListener, useMagicKeys } from '@vueuse/core'
-import {
-  nextTick,
-  onMounted,
-  ref,
-  toRefs,
-  useTemplateRef,
-  watch,
-  watchEffect,
-} from 'vue'
+import { useActiveElement, useEventListener, useMagicKeys } from '@vueuse/core'
+import { computed, toRefs, useTemplateRef } from 'vue'
 import { useZoomPan } from '~/composables/useZoomPan'
-import { drawItem } from '~/items/item'
 import { useEditor, type Frame } from '~/stores/editor'
 import { mouseToSvg } from '~/utils/mouse'
+import FrameCanvas from './FrameCanvas.vue'
 import ItemBounds from './ItemBounds.vue'
 import ItemControls from './ItemControls.vue'
 import ItemHandle from './ItemHandle.vue'
 
 const props = defineProps<{ frame: Frame }>()
-const { size, children: items, scale } = toRefs(props.frame)
-const canvas = useTemplateRef('canvas')
-
 const editor = useEditor()
-
-let ctx = ref<CanvasRenderingContext2D | null>()
-onMounted(() => (ctx.value = canvas.value?.getContext('2d') ?? null))
-
-const render = () => {
-  if (!ctx.value) return
-  ctx.value.clearRect(0, 0, size.value.width, size.value.height)
-  for (const item of items.value.toReversed()) drawItem(ctx.value, item)
-}
-watchEffect(render)
-watch(size, async () => {
-  // Resizing the canvas will clear it, so we have to render again.
-  await nextTick()
-  render()
-})
-
 const overlay = useTemplateRef('overlay')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
+
+const size = computed({
+  get: () => props.frame.size,
+  set: (value) => (props.frame.size = value),
+})
+const scale = computed({
+  get: () => props.frame.scale,
+  set: (value) => (props.frame.scale = value),
+})
 // Forward canvas mouse and key events to the active tool.
 useEventListener<MouseEvent>(editorEl, 'mousedown', (e) => {
   if (space.value) return
@@ -59,14 +41,20 @@ useEventListener('mouseup', (e) => {
 })
 useEventListener('keydown', (e) => editor.activeTool.onKeyDown?.(e))
 
+const activeElement = useActiveElement()
+const shouldIgnoreKeydown = computed(
+  () =>
+    activeElement.value?.tagName === 'INPUT' ||
+    activeElement.value?.tagName === 'TEXTAREA' ||
+    activeElement.value?.hasAttribute('contenteditable'),
+)
 useEventListener('keydown', (e) => {
+  if (shouldIgnoreKeydown.value) return
   const target = e.target as HTMLElement
 
-  if (e.code === 'Space' && target === document.body) {
-    e.preventDefault()
-  }
+  if (e.code === 'Space' && target === document.body) e.preventDefault()
 
-  if (target === document.body && !e.ctrlKey && !e.metaKey) {
+  if (!e.ctrlKey && !e.metaKey) {
     for (const tool of Object.values(editor.tools)) {
       if (e.key === tool.config?.shortcut) editor.activateTool(tool.id as any)
     }
@@ -92,12 +80,7 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
           class="bounds"
         />
       </svg>
-      <canvas
-        ref="canvas"
-        class="canvas"
-        :width="size.width"
-        :height="size.height"
-      ></canvas>
+      <FrameCanvas class="canvas" :frame="frame" :key="frame.id" />
       <svg
         ref="overlay"
         :viewBox="`0 0 ${size.width} ${size.height}`"
@@ -144,7 +127,7 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
 
         <!-- Handles -->
         <g v-if="editor.activeTool.id === 'select'">
-          <template v-for="item of items.toReversed()">
+          <template v-for="item of frame.children.toReversed()">
             <ItemHandle
               v-if="!editor.selectedItems.has(item)"
               :key="item.id"
@@ -236,7 +219,6 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
 }
 
 .canvas {
-  display: block;
   width: 100%;
   height: 100%;
   image-rendering: pixelated;

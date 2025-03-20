@@ -1,20 +1,14 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { Bitmap } from '~/items/bitmap'
-import type { Circle } from '~/items/circle'
-import type { Group } from '~/items/group'
 import {
   getItemBounds,
   type Item,
   type ItemByType,
   type ItemData,
 } from '~/items/item'
-import type { Line } from '~/items/line'
-import type { Rect } from '~/items/rect'
-import type { Text } from '~/items/text'
 import { useCircle } from '~/tools/circle'
-import { usePencil } from '~/tools/pencil'
 import { useLine } from '~/tools/line'
+import { usePencil } from '~/tools/pencil'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
 import { useText } from '~/tools/text'
@@ -60,7 +54,7 @@ export const useEditor = defineStore('editor', () => {
   activateTool(activeToolId.value)
 
   // Frames
-  const frames = ref(new Map<Id, Frame>())
+  const frames = ref<Frame[]>([])
   const activeFrame = ref<Frame>()
   const frameBounds = computed(() => {
     if (!activeFrame.value) return emptyBounds
@@ -69,7 +63,7 @@ export const useEditor = defineStore('editor', () => {
 
   const addFrame = (data: Partial<Frame>): Frame => {
     const id = createId()
-    frames.value.set(id, {
+    frames.value.push({
       id,
       name: `Frame${id}`,
       size: { width: 128, height: 64 },
@@ -77,11 +71,23 @@ export const useEditor = defineStore('editor', () => {
       children: [],
       ...data,
     })
-    return frames.value.get(id)!
+    return frames.value.at(-1)!
   }
 
-  const removeFrame = (id: Id) => frames.value.delete(id)
-  const activateFrame = (id: Id) => (activeFrame.value = frames.value.get(id))
+  const removeFrame = (id: Id) => {
+    frames.value.splice(
+      frames.value.findIndex((v) => v.id === id),
+      1,
+    )
+    if (activeFrame.value?.id === id) activeFrame.value = undefined
+  }
+
+  const activateFrame = (id: Id) => {
+    activeFrame.value = frames.value.find((v) => v.id === id)
+    selectedItems.value.clear()
+    focusedItem.value = null
+    selectionBounds.value = null
+  }
 
   // Items
   const items = computed(() => activeFrame.value?.children ?? [])
