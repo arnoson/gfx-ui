@@ -13,8 +13,8 @@ import { useZoomPan } from '~/composables/useZoomPan'
 import { drawItem } from '~/items/item'
 import { useEditor, type Frame } from '~/stores/editor'
 import { mouseToSvg } from '~/utils/mouse'
-import ItemControls from './ItemControls.vue'
 import ItemBounds from './ItemBounds.vue'
+import ItemControls from './ItemControls.vue'
 import ItemHandle from './ItemHandle.vue'
 
 const props = defineProps<{ frame: Frame }>()

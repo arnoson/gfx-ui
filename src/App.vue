@@ -45,7 +45,7 @@ editor.addItem({
   isFilled: false,
 })
 
-// fonts.add(miwos7pt)
+fonts.add(miwos7pt)
 
 // editor.addItem({
 //   type: 'text',

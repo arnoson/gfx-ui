@@ -60,6 +60,7 @@ export const useCircle = defineTool(
 
     const endDrag = () => {
       editor.activateTool('select')
+      editor.resetSnapGuides()
       mode = 'idle'
     }
 

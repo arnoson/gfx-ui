@@ -100,6 +100,7 @@ export const useEditor = defineStore('editor', () => {
   })
 
   const focusedItem = ref<Item | null>(null)
+  const copiedItems = ref<Item[] | null>(null)
 
   const addItem = <T extends ItemData, R = ItemByType<T['type']>>(
     data: T,
@@ -207,6 +208,7 @@ export const useEditor = defineStore('editor', () => {
     activateFrame,
     items,
     itemsFlat,
+    copiedItems,
     focusedItem,
     addItem,
     removeItem,

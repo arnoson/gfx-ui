@@ -9,6 +9,7 @@ import {
 import { defineTool } from './tool'
 import { useMagicKeys } from '@vueuse/core'
 import { getBoundsSnap } from '~/utils/snap'
+import { toRaw } from 'vue'
 
 export const useSelect = defineTool(
   'select',
@@ -160,6 +161,21 @@ export const useSelect = defineTool(
       editor.selectedItems = newSelectedItems
     }
 
+    const copy = () => {
+      editor.copiedItems = [...editor.selectedItems]
+    }
+
+    const paste = () => {
+      if (!editor.copiedItems) return
+      editor.selectedItems.clear()
+      editor.focusedItem = null
+      for (const item of editor.copiedItems) {
+        const data = structuredClone(toRaw(item))
+        const copy = editor.addItem({ ...data, id: undefined })
+        if (copy) editor.selectedItems.add(copy)
+      }
+    }
+
     const onMouseDown = (point: Point) => {
       if (
         editor.selectedItemBounds &&
@@ -192,6 +208,15 @@ export const useSelect = defineTool(
       } else if (e.key.toLowerCase() === 'g' && e.ctrlKey && e.shiftKey) {
         e.preventDefault()
         ungroup()
+      } else if (e.key === 'c' && e.ctrlKey) {
+        copy()
+        e.preventDefault()
+      } else if (e.key === 'v' && e.ctrlKey) {
+        paste()
+        e.preventDefault()
+      } else if (e.key === 'a' && e.ctrlKey) {
+        editor.selectedItems = new Set(editor.items)
+        e.preventDefault()
       }
     }
 
