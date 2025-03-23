@@ -1,6 +1,7 @@
 import type { Bounds, Color, Pixels, Point } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel, unpackPixel } from '~/utils/pixels'
+import type { ItemActions } from './item'
 
 export interface Bitmap {
   type: 'bitmap'
@@ -60,4 +61,12 @@ const getBounds = (bitmap: Pick<Bitmap, 'pixels'>): Bounds => {
   return makeBounds(position, size)
 }
 
-export default { draw, translate, move, getBounds }
+const toCode = (bitmap: Bitmap) => ''
+
+export const bitmap: ItemActions<Bitmap> = {
+  draw,
+  move,
+  translate,
+  getBounds,
+  toCode,
+}

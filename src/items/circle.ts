@@ -35,9 +35,10 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 import type { Bounds, Color, Point } from '~/types'
-import { drawPixel } from '~/utils/pixels'
-import { drawVerticalLine } from './line'
 import { makeBounds } from '~/utils/bounds'
+import { drawPixel } from '~/utils/pixels'
+import { type ItemActions } from './item'
+import { drawVerticalLine } from './line'
 
 export interface Circle {
   type: 'circle'
@@ -215,4 +216,15 @@ const getBounds = (circle: Pick<Circle, 'center' | 'radius'>): Bounds => {
   return makeBounds(position, size)
 }
 
-export default { draw, translate, move, getBounds }
+const toCode = ({ center, radius, isFilled, color }: Circle) => {
+  const functionName = isFilled ? 'fillCircle' : 'drawCircle'
+  return `${functionName}(${center.x}, ${center.y}, ${radius}, ${color})`
+}
+
+export const circle: ItemActions<Circle> = {
+  draw,
+  move,
+  translate,
+  getBounds,
+  toCode,
+}

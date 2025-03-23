@@ -1,6 +1,6 @@
 import type { Bounds, Point } from '~/types'
 import { getTranslatedBounds, makeBounds } from '~/utils/bounds'
-import { translateItem, type Item } from './item'
+import { drawItem, translateItem, type Item, type ItemActions } from './item'
 
 export interface Group {
   type: 'group'
@@ -51,4 +51,16 @@ const getBounds = (item: Pick<Group, 'type' | 'children'>) => {
   return makeBounds({ x: edges.left, y: edges.top }, { width, height })
 }
 
-export default { translate, move, getBounds }
+const draw = (ctx: CanvasRenderingContext2D, group: Group) => {
+  for (const child of group.children.toReversed()) drawItem(ctx, child)
+}
+
+const toCode = (group: Group) => ''
+
+export const group: ItemActions<Group> = {
+  draw,
+  move,
+  translate,
+  getBounds,
+  toCode,
+}

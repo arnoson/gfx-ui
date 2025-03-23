@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import bitmap, { type Bitmap } from '~/items/bitmap'
 import type { Point } from '~/types'
 import { getMovedBounds } from '~/utils/bounds'
 import ColorField from './ColorField.vue'
 import PointField from './PointField.vue'
+import { bitmap, type Bitmap } from '~/items/bitmap'
 
 const props = defineProps<{ item: Bitmap }>()
 

@@ -37,6 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import type { Bounds, Color, Pixels, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel } from '~/utils/pixels'
+import type { ItemActions } from './item'
 
 export interface Line {
   type: 'line'
@@ -204,4 +205,13 @@ const getBounds = (line: Pick<Line, 'from' | 'to'>): Bounds => {
   return makeBounds(position, size)
 }
 
-export default { draw, translate, move, getBounds }
+const toCode = ({ from, to, color }: Line) =>
+  `drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, ${color})`
+
+export const line: ItemActions<Line> = {
+  draw,
+  move,
+  translate,
+  getBounds,
+  toCode,
+}

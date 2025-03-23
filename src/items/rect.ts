@@ -39,6 +39,7 @@ import { pixelColors } from '~/utils/pixels'
 import { drawCircleHelper, fillCircleHelper } from './circle'
 import { drawHorizontalLine, drawVerticalLine } from './line'
 import { makeBounds } from '~/utils/bounds'
+import type { ItemActions } from './item'
 
 export interface Rect {
   type: 'rect'
@@ -130,4 +131,12 @@ const move = (rect: Rect, position: Point) => {
 const getBounds = (rect: Pick<Rect, 'position' | 'size'>) =>
   makeBounds(rect.position, rect.size)
 
-export default { draw, translate, move, getBounds }
+const toCode = (rect: Rect) => ''
+
+export const rect: ItemActions<Rect> = {
+  draw,
+  move,
+  translate,
+  getBounds,
+  toCode,
+}

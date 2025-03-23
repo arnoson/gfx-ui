@@ -1,12 +1,12 @@
 import type { Bounds, Point } from '~/types'
-import { emptyBounds } from '~/utils/bounds'
-import bitmap, { type Bitmap } from './bitmap'
-import circle, { type Circle } from './circle'
-import type { Group } from './group'
-import group from './group'
-import line, { type Line } from './line'
-import rect, { type Rect } from './rect'
-import text, { type Text } from './text'
+import { bitmap, type Bitmap } from './bitmap'
+import { circle, type Circle } from './circle'
+import { group, type Group } from './group'
+import { line, type Line } from './line'
+import { rect, type Rect } from './rect'
+import { text, type Text } from './text'
+
+const items = { bitmap, circle, group, line, rect, text }
 
 export type Item = Rect | Line | Circle | Bitmap | Text | Group
 export type ItemData =
@@ -33,48 +33,33 @@ export type ItemByType<T extends ItemType> = T extends 'line'
             ? Group
             : never
 
-// All this manual dispatching sucks, but since all the item data lives as plain
-// objects in the store, a OOP approach won't fit. Dynamically dispatching from
-// a map like `itemActions[item.type].translate()` would be better, but I had
-// a hard time getting TS to accept this... So a bunch of if/else it is. Should
-// work fine since be don't expect much more item behavior.
+export type ItemActions<T = any> = {
+  draw: (ctx: CanvasRenderingContext2D, item: T) => void
+  translate: (item: T, delta: Point) => void
+  move: (item: T, position: Point) => void
+  getBounds: (item: T) => Bounds
+  toCode: (item: T) => string
+}
+
+// Unfortunately dispatching the item methods based on their `type` property
+// doesn't work with typescript, so `any` it is ...
+// Keeping the item logic separated and not using OOP/polymorphism is still a
+// worth it since we can keep all the state in pinia and implement features
+// like history, copy & paste, ... without having to create any class instances.
 
 export const drawItem = (ctx: CanvasRenderingContext2D, item: Item) => {
   if (item.isHidden) return
-
-  if (item.type === 'line') line.draw(ctx, item)
-  if (item.type === 'rect') rect.draw(ctx, item)
-  if (item.type === 'circle') circle.draw(ctx, item)
-  if (item.type === 'bitmap') bitmap.draw(ctx, item)
-  if (item.type === 'text') text.draw(ctx, item)
-  if (item.type === 'group') {
-    for (const child of item.children.toReversed()) drawItem(ctx, child)
-  }
+  items[item.type].draw(ctx, item as any)
 }
 
-export const translateItem = (item: Item, delta: Point) => {
-  if (item.type === 'line') line.translate(item, delta)
-  if (item.type === 'rect') rect.translate(item, delta)
-  if (item.type === 'circle') circle.translate(item, delta)
-  if (item.type === 'bitmap') bitmap.translate(item, delta)
-  if (item.type === 'text') text.translate(item, delta)
-  if (item.type === 'group') group.translate(item, delta)
-}
+export const translateItem = (item: Item, delta: Point) =>
+  items[item.type].translate(item as any, delta)
 
-export const moveItem = (item: Item, position: Point) => {
-  if (item.type === 'line') line.move(item, position)
-  if (item.type === 'rect') rect.move(item, position)
-  if (item.type === 'circle') circle.move(item, position)
-  if (item.type === 'bitmap') bitmap.move(item, position)
-  if (item.type === 'text') text.move(item, position)
-}
+export const moveItem = (item: Item, position: Point) =>
+  items[item.type].move(item as any, position)
 
-export const getItemBounds = (item: ItemData): Bounds => {
-  if (item.type === 'line') return line.getBounds(item)
-  if (item.type === 'rect') return rect.getBounds(item)
-  if (item.type === 'circle') return circle.getBounds(item)
-  if (item.type === 'bitmap') return bitmap.getBounds(item)
-  if (item.type === 'text') return text.getBounds(item)
-  if (item.type === 'group') return group.getBounds(item)
-  return emptyBounds
-}
+export const getItemBounds = (item: ItemData): Bounds =>
+  items[item.type].getBounds(item as any)
+
+export const itemToCode = (item: Item): string =>
+  items[item.type].toCode(item as any)

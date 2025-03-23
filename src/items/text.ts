@@ -2,6 +2,7 @@ import { useFonts } from '~/stores/fonts'
 import type { Bounds, Color, Point } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
+import type { ItemActions } from './item'
 
 export interface Text {
   type: 'text'
@@ -91,4 +92,12 @@ const getBounds = (text: Pick<Text, 'font' | 'content' | 'position'>) => {
   return makeBounds(text.position, { width, height: offsetY + font.yAdvance })
 }
 
-export default { draw, translate, move, getBounds }
+const toCode = (text: Text) => ''
+
+export const text: ItemActions<Text> = {
+  draw,
+  move,
+  translate,
+  getBounds,
+  toCode,
+}
