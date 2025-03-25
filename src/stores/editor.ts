@@ -15,7 +15,7 @@ import { useText } from '~/tools/text'
 import type { Bounds, Point, Size } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { addPoints } from '~/utils/point'
-import { getPointSnap } from '~/utils/snap'
+import { getBoundsSnap, getPointSnap } from '~/utils/snap'
 import { capitalizeFirstLetter } from '~/utils/text'
 
 type Id = number
@@ -30,6 +30,17 @@ export interface Frame {
 
 let id = 0
 const createId = () => id++
+
+const flattenNestedItems = (items: Item[]): Item[] => {
+  const result: Item[] = []
+  const stack: Item[] = [...items]
+  while (stack.length) {
+    const current = stack.pop()!
+    result.push(current)
+    if (current.type === 'group') stack.push(...current.children)
+  }
+  return result
+}
 
 export const useEditor = defineStore('editor', () => {
   // Tools
@@ -93,16 +104,7 @@ export const useEditor = defineStore('editor', () => {
   const items = computed(() => activeFrame.value?.children ?? [])
   const itemsFlat = computed(() => {
     if (!activeFrame.value) return []
-
-    const result: Item[] = []
-    const stack: Item[] = [...activeFrame.value.children]
-
-    while (stack.length) {
-      const current = stack.pop()!
-      result.push(current)
-      if (current.type === 'group') stack.push(...current.children)
-    }
-    return result
+    return flattenNestedItems(activeFrame.value.children)
   })
 
   const focusedItem = ref<Item | null>(null)
@@ -191,14 +193,33 @@ export const useEditor = defineStore('editor', () => {
   }
 
   const snapPoint = (point: Point, ignoreTargets: Item[] = []) => {
+    const ignoreTargetsFlat = flattenNestedItems(ignoreTargets)
     const targets = itemsFlat.value
-      .filter((v) => v.type !== 'group' && !ignoreTargets.includes(v))
+      .filter((v) => v.type !== 'group' && !ignoreTargetsFlat.includes(v))
       .map((v) => v.bounds!)
 
     targets.push(frameBounds.value)
     const { amount, guides } = getPointSnap(point, targets, snapThreshold.value)
     snapGuides.value = guides
     return addPoints(point, amount)
+  }
+
+  const snapBounds = (bounds: Bounds, ignoreTargets: Item[] = []) => {
+    const ignoreTargetsFlat = flattenNestedItems(ignoreTargets)
+    const targets = itemsFlat.value
+      .filter((v) => !ignoreTargetsFlat.includes(v))
+      .map((v) => v.bounds!)
+
+    targets.push(frameBounds.value)
+    const { amount, guides } = getBoundsSnap(
+      bounds,
+      targets,
+      snapThreshold.value,
+    )
+    snapGuides.value = guides
+    // TODO: snapPoint should either also return the amount or this should
+    // return the modified bounds.
+    return amount
   }
 
   return {
@@ -227,6 +248,7 @@ export const useEditor = defineStore('editor', () => {
     snapGuides,
     resetSnapGuides,
     snapPoint,
+    snapBounds,
   }
 })
 

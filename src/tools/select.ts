@@ -1,3 +1,5 @@
+import { useMagicKeys } from '@vueuse/core'
+import { toRaw } from 'vue'
 import { getItemBounds, translateItem, type Item } from '~/items/item'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
@@ -7,15 +9,12 @@ import {
   makeBounds,
 } from '~/utils/bounds'
 import { defineTool } from './tool'
-import { useMagicKeys } from '@vueuse/core'
-import { getBoundsSnap } from '~/utils/snap'
-import { toRaw } from 'vue'
 
 export const useSelect = defineTool(
   'select',
   () => {
     const editor = useEditor()
-    const { ctrl } = useMagicKeys()
+    const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'move' | 'select' | 'idle' = 'idle'
     let startPoint = { x: 0, y: 0 }
     let lastPoint = { x: 0, y: 0 }
@@ -90,19 +89,9 @@ export const useSelect = defineTool(
       const delta = { x: point.x - lastPoint.x, y: point.y - lastPoint.y }
       let snapAmount = { x: 0, y: 0 }
 
-      if (!ctrl.value) {
-        const snapTargets = editor.itemsFlat
-          .filter((v) => v.type !== 'group' && !editor.selectedItems.has(v))
-          .map((v) => v.bounds!)
-
-        const frameBounds = makeBounds({ x: 0, y: 0 }, editor.activeFrame!.size)
-        snapTargets.push(frameBounds)
-
-        const threshold = editor.snapThreshold
+      if (!snapDisabled.value) {
         const bounds = getTranslatedBounds(editor.selectedItemBounds!, delta)
-        const { amount, guides } = getBoundsSnap(bounds, snapTargets, threshold)
-        snapAmount = amount
-        editor.snapGuides = guides
+        snapAmount = editor.snapBounds(bounds, [...editor.selectedItems])
       }
 
       delta.x += snapAmount.x
