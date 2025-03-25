@@ -37,7 +37,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import type { Bounds, Color, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
-import { createRegex, metaRegex, commentRegex } from '~/utils/regex'
+import { composeRegex, metaRegex, commentRegex } from '~/utils/regex'
 import {
   parseItemSettings,
   serializeItemSettings,
@@ -227,7 +227,7 @@ const toCode = (circle: Circle, getUniqueName: (name: string) => string) => {
   return `display.${method}(${center.x}, ${center.y}, ${radius}, ${color}); // ${getUniqueName(name)} ${serializeItemSettings(circle)}`
 }
 
-const regex = createRegex(
+const regex = composeRegex(
   /^display.(?<method>drawCircle|fillCircle)\((?<args>.+)\); /,
   commentRegex,
   metaRegex,

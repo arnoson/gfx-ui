@@ -7,9 +7,18 @@ body {
   line-height: 1.2;
 }
 
-button {
+button,
+select {
   line-height: 1.4;
+  padding-block: 1px;
   padding-inline: 0.5em 0.55em;
+}
+
+select {
+  height: 1lh;
+}
+
+button {
   cursor: pointer;
 
   &:hover:not(:active) {

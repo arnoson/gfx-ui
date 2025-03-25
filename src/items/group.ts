@@ -3,10 +3,12 @@ import { getTranslatedBounds, makeBounds } from '~/utils/bounds'
 import {
   drawItem,
   itemToCode,
+  parseItemSettings,
   translateItem,
   type Item,
   type ItemActions,
 } from './item'
+import { composeRegex, metaRegex } from '~/utils/regex'
 
 export interface Group {
   type: 'group'
@@ -70,7 +72,27 @@ const toCode = (group: Group, getUniqueName: (name: string) => string) => {
   return code
 }
 
-const fromCode = (code: string) => null
+const regex = composeRegex(/^\/\/ group-start */, metaRegex)
+
+const fromCode = (code: string) => {
+  const match = code.match(regex)
+  if (!match?.groups) return null
+
+  const { name, settings } = match.groups
+  const { isLocked, isHidden } = parseItemSettings(settings)
+  const { length } = match[0]
+
+  const item = {
+    type: 'group' as const,
+    name,
+    children: [],
+    isLocked,
+    isHidden,
+  }
+  console.log(item)
+
+  return { item, length }
+}
 
 export const group: ItemActions<Group> = {
   draw,

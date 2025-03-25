@@ -2,13 +2,14 @@ import type { Bounds, Color, Pixels, Point } from '~/types'
 import { getBit, setBit } from '~/utils/bit'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel, unpackPixel } from '~/utils/pixels'
-import { createRegex, metaRegex, commentRegex } from '~/utils/regex'
+import { composeRegex, metaRegex, commentRegex } from '~/utils/regex'
 import {
   parseItemArgs,
   parseItemSettings,
   serializeItemSettings,
   type ItemActions,
 } from './item'
+import { sanitizeIdentifier } from '~/utils/identifier'
 
 export interface Bitmap {
   type: 'bitmap'
@@ -93,7 +94,7 @@ const toCode = (bitmap: Bitmap, getUniqueName: (name: string) => string) => {
   }
 
   const uniqueName = getUniqueName(name)
-  const bytesIdentifier = `${uniqueName}_bytes`
+  const bytesIdentifier = sanitizeIdentifier(`${uniqueName}_bytes`)
   let code = `static const byte ${bytesIdentifier}[] PROGMEM = {\n`
   let bytesPerRow = 12
   for (let i = 0; i < bytes.length; i++) {
@@ -107,7 +108,7 @@ const toCode = (bitmap: Bitmap, getUniqueName: (name: string) => string) => {
   return code
 }
 
-const regex = createRegex(
+const regex = composeRegex(
   /^(?:static)? const byte (\w+)_bytes\[\]\s+PROGMEM\s+=\s+{(?<bytesString>[^}]+)};\s*/,
   /display.drawBitmap\((?<args>.+)\); /,
   commentRegex,

@@ -39,7 +39,10 @@ useEventListener('mouseup', (e) => {
   const { onMouseUp, config } = editor.activeTool
   onMouseUp?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
 })
-useEventListener('keydown', (e) => editor.activeTool.onKeyDown?.(e))
+useEventListener('keydown', (e) => {
+  if (shouldIgnoreKeydown.value) return
+  editor.activeTool.onKeyDown?.(e)
+})
 
 const activeElement = useActiveElement()
 const shouldIgnoreKeydown = computed(

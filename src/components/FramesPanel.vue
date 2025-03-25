@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, toRaw, toRef, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, toRaw, useTemplateRef } from 'vue'
+import { useDraggable } from 'vue-draggable-plus'
 import { vEditable } from '~/directives/editable'
 import { useEditor, type Frame } from '~/stores/editor'
 import FrameCanvas from './FrameCanvas.vue'
-import { useEventListener } from '@vueuse/core'
-import { useDraggable } from 'vue-draggable-plus'
 
 const editor = useEditor()
 const frames = useTemplateRef('frames')
@@ -27,6 +26,10 @@ const paste = () => {
   delete clone.id
   clone.name = `${copiedFrame.name} Copy`
   editor.addFrame(clone)
+}
+
+const rename = (frame: Frame, e: Event) => {
+  frame.name = (e.target as HTMLElement).textContent ?? ''
 }
 
 const framesList = computed({
@@ -77,7 +80,14 @@ useDraggable(frames, framesList, {
         @keydown.c.ctrl="copy(frame)"
       >
         <FrameCanvas class="canvas" :frame="frame" />
-        <header class="frame-name" v-editable>{{ frame.name }}</header>
+        <header
+          class="frame-name"
+          v-editable
+          @blur="rename(frame, $event)"
+          @keydown.delete.stop
+        >
+          {{ frame.name }}
+        </header>
       </a>
     </div>
   </div>

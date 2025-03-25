@@ -43,7 +43,7 @@ import {
   serializeItemSettings,
   type ItemActions,
 } from './item'
-import { commentRegex, createRegex, metaRegex } from '~/utils/regex'
+import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 
 export interface Line {
   type: 'line'
@@ -216,7 +216,7 @@ const toCode = (line: Line, getUniqueName: (name: string) => string) => {
   return `display.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, ${color}); // ${getUniqueName(name)} ${serializeItemSettings(line)}`
 }
 
-const regex = createRegex(
+const regex = composeRegex(
   /^display.drawLine\((?<args>.+)\); /,
   commentRegex,
   metaRegex,

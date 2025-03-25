@@ -2,13 +2,13 @@ import { useFonts } from '~/stores/fonts'
 import type { Bounds, Color, Point } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
+import { composeRegex, metaRegex } from '~/utils/regex'
 import {
   parseItemArgs,
   parseItemSettings,
   serializeItemSettings,
   type ItemActions,
 } from './item'
-import { commentRegex, createRegex, metaRegex } from '~/utils/regex'
 
 export interface Text {
   type: 'text'
@@ -108,10 +108,10 @@ display.setFont(&${text.font});
 display.print(${JSON.stringify(text.content)});
 // text-end`
 
-const regex = createRegex(
+const regex = composeRegex(
   /^\/\/ text-start */,
   metaRegex,
-  /(?<commands>[\s\S]+)/,
+  /(?<commands>[\s\S]+?)/,
   /\/\/ text-end/,
 )
 
@@ -156,8 +156,6 @@ const fromCode = (code: string) => {
     isLocked,
     isHidden,
   } as const
-
-  console.log(item)
 
   return { item, length }
 }

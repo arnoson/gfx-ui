@@ -45,7 +45,7 @@ import {
   serializeItemSettings,
   type ItemActions,
 } from './item'
-import { commentRegex, createRegex, metaRegex } from '~/utils/regex'
+import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 
 export interface Rect {
   type: 'rect'
@@ -149,7 +149,7 @@ const toCode = (rect: Rect, getUniqueName: (name: string) => string) => {
   }
 }
 
-const regex = createRegex(
+const regex = composeRegex(
   /^display.(?<method>drawRect|fillRect|drawRoundRect|fillRoundRect)\((?<args>.+)\); /,
   commentRegex,
   metaRegex,

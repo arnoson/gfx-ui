@@ -12,8 +12,11 @@ import miwos7pt from './fonts/miwos7pt.h?raw'
 import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
 import FramesPanel from './components/FramesPanel.vue'
+import { useProject } from './stores/project'
+import testProject from '~/assets/test-project.h?raw'
 
 const editor = useEditor()
+const project = useProject()
 const fonts = useFonts()
 // const frame = editor.addFrame({})
 // editor.activateFrame(frame.id)
@@ -32,13 +35,9 @@ const activateFrame = () => {
 useEventListener(window, 'hashchange', activateFrame)
 activateFrame()
 
-fonts.add(miwos7pt)
+// fonts.add(miwos7pt)
 
-editor.load(`void drawFrameFuuu() { // (50x64)
-  display.drawCircle(33, 19, 16, 15); // Circle 
-  display.drawLine(83, 39, 103, 18, 15); // Line 
-  display.drawLine(29, 52, 10, 12, 15); // Line 
-};`)
+project.load(testProject)
 
 // editor.addItem({
 //   type: 'line',
@@ -79,7 +78,7 @@ editor.load(`void drawFrameFuuu() { // (50x64)
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      <button @click="editor.save()">Save</button>
+      <button @click="project.save()">Save</button>
       <FramesPanel />
     </SplitterPanel>
     <SplitterResizeHandle />
