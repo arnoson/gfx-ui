@@ -59,6 +59,7 @@ useDraggable(layers, list, {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  overflow: hidden;
 }
 
 details > summary {
