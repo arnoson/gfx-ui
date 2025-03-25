@@ -2,9 +2,13 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
   getItemBounds,
+  itemFromCode,
+  itemToCode,
   type Item,
   type ItemByType,
   type ItemData,
+  type ItemType,
+  type ParsedItem,
 } from '~/items/item'
 import { useCircle } from '~/tools/circle'
 import { useLine } from '~/tools/line'
@@ -65,11 +69,11 @@ export const useEditor = defineStore('editor', () => {
     const id = createId()
     frames.value.push({
       id,
-      name: `Frame${id}`,
-      size: { width: 128, height: 64 },
-      scale: 5,
       children: [],
       ...data,
+      size: data.size ?? { width: 128, height: 64 },
+      name: data.name ?? `Frame${id}`,
+      scale: data.scale ?? 5,
     })
     return frames.value.at(-1)!
   }
@@ -117,12 +121,12 @@ export const useEditor = defineStore('editor', () => {
     const bounds = data.type !== 'group' ? getItemBounds(data) : null
     const name = capitalizeFirstLetter(data.type)
     const item = {
-      ...data,
       isLocked: false,
       isHidden: false,
+      name,
+      ...data,
       bounds,
       id,
-      name,
     } as R
     activeFrame.value.children.unshift(item as Item)
     // Pushing the item makes it reactive, so in order return the reactive item
@@ -202,6 +206,91 @@ export const useEditor = defineStore('editor', () => {
     return addPoints(point, amount)
   }
 
+  const indentLines = (str: string, indent: string) =>
+    str
+      .split('\n')
+      .map((line) => indent + line)
+      .join('\n')
+
+  const save = () => {
+    let code = ''
+
+    let nameCount: Record<string, number> = {}
+    const getUniqueName = (name: string) => {
+      nameCount[name] ??= 0
+      if (nameCount[name] > 0) name += `_${nameCount[name]}`
+      return name
+    }
+
+    for (const frame of frames.value) {
+      code += `void drawFrame${getUniqueName(frame.name)}() { // (${frame.size.width}x${frame.size.height})\n`
+      for (let item of frame.children.toReversed()) {
+        code += indentLines(itemToCode(item, getUniqueName), '  ') + '\n'
+      }
+      code += `};\n\n`
+    }
+
+    console.log(code)
+  }
+
+  const parseFrameSettings = (str: string) => {
+    const flags = str?.split(',').map((v) => v.trim()) ?? []
+    let size: Size | undefined
+
+    const sizeFlag = flags.find((v) => v.match(/\d+x\d+/))
+    if (sizeFlag) {
+      const [width, height] = sizeFlag.split('x').map(Number)
+      size = { width, height }
+    }
+
+    return { size }
+  }
+
+  const load = (code: string) => {
+    let pos = 0
+    let ignoredSections: [start: number, end: number][] = []
+    let ignoredStart: number | null = null
+
+    let frame: Frame | null = null
+    while (pos < code.length) {
+      if (!frame) {
+        const frameMatch = code
+          .slice(pos)
+          .match(/drawFrame(?<name>\w+)\(\) \{( \/\/ \((?<settings>.+)\))?/)
+        if (frameMatch) {
+          const { name, settings } = frameMatch.groups!
+          const { size } = parseFrameSettings(settings)
+          frame = addFrame({ name, size })
+          if (frame) activateFrame(frame.id)
+          pos += frameMatch[0].length
+        } else {
+          pos += 1
+        }
+        continue
+      }
+
+      const itemMatch = itemFromCode(code.slice(pos))
+      if (itemMatch) {
+        if (ignoredStart !== null) {
+          ignoredSections.push([ignoredStart, pos])
+          ignoredStart = null
+        }
+        addItem(itemMatch.item)
+        pos += itemMatch.length
+        continue
+      }
+
+      if (code.slice(pos).startsWith('}')) {
+        frame = null
+        pos += 1
+        continue
+      }
+
+      ignoredStart ??= pos
+      pos += 1
+    }
+  }
+
   return {
     tools,
     activeTool,
@@ -228,6 +317,8 @@ export const useEditor = defineStore('editor', () => {
     snapGuides,
     resetSnapGuides,
     snapPoint,
+    save,
+    load,
   }
 })
 

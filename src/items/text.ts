@@ -2,7 +2,13 @@ import { useFonts } from '~/stores/fonts'
 import type { Bounds, Color, Point } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
-import type { ItemActions } from './item'
+import {
+  parseItemArgs,
+  parseItemSettings,
+  serializeItemSettings,
+  type ItemActions,
+} from './item'
+import { commentRegex, createRegex, metaRegex } from '~/utils/regex'
 
 export interface Text {
   type: 'text'
@@ -92,7 +98,69 @@ const getBounds = (text: Pick<Text, 'font' | 'content' | 'position'>) => {
   return makeBounds(text.position, { width, height: offsetY + font.yAdvance })
 }
 
-const toCode = (text: Text) => ''
+const toCode = (
+  text: Text,
+  getUniqueName: (name: string) => string,
+) => `// text-start ${getUniqueName(text.name)} ${serializeItemSettings(text)}
+display.setCursor(${text.position.x}, ${text.position.y});
+display.setTextColor(${text.color});
+display.setFont(&${text.font});
+display.print(${JSON.stringify(text.content)});
+// text-end`
+
+const regex = createRegex(
+  /^\/\/ text-start */,
+  metaRegex,
+  /(?<commands>[\s\S]+)/,
+  /\/\/ text-end/,
+)
+
+const fromCode = (code: string) => {
+  const match = code.match(regex)
+  if (!match?.groups) return null
+
+  const { name, settings, commands } = match.groups
+  const { isLocked, isHidden } = parseItemSettings(settings)
+  const { length } = match[0]
+
+  let x = 0
+  let y = 0
+  let color = 0
+  let font = '' // TODO: handle default font
+  let content = ''
+
+  let commandMatch: RegExpMatchArray | null
+  if ((commandMatch = commands.match(/display.setCursor\((?<args>.+)\);/))) {
+    ;[x, y] = parseItemArgs(commandMatch.groups!.args)
+    console.log(x, y)
+  }
+  if (
+    (commandMatch = commands.match(/display.setTextColor\((?<color>.+)\);/))
+  ) {
+    color = Number(commandMatch.groups!.color)
+  }
+  if ((commandMatch = commands.match(/display.setFont\(&(?<font>.+)\);/))) {
+    font = commandMatch.groups!.font
+  }
+  if ((commandMatch = commands.match(/display.print\("(?<content>.+)"\);/))) {
+    content = commandMatch.groups!.content
+  }
+
+  const item = {
+    type: 'text',
+    name,
+    position: { x, y },
+    content,
+    font,
+    color,
+    isLocked,
+    isHidden,
+  } as const
+
+  console.log(item)
+
+  return { item, length }
+}
 
 export const text: ItemActions<Text> = {
   draw,
@@ -100,4 +168,5 @@ export const text: ItemActions<Text> = {
   translate,
   getBounds,
   toCode,
+  fromCode,
 }

@@ -39,7 +39,13 @@ import { pixelColors } from '~/utils/pixels'
 import { drawCircleHelper, fillCircleHelper } from './circle'
 import { drawHorizontalLine, drawVerticalLine } from './line'
 import { makeBounds } from '~/utils/bounds'
-import type { ItemActions } from './item'
+import {
+  parseItemArgs,
+  parseItemSettings,
+  serializeItemSettings,
+  type ItemActions,
+} from './item'
+import { commentRegex, createRegex, metaRegex } from '~/utils/regex'
 
 export interface Rect {
   type: 'rect'
@@ -131,7 +137,57 @@ const move = (rect: Rect, position: Point) => {
 const getBounds = (rect: Pick<Rect, 'position' | 'size'>) =>
   makeBounds(rect.position, rect.size)
 
-const toCode = (rect: Rect) => ''
+const toCode = (rect: Rect, getUniqueName: (name: string) => string) => {
+  const { name, size, position, isFilled, radius, color } = rect
+  const uniqueName = getUniqueName(name)
+  if (radius) {
+    const method = isFilled ? 'fillRoundRect' : 'drawRoundRect'
+    return `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${radius}, ${color}); // ${uniqueName} ${serializeItemSettings(rect)}`
+  } else {
+    const method = isFilled ? 'fillRect' : 'drawRect'
+    return `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${color}); // ${uniqueName} ${serializeItemSettings(rect)}`
+  }
+}
+
+const regex = createRegex(
+  /^display.(?<method>drawRect|fillRect|drawRoundRect|fillRoundRect)\((?<args>.+)\); /,
+  commentRegex,
+  metaRegex,
+)
+
+const fromCode = (code: string) => {
+  const match = code.match(regex)
+  if (!match?.groups) return null
+
+  const { method, args, name, settings } = match.groups
+  const { isLocked, isHidden } = parseItemSettings(settings)
+  const { length } = match[0]
+
+  const isRounded = method === 'drawRoundRect' || method === 'fillRoundRect'
+  const isFilled = method === 'fillRect' || method === 'fillRoundRect'
+  let x: number, y: number, width: number, height: number, color: number
+  let radius = 0
+
+  if (isRounded) {
+    ;[x, y, width, height, radius, color] = parseItemArgs(args)
+  } else {
+    ;[x, y, width, height, color] = parseItemArgs(args)
+  }
+
+  const item = {
+    type: 'rect',
+    name,
+    position: { x, y },
+    size: { width, height },
+    radius,
+    color,
+    isFilled,
+    isLocked,
+    isHidden,
+  } as const
+
+  return { item, length }
+}
 
 export const rect: ItemActions<Rect> = {
   draw,
@@ -139,4 +195,5 @@ export const rect: ItemActions<Rect> = {
   translate,
   getBounds,
   toCode,
+  fromCode,
 }

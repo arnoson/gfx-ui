@@ -1,7 +1,14 @@
 import type { Bounds, Color, Pixels, Point } from '~/types'
+import { getBit, setBit } from '~/utils/bit'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel, unpackPixel } from '~/utils/pixels'
-import type { ItemActions } from './item'
+import { createRegex, metaRegex, commentRegex } from '~/utils/regex'
+import {
+  parseItemArgs,
+  parseItemSettings,
+  serializeItemSettings,
+  type ItemActions,
+} from './item'
 
 export interface Bitmap {
   type: 'bitmap'
@@ -61,7 +68,89 @@ const getBounds = (bitmap: Pick<Bitmap, 'pixels'>): Bounds => {
   return makeBounds(position, size)
 }
 
-const toCode = (bitmap: Bitmap) => ''
+const toCode = (bitmap: Bitmap, getUniqueName: (name: string) => string) => {
+  const { bounds, pixels, color, name } = bitmap
+
+  let bytesCount = Math.ceil((bounds.width * bounds.height) / 8)
+  const bytes = new Uint8Array(bytesCount)
+  let byteIndex = 0
+  let bitIndex = 7
+  for (let y = 0; y < bounds.height; y++) {
+    for (let x = 0; x < bounds.width; x++) {
+      const pixel = packPixel(bounds.left + x, bounds.top + y)
+      // We use a positive value to indicate a filled (white) pixel, but
+      // GFX seems to do it the other way round.
+      const value = !pixels.has(pixel)
+
+      if (bitIndex < 0) {
+        byteIndex++
+        bitIndex = 7
+      }
+
+      setBit(bytes, byteIndex, bitIndex, value)
+      bitIndex--
+    }
+  }
+
+  const uniqueName = getUniqueName(name)
+  const bytesIdentifier = `${uniqueName}_bytes`
+  let code = `static const byte ${bytesIdentifier}[] PROGMEM = {\n`
+  let bytesPerRow = 12
+  for (let i = 0; i < bytes.length; i++) {
+    if (i > 0 && i % bytesPerRow === 0) code += '\n'
+    if (i % bytesPerRow === 0) code += '  '
+    code += `0x${bytes[i].toString(16).padStart(2, '0')}, `
+  }
+  if (code.at(-1) !== '\n') code += '\n'
+  code += '};\n'
+  code += `display.drawBitmap(${bounds.x}, ${bounds.y}, ${bytesIdentifier}, ${bounds.width}, ${bounds.height}, ${color}); // ${uniqueName} ${serializeItemSettings(bitmap)}`
+  return code
+}
+
+const regex = createRegex(
+  /^(?:static)? const byte (\w+)_bytes\[\]\s+PROGMEM\s+=\s+{(?<bytesString>[^}]+)};\s*/,
+  /display.drawBitmap\((?<args>.+)\); /,
+  commentRegex,
+  metaRegex,
+)
+
+const fromCode = (code: string) => {
+  const match = code.match(regex)
+  if (!match?.groups) return null
+
+  const { bytesString, args, name, settings } = match.groups
+  const { isLocked, isHidden } = parseItemSettings(settings)
+  const { length } = match[0]
+
+  const bytes = new Uint8Array(bytesString.split(',').map((v) => +v))
+  const [offsetX, offsetY, _, width, height, color] = parseItemArgs(args)
+
+  const pixels: Pixels = new Set()
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x
+      const byteIndex = Math.floor(i / 8)
+      const bitIndex = 7 - (i % 8)
+      const bit = getBit(bytes, byteIndex, bitIndex)
+
+      if (bit) {
+        const pixel = packPixel(offsetX + x, offsetY + y)
+        pixels.add(pixel)
+      }
+    }
+  }
+
+  const item = {
+    type: 'bitmap',
+    name: name || undefined,
+    color,
+    pixels,
+    isHidden,
+    isLocked,
+  } as const
+
+  return { item, length }
+}
 
 export const bitmap: ItemActions<Bitmap> = {
   draw,
@@ -69,4 +158,5 @@ export const bitmap: ItemActions<Bitmap> = {
   translate,
   getBounds,
   toCode,
+  fromCode,
 }

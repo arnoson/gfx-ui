@@ -37,7 +37,13 @@ POSSIBILITY OF SUCH DAMAGE.
 import type { Bounds, Color, Pixels, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel } from '~/utils/pixels'
-import type { ItemActions } from './item'
+import {
+  parseItemArgs,
+  parseItemSettings,
+  serializeItemSettings,
+  type ItemActions,
+} from './item'
+import { commentRegex, createRegex, metaRegex } from '~/utils/regex'
 
 export interface Line {
   type: 'line'
@@ -205,8 +211,38 @@ const getBounds = (line: Pick<Line, 'from' | 'to'>): Bounds => {
   return makeBounds(position, size)
 }
 
-const toCode = ({ from, to, color }: Line) =>
-  `drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, ${color})`
+const toCode = (line: Line, getUniqueName: (name: string) => string) => {
+  const { from, to, color, name } = line
+  return `display.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, ${color}); // ${getUniqueName(name)} ${serializeItemSettings(line)}`
+}
+
+const regex = createRegex(
+  /^display.drawLine\((?<args>.+)\); /,
+  commentRegex,
+  metaRegex,
+)
+
+const fromCode = (code: string) => {
+  const match = code.match(regex)
+  if (!match?.groups) return null
+
+  const { args, name, settings } = match.groups
+  const { isLocked, isHidden } = parseItemSettings(settings)
+  const { length } = match[0]
+
+  const [x0, y0, x1, y1, color] = parseItemArgs(args)
+  const item = {
+    type: 'line',
+    name,
+    from: { x: x0, y: y0 },
+    to: { x: x1, y: y1 },
+    color,
+    isLocked,
+    isHidden,
+  } as const
+
+  return { item, length }
+}
 
 export const line: ItemActions<Line> = {
   draw,
@@ -214,4 +250,5 @@ export const line: ItemActions<Line> = {
   translate,
   getBounds,
   toCode,
+  fromCode,
 }

@@ -18,6 +18,14 @@ export type ItemData =
   | Omit<Group, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
 
 export type ItemType = 'line' | 'rect' | 'circle' | 'bitmap' | 'text' | 'group'
+export const itemTypes = [
+  'line',
+  'rect',
+  'circle',
+  'bitmap',
+  'text',
+  'group',
+] as const
 
 export type ItemByType<T extends ItemType> = T extends 'line'
   ? Line
@@ -33,12 +41,34 @@ export type ItemByType<T extends ItemType> = T extends 'line'
             ? Group
             : never
 
+export type ParsedItem<T = Item> = Omit<T, 'id' | 'bounds' | 'name'> & {
+  name?: string
+}
+
+export const parseItemSettings = (str: string) => {
+  const flags = str?.split(',').map((v) => v.trim()) ?? []
+  const isHidden = flags.includes('hidden')
+  const isLocked = flags.includes('locked')
+  return { isLocked, isHidden }
+}
+
+export const serializeItemSettings = (item: Item) => {
+  const flags = []
+  if (item.isLocked) flags.push('locked')
+  if (item.isHidden) flags.push('hidden')
+  return flags.length ? `(${flags.join(', ')})` : ''
+}
+
+export const parseItemArgs = (str: string) =>
+  str.split(',').map((v) => Number(v.trim()))
+
 export type ItemActions<T = any> = {
   draw: (ctx: CanvasRenderingContext2D, item: T) => void
   translate: (item: T, delta: Point) => void
   move: (item: T, position: Point) => void
   getBounds: (item: T) => Bounds
-  toCode: (item: T) => string
+  toCode: (item: T, getUniqueName: (name: string) => string) => string
+  fromCode: (code: string) => { item: ParsedItem<T>; length: number } | null
 }
 
 // Unfortunately dispatching the item methods based on their `type` property
@@ -61,5 +91,14 @@ export const moveItem = (item: Item, position: Point) =>
 export const getItemBounds = (item: ItemData): Bounds =>
   items[item.type].getBounds(item as any)
 
-export const itemToCode = (item: Item): string =>
-  items[item.type].toCode(item as any)
+export const itemToCode = (
+  item: Item,
+  getUniqueName: (name: string) => string,
+): string => items[item.type].toCode(item as any, getUniqueName)
+
+export const itemFromCode = (code: string) => {
+  for (const type of itemTypes) {
+    const match = items[type].fromCode(code)
+    if (match) return match
+  }
+}

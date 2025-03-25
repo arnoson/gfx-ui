@@ -15,8 +15,8 @@ import FramesPanel from './components/FramesPanel.vue'
 
 const editor = useEditor()
 const fonts = useFonts()
-const frame = editor.addFrame({})
-editor.activateFrame(frame.id)
+// const frame = editor.addFrame({})
+// editor.activateFrame(frame.id)
 
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
@@ -31,6 +31,14 @@ const activateFrame = () => {
 
 useEventListener(window, 'hashchange', activateFrame)
 activateFrame()
+
+fonts.add(miwos7pt)
+
+editor.load(`void drawFrameFuuu() { // (50x64)
+  display.drawCircle(33, 19, 16, 15); // Circle 
+  display.drawLine(83, 39, 103, 18, 15); // Line 
+  display.drawLine(29, 52, 10, 12, 15); // Line 
+};`)
 
 // editor.addItem({
 //   type: 'line',
@@ -48,15 +56,13 @@ activateFrame()
 //   radius: 0,
 // })
 
-editor.addItem({
-  type: 'circle',
-  center: { x: 30, y: 30 },
-  radius: 5,
-  color: 15,
-  isFilled: false,
-})
-
-fonts.add(miwos7pt)
+// editor.addItem({
+//   type: 'circle',
+//   center: { x: 30, y: 30 },
+//   radius: 5,
+//   color: 15,
+//   isFilled: false,
+// })
 
 // editor.addItem({
 //   type: 'text',
@@ -73,6 +79,7 @@ fonts.add(miwos7pt)
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
+      <button @click="editor.save()">Save</button>
       <FramesPanel />
     </SplitterPanel>
     <SplitterResizeHandle />

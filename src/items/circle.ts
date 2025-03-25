@@ -37,7 +37,12 @@ POSSIBILITY OF SUCH DAMAGE.
 import type { Bounds, Color, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
-import { type ItemActions } from './item'
+import { createRegex, metaRegex, commentRegex } from '~/utils/regex'
+import {
+  parseItemSettings,
+  serializeItemSettings,
+  type ItemActions,
+} from './item'
 import { drawVerticalLine } from './line'
 
 export interface Circle {
@@ -216,9 +221,39 @@ const getBounds = (circle: Pick<Circle, 'center' | 'radius'>): Bounds => {
   return makeBounds(position, size)
 }
 
-const toCode = ({ center, radius, isFilled, color }: Circle) => {
-  const functionName = isFilled ? 'fillCircle' : 'drawCircle'
-  return `${functionName}(${center.x}, ${center.y}, ${radius}, ${color})`
+const toCode = (circle: Circle, getUniqueName: (name: string) => string) => {
+  const method = circle.isFilled ? 'fillCircle' : 'drawCircle'
+  const { center, radius, color, name } = circle
+  return `display.${method}(${center.x}, ${center.y}, ${radius}, ${color}); // ${getUniqueName(name)} ${serializeItemSettings(circle)}`
+}
+
+const regex = createRegex(
+  /^display.(?<method>drawCircle|fillCircle)\((?<args>.+)\); /,
+  commentRegex,
+  metaRegex,
+)
+
+const fromCode = (code: string) => {
+  const match = code.match(regex)
+  if (!match?.groups) return null
+
+  const { method, args, name, settings } = match.groups
+  const { isLocked, isHidden } = parseItemSettings(settings)
+  const { length } = match[0]
+
+  const [x, y, radius, color] = args.split(',').map((v) => +v.trim())
+  let item = {
+    type: 'circle',
+    name,
+    center: { x, y },
+    radius,
+    color,
+    isFilled: method === 'fillCircle',
+    isLocked,
+    isHidden,
+  } as const
+
+  return { item, length }
 }
 
 export const circle: ItemActions<Circle> = {
@@ -227,4 +262,5 @@ export const circle: ItemActions<Circle> = {
   translate,
   getBounds,
   toCode,
+  fromCode,
 }
