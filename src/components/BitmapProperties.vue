@@ -19,7 +19,6 @@ const updatePosition = (point: Point) => {
 
 <template>
   <div class="flow">
-    <h2>Bitmap Properties</h2>
     <ColorField v-model="item.color" label="Color" />
     <PointField
       :model-value="item.bounds.topLeft"

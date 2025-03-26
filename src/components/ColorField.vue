@@ -65,7 +65,7 @@ const name = computed(() => {
   gap: 0.25rem;
   background: var(--color-background);
   border-radius: 4px;
-  border: 1px solid hsl(0 0% 20% / 1);
+  border: 1px solid var(--color-border);
   color: var(--color-text);
   padding: 0.5rem;
 

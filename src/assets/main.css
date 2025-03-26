@@ -2,6 +2,8 @@
 @import './reset.css' layer(reset);
 @import './base.css' layer(base);
 @import './field.css' layer(components);
+@import './dialog.css' layer(components);
+@import './shiki.css' layer(components);
 
 :root {
   --color-background: black;
@@ -12,6 +14,7 @@
   --color-panel-text: var(--color-background);
   --color-accent: tomato;
   --color-bounds: var(--color-accent);
+  --color-border: hsl(0 0% 20% / 1);
 
   --color-pixel-0: hsl(0, 0%, 0%);
   --color-pixel-1: hsl(0, 0%, 6.67%);

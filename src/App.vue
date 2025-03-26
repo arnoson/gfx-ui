@@ -2,18 +2,18 @@
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
+import testProject from '~/assets/test-project.h?raw'
 import EditorPanel from './components/EditorPanel.vue'
 import FrameProperties from './components/FrameProperties.vue'
-import ItemProperties from './components/ItemProperties.vue'
+import FramesPanel from './components/FramesPanel.vue'
+import PropertiesPanel from './components/PropertiesPanel.vue'
 import LayersTree from './components/LayersTree.vue'
+import ProjectProperties from './components/ProjectProperties.vue'
 import SelectionProperties from './components/SelectionProperties.vue'
 import ToolBar from './components/ToolBar.vue'
-import miwos7pt from './fonts/miwos7pt.h?raw'
 import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
-import FramesPanel from './components/FramesPanel.vue'
 import { useProject } from './stores/project'
-import testProject from '~/assets/test-project.h?raw'
 
 const editor = useEditor()
 const project = useProject()
@@ -78,7 +78,7 @@ project.load(testProject)
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      <button @click="project.save()">Save</button>
+      <ProjectProperties />
       <FramesPanel />
     </SplitterPanel>
     <SplitterResizeHandle />
@@ -93,18 +93,7 @@ project.load(testProject)
     >
       <SplitterGroup direction="vertical">
         <SplitterPanel class="properties-panel">
-          <ItemProperties
-            v-if="editor.focusedItem"
-            :item="editor.focusedItem"
-          />
-          <SelectionProperties
-            v-else-if="editor.selectedItems.size"
-            :items="Array.from(editor.selectedItems)"
-          />
-          <FrameProperties
-            v-else-if="editor.activeFrame"
-            :frame="editor.activeFrame"
-          />
+          <PropertiesPanel />
         </SplitterPanel>
         <SplitterResizeHandle />
         <SplitterPanel class="layers-panel">

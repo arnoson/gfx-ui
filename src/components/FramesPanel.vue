@@ -122,11 +122,11 @@ useDraggable(frames, framesList, {
 }
 
 .frame {
-  border: 1px solid hsl(0 0% 20% / 1);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
 
   &:hover {
-    background-color: hsl(0 0% 20% / 1);
+    background-color: var(--color-border);
     &[data-active='true'] {
       background-color: var(--color-accent);
     }

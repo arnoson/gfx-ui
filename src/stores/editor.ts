@@ -21,6 +21,7 @@ import { capitalizeFirstLetter } from '~/utils/text'
 type Id = number
 
 export interface Frame {
+  type: 'frame'
   id: Id
   name: string
   scale: number
@@ -64,6 +65,8 @@ export const useEditor = defineStore('editor', () => {
 
   activateTool(activeToolId.value)
 
+  const viewCode = ref(false)
+
   // Frames
   const frames = ref<Frame[]>([])
   const activeFrame = ref<Frame>()
@@ -75,6 +78,7 @@ export const useEditor = defineStore('editor', () => {
   const addFrame = (data: Partial<Frame>): Frame => {
     const id = createId()
     frames.value.push({
+      type: 'frame',
       id,
       children: [],
       ...data,
@@ -207,7 +211,7 @@ export const useEditor = defineStore('editor', () => {
   const snapBounds = (bounds: Bounds, ignoreTargets: Item[] = []) => {
     const ignoreTargetsFlat = flattenNestedItems(ignoreTargets)
     const targets = itemsFlat.value
-      .filter((v) => !ignoreTargetsFlat.includes(v))
+      .filter((v) => v.type !== 'group' && !ignoreTargetsFlat.includes(v))
       .map((v) => v.bounds!)
 
     targets.push(frameBounds.value)
@@ -222,10 +226,16 @@ export const useEditor = defineStore('editor', () => {
     return amount
   }
 
+  const clear = () => {
+    frames.value = []
+    activeFrame.value = undefined
+  }
+
   return {
     tools,
     activeTool,
     activateTool,
+    viewCode,
     frames,
     activeFrame,
     frameBounds,
@@ -249,6 +259,7 @@ export const useEditor = defineStore('editor', () => {
     resetSnapGuides,
     snapPoint,
     snapBounds,
+    clear,
   }
 })
 

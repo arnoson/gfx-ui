@@ -20,7 +20,6 @@ const updateTo = (point: Point) => {
 
 <template>
   <div class="flow">
-    <h2>Line Properties</h2>
     <ColorField v-model="item.color" label="Color" />
     <PointField
       :model-value="item.from"

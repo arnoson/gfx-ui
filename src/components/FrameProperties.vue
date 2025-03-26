@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Frame } from '~/stores/editor'
+import { type Frame } from '~/stores/editor'
 import SizeField from './SizeField.vue'
 
 defineProps<{ frame: Frame }>()
@@ -7,7 +7,6 @@ defineProps<{ frame: Frame }>()
 
 <template>
   <div class="flow">
-    <h2>Frame Properties</h2>
     <SizeField v-model="frame.size" label="Size" />
   </div>
 </template>

@@ -89,7 +89,6 @@ const fromCode = (code: string) => {
     isLocked,
     isHidden,
   }
-  console.log(item)
 
   return { item, length }
 }

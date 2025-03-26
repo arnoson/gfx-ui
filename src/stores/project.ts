@@ -5,8 +5,12 @@ import type { Size } from '~/types'
 import { sanitizeIdentifier } from '~/utils/identifier'
 import { useEditor, type Frame } from './editor'
 import { useFonts } from './fonts'
+import { downloadFile } from '~/utils/file'
+import { ref } from 'vue'
 
 export const useProject = defineStore('project', () => {
+  const name = ref('Untitled')
+
   const editor = useEditor()
   const fonts = useFonts()
 
@@ -17,7 +21,9 @@ export const useProject = defineStore('project', () => {
       .join('\n')
 
   const save = () => {
-    let code = ''
+    let code = `/**
+ * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
+ */\n\n`
 
     let nameCount: Record<string, number> = {}
     const getUniqueName = (name: string) => {
@@ -27,7 +33,6 @@ export const useProject = defineStore('project', () => {
     }
 
     for (const frame of editor.frames) {
-      console.log(frame)
       const name = getUniqueName(frame.name)
       const identifier = sanitizeIdentifier(name)
       code += `void drawFrame${identifier}() { // ${name} (${frame.size.width}x${frame.size.height})\n`
@@ -37,6 +42,7 @@ export const useProject = defineStore('project', () => {
       code += `};\n\n`
     }
 
+    // downloadFile(`${name.value}.h`, code)
     console.log(code)
   }
 
@@ -54,6 +60,8 @@ export const useProject = defineStore('project', () => {
   }
 
   const load = (code: string) => {
+    editor.clear()
+
     let pos = 0
     let ignoredSections: [start: number, end: number][] = []
     let ignoredStart: number | null = null
@@ -78,7 +86,6 @@ export const useProject = defineStore('project', () => {
           /^drawFrame\w+\(\) \{( \/\/ (?<name>[\w ]+) \((?<settings>.+)\))?/,
         )
         if (frameMatch) {
-          console.log(pos, frameMatch)
           const { name, settings } = frameMatch.groups!
           const { size } = parseFrameSettings(settings)
           frame = editor.addFrame({ name, size })
@@ -130,5 +137,5 @@ export const useProject = defineStore('project', () => {
     }
   }
 
-  return { load, save }
+  return { name, load, save }
 })

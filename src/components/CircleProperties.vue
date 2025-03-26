@@ -22,7 +22,6 @@ const updateRadius = (radius: number) => {
 
 <template>
   <div class="flow">
-    <h2>Circle Properties</h2>
     <ColorField v-model="item.color" label="Color" />
     <PointField
       :model-value="item.center"

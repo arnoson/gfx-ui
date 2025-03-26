@@ -132,7 +132,6 @@ const fromCode = (code: string) => {
   let commandMatch: RegExpMatchArray | null
   if ((commandMatch = commands.match(/display.setCursor\((?<args>.+)\);/))) {
     ;[x, y] = parseItemArgs(commandMatch.groups!.args)
-    console.log(x, y)
   }
   if (
     (commandMatch = commands.match(/display.setTextColor\((?<color>.+)\);/))

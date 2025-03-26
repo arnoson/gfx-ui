@@ -102,7 +102,7 @@ const fillCircle = (
   { center, radius: r, color }: Omit<Circle, 'type' | 'id'>,
 ) => {
   const { x: x0, y: y0 } = center
-  drawVerticalLine(ctx, x0, y0 - r, 2 * r, color)
+  drawVerticalLine(ctx, x0, y0 - r, 2 * r + 1, color)
   fillCircleHelper(ctx, x0, y0, r, 3, 0, color)
 }
 

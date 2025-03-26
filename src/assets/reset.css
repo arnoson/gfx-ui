@@ -18,6 +18,8 @@ a {
   color: inherit;
 }
 
+p,
+pre,
 menu {
   margin: 0;
 }

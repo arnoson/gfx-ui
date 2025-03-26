@@ -186,32 +186,29 @@ const distributedHorizontalGap = computed(() => {
 
 <template>
   <div class="flow">
-    <h2>{{ props.items?.length || 0 }} selected</h2>
-    <div class="flow">
-      <label>Align</label>
-      <div class="buttons-align">
-        <button @click="alignLeft"><IconAlignLeft /></button>
-        <button @click="alignCenter"><IconAlignCenter /></button>
-        <button @click="alignRight"><IconAlignRight /></button>
-        <button @click="alignTop"><IconAlignTop /></button>
-        <button @click="alignMiddle"><IconAlignMiddle /></button>
-        <button @click="alignBottom"><IconAlignBottom /></button>
-      </div>
+    <label>Align</label>
+    <div class="buttons-align">
+      <button @click="alignLeft"><IconAlignLeft /></button>
+      <button @click="alignCenter"><IconAlignCenter /></button>
+      <button @click="alignRight"><IconAlignRight /></button>
+      <button @click="alignTop"><IconAlignTop /></button>
+      <button @click="alignMiddle"><IconAlignMiddle /></button>
+      <button @click="alignBottom"><IconAlignBottom /></button>
     </div>
-    <div class="flow">
-      <label>Distribute</label>
-      <div class="buttons-distribute">
-        <button @click="distributeHorizontal()">Horizontal</button>
-        <button @click="distributeVertical()">Vertical</button>
-      </div>
-      <GapField
-        :horizontal="distributedHorizontalGap"
-        :vertical="distributedVerticalGap"
-        label="Gap"
-        @update:horizontal="distributeHorizontal($event)"
-        @update:vertical="distributeVertical($event)"
-      />
+  </div>
+  <div class="flow">
+    <label>Distribute</label>
+    <div class="buttons-distribute">
+      <button @click="distributeHorizontal()">Horizontal</button>
+      <button @click="distributeVertical()">Vertical</button>
     </div>
+    <GapField
+      :horizontal="distributedHorizontalGap"
+      :vertical="distributedVerticalGap"
+      label="Gap"
+      @update:horizontal="distributeHorizontal($event)"
+      @update:vertical="distributeVertical($event)"
+    />
   </div>
 </template>
 
