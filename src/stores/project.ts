@@ -1,49 +1,32 @@
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { toCode as frameToCode } from '~/frame'
 import type { Group } from '~/items/group'
-import { itemFromCode, itemToCode } from '~/items/item'
-import type { Size } from '~/types'
-import { sanitizeIdentifier } from '~/utils/identifier'
+import { itemFromCode } from '~/items/item'
+import type { CodeContext, Size } from '~/types'
+import { createCodeContext } from '~/utils/codeContext'
+import { downloadFile } from '~/utils/file'
 import { useEditor, type Frame } from './editor'
 import { useFonts } from './fonts'
-import { downloadFile } from '~/utils/file'
-import { ref } from 'vue'
 
 export const useProject = defineStore('project', () => {
   const name = ref('Untitled')
 
+  const singleItemComments = ref<CodeContext['comments']>('none')
+  const multipleItemsComments = ref<CodeContext['comments']>('names')
+
   const editor = useEditor()
   const fonts = useFonts()
 
-  const indentLines = (str: string, indent: string) =>
-    str
-      .split('\n')
-      .map((line) => indent + line)
-      .join('\n')
-
   const save = () => {
     let code = `/**
- * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
- */\n\n`
+    * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
+    */\n\n`
 
-    let nameCount: Record<string, number> = {}
-    const getUniqueName = (name: string) => {
-      nameCount[name] ??= 0
-      if (nameCount[name] > 0) name += `_${nameCount[name]}`
-      return name
-    }
+    const ctx = createCodeContext({ comments: 'all' })
+    code += editor.frames.map((v) => frameToCode(v, ctx)).join('\n\n')
 
-    for (const frame of editor.frames) {
-      const name = getUniqueName(frame.name)
-      const identifier = sanitizeIdentifier(name)
-      code += `void drawFrame${identifier}() { // ${name} (${frame.size.width}x${frame.size.height})\n`
-      for (let item of frame.children.toReversed()) {
-        code += indentLines(itemToCode(item, getUniqueName), '  ') + '\n'
-      }
-      code += `};\n\n`
-    }
-
-    // downloadFile(`${name.value}.h`, code)
-    console.log(code)
+    downloadFile(`${name.value}.h`, code)
   }
 
   const parseFrameSettings = (str: string) => {
@@ -137,5 +120,11 @@ export const useProject = defineStore('project', () => {
     }
   }
 
-  return { name, load, save }
+  return {
+    name,
+    load,
+    save,
+    singleItemComments,
+    multipleItemsComments,
+  }
 })

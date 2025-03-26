@@ -16,14 +16,14 @@ const item = computed(() => editor.focusedItem ?? undefined)
 const frame = computed(() => editor.activeFrame ?? undefined)
 
 const title = computed(() => {
-  if (editor.selectedItems.size) return `${editor.selectedItems.size} selected`
   if (item.value) return item.value.type
+  if (editor.selectedItems.size) return `${editor.selectedItems.size} selected`
   if (frame.value) return frame.value.type
 })
 
 const source = computed(() => {
-  if (editor.selectedItems.size) return [...editor.selectedItems]
   if (item.value) return item.value
+  if (editor.selectedItems.size) return [...editor.selectedItems]
   if (frame.value) return frame.value
 })
 </script>
@@ -34,11 +34,7 @@ const source = computed(() => {
       <h2 class="heading">{{ title }}</h2>
       <SwitchField label="View code" v-model="editor.viewCode" />
     </header>
-    <ViewCode
-      v-if="source && editor.viewCode"
-      :source="source"
-      style="flex: 1"
-    />
+    <ViewCode v-if="source && editor.viewCode" :source="source" />
     <template v-else-if="item">
       <BitmapProperties v-if="item.type === 'bitmap'" :item="item" />
       <RectProperties v-else-if="item.type === 'rect'" :item />

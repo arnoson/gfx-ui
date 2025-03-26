@@ -3,7 +3,6 @@
 @import './base.css' layer(base);
 @import './field.css' layer(components);
 @import './dialog.css' layer(components);
-@import './shiki.css' layer(components);
 
 :root {
   --color-background: black;

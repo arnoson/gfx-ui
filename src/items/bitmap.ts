@@ -1,4 +1,4 @@
-import type { Bounds, Color, Pixels, Point } from '~/types'
+import type { Bounds, CodeContext, Color, Pixels, Point } from '~/types'
 import { getBit, setBit } from '~/utils/bit'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel, unpackPixel } from '~/utils/pixels'
@@ -69,7 +69,7 @@ const getBounds = (bitmap: Pick<Bitmap, 'pixels'>): Bounds => {
   return makeBounds(position, size)
 }
 
-const toCode = (bitmap: Bitmap, getUniqueName: (name: string) => string) => {
+const toCode = (bitmap: Bitmap, ctx: CodeContext) => {
   const { bounds, pixels, color, name } = bitmap
 
   let bytesCount = Math.ceil((bounds.width * bounds.height) / 8)
@@ -93,7 +93,7 @@ const toCode = (bitmap: Bitmap, getUniqueName: (name: string) => string) => {
     }
   }
 
-  const uniqueName = getUniqueName(name)
+  const uniqueName = ctx.getUniqueName(name)
   const bytesIdentifier = sanitizeIdentifier(`${uniqueName}_bytes`)
   let code = `static const byte ${bytesIdentifier}[] PROGMEM = {\n`
   let bytesPerRow = 12
@@ -104,7 +104,13 @@ const toCode = (bitmap: Bitmap, getUniqueName: (name: string) => string) => {
   }
   if (code.at(-1) !== '\n') code += '\n'
   code += '};\n'
-  code += `display.drawBitmap(${bounds.x}, ${bounds.y}, ${bytesIdentifier}, ${bounds.width}, ${bounds.height}, ${color}); // ${uniqueName} ${serializeItemSettings(bitmap)}`
+
+  code += `display.drawBitmap(${bounds.x}, ${bounds.y}, ${bytesIdentifier}, ${bounds.width}, ${bounds.height}, ${color});`
+  if (ctx.comments === 'names') {
+    code += ` // ${uniqueName}`
+  } else if (ctx.comments === 'all') {
+    code += ` // ${uniqueName} ${serializeItemSettings(bitmap)}`
+  }
   return code
 }
 

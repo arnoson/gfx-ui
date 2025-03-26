@@ -367,8 +367,8 @@ const GFXfont FreeMono12pt7b PROGMEM = {(uint8_t *)FreeMono12pt7bBitmaps,
 void drawFrameFu_Bar() { // Fu Bar (128x64)
   // group-start Inner Group
   // group-start Outer Group
-  display.drawRect(22, 13, 17, 16, 15); // Rect   
-  display.drawCircle(29, 20, 4, 15); // Circle   
+  display.drawRect(22, 13, 17, 16, 15); // Rect
+  display.drawCircle(29, 20, 4, 15); // Circle
   // group-end 'Outer Group'
   // text-start Text   
   display.setCursor(48, 16);
@@ -384,5 +384,5 @@ void drawFrameFu_Bar() { // Fu Bar (128x64)
     0x04, 0x40, 0x00, 0x22, 0x00, 0x03, 0x10, 0x00, 0x10, 0x40, 0x01, 0x02, 
     0x00, 0x10, 0x10, 0x01, 0x00, 0x60, 0x10, 0x00, 0xff, 0x00, 
   };
-  display.drawBitmap(40, 36, Bitmap__bytes, 21, 22, 15); // Bitmap   
+display.drawBitmap(40, 36, Bitmap__bytes, 21, 22, 15); // Bitmap   
 };

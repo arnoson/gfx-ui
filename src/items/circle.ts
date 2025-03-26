@@ -34,7 +34,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 
-import type { Bounds, Color, Point } from '~/types'
+import type { Bounds, CodeContext, Color, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
 import { composeRegex, metaRegex, commentRegex } from '~/utils/regex'
@@ -221,10 +221,16 @@ const getBounds = (circle: Pick<Circle, 'center' | 'radius'>): Bounds => {
   return makeBounds(position, size)
 }
 
-const toCode = (circle: Circle, getUniqueName: (name: string) => string) => {
+const toCode = (circle: Circle, ctx: CodeContext) => {
   const method = circle.isFilled ? 'fillCircle' : 'drawCircle'
   const { center, radius, color, name } = circle
-  return `display.${method}(${center.x}, ${center.y}, ${radius}, ${color}); // ${getUniqueName(name)} ${serializeItemSettings(circle)}`
+  let code = `display.${method}(${center.x}, ${center.y}, ${radius}, ${color});`
+  if (ctx.comments === 'names') {
+    code += ` // ${ctx.getUniqueName(name)}`
+  } else if (ctx.comments === 'all') {
+    code += ` // ${ctx.getUniqueName(name)} ${serializeItemSettings(circle)}`
+  }
+  return code
 }
 
 const regex = composeRegex(

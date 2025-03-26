@@ -1,4 +1,4 @@
-import type { Bounds, Point } from '~/types'
+import type { Bounds, CodeContext, Point } from '~/types'
 import { bitmap, type Bitmap } from './bitmap'
 import { circle, type Circle } from './circle'
 import { group, type Group } from './group'
@@ -67,7 +67,7 @@ export type ItemActions<T = any> = {
   translate: (item: T, delta: Point) => void
   move: (item: T, position: Point) => void
   getBounds: (item: T) => Bounds
-  toCode: (item: T, getUniqueName: (name: string) => string) => string
+  toCode: (item: T, ctx: CodeContext) => string
   fromCode: (code: string) => { item: ParsedItem<T>; length: number } | null
 }
 
@@ -91,10 +91,8 @@ export const moveItem = (item: Item, position: Point) =>
 export const getItemBounds = (item: ItemData): Bounds =>
   items[item.type].getBounds(item as any)
 
-export const itemToCode = (
-  item: Item,
-  getUniqueName: (name: string) => string,
-): string => items[item.type].toCode(item as any, getUniqueName)
+export const itemToCode = (item: Item, ctx: CodeContext): string =>
+  items[item.type].toCode(item as any, ctx)
 
 export const itemFromCode = (code: string) => {
   for (const type of itemTypes) {

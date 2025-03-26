@@ -1,5 +1,5 @@
 import { useFonts } from '~/stores/fonts'
-import type { Bounds, Color, Point } from '~/types'
+import type { Bounds, CodeContext, Color, Point } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { drawPixel } from '~/utils/pixels'
 import { composeRegex, metaRegex } from '~/utils/regex'
@@ -98,15 +98,24 @@ const getBounds = (text: Pick<Text, 'font' | 'content' | 'position'>) => {
   return makeBounds(text.position, { width, height: offsetY + font.yAdvance })
 }
 
-const toCode = (
-  text: Text,
-  getUniqueName: (name: string) => string,
-) => `// text-start ${getUniqueName(text.name)} ${serializeItemSettings(text)}
-display.setCursor(${text.position.x}, ${text.position.y});
+const toCode = (text: Text, ctx: CodeContext) => {
+  let code = ''
+  const uniqueName = ctx.getUniqueName(text.name)
+
+  if (ctx.comments === 'all') {
+    code += `// text-start ${uniqueName} ${serializeItemSettings(text)}\n`
+  }
+
+  code += `display.setCursor(${text.position.x}, ${text.position.y});
 display.setTextColor(${text.color});
 display.setFont(&${text.font});
-display.print(${JSON.stringify(text.content)});
-// text-end`
+display.print(${JSON.stringify(text.content)});`
+
+  if (ctx.comments === 'all') code += '\n// text-end'
+  else if (ctx.comments === 'names') code += ` // ${uniqueName}`
+
+  return code
+}
 
 const regex = composeRegex(
   /^\/\/ text-start */,

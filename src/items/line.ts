@@ -34,7 +34,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 
-import type { Bounds, Color, Pixels, Point } from '~/types'
+import type { Bounds, CodeContext, Color, Pixels, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
 import { drawPixel, packPixel } from '~/utils/pixels'
 import {
@@ -211,9 +211,15 @@ const getBounds = (line: Pick<Line, 'from' | 'to'>): Bounds => {
   return makeBounds(position, size)
 }
 
-const toCode = (line: Line, getUniqueName: (name: string) => string) => {
+const toCode = (line: Line, ctx: CodeContext) => {
   const { from, to, color, name } = line
-  return `display.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, ${color}); // ${getUniqueName(name)} ${serializeItemSettings(line)}`
+  let code = `display.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, ${color});`
+  if (ctx.comments === 'names') {
+    code += ` // ${ctx.getUniqueName(name)} ${serializeItemSettings(line)}`
+  } else if (ctx.comments === 'all') {
+    code += ` // ${ctx.getUniqueName(name)} ${serializeItemSettings(line)}`
+  }
+  return code
 }
 
 const regex = composeRegex(

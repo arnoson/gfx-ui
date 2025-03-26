@@ -1,4 +1,4 @@
-import type { Bounds, Point } from '~/types'
+import type { Bounds, CodeContext, Point } from '~/types'
 import { getTranslatedBounds, makeBounds } from '~/utils/bounds'
 import {
   drawItem,
@@ -63,12 +63,14 @@ const draw = (ctx: CanvasRenderingContext2D, group: Group) => {
   for (const child of group.children.toReversed()) drawItem(ctx, child)
 }
 
-const toCode = (group: Group, getUniqueName: (name: string) => string) => {
-  const uniqueName = getUniqueName(group.name)
-  let code = `// group-start ${uniqueName}\n`
-  for (let item of group.children)
-    code += itemToCode(item, getUniqueName) + '\n'
-  code += `// group-end '${uniqueName}'`
+const toCode = (group: Group, ctx: CodeContext) => {
+  let code = ''
+  const uniqueName = ctx.getUniqueName(group.name)
+
+  if (ctx.comments === 'all') code += `// group-start ${uniqueName}\n`
+  code += group.children.map((v) => itemToCode(v, ctx)).join('\n')
+  if (ctx.comments === 'all') code += `\n// group-end ${uniqueName}`
+
   return code
 }
 

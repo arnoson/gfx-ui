@@ -1,6 +1,4 @@
-import type { Ref } from 'vue'
 import type { Item } from './items/item'
-import type { Frame } from './stores/editor'
 
 export type Point = {
   x: number
@@ -58,4 +56,9 @@ export interface ItemActions {
   translate: (item: Item, delta: Point) => void
   move: (item: Item, position: Point) => void
   getBounds: (item: Item) => Bounds
+}
+
+export type CodeContext = {
+  getUniqueName: (name: string) => string
+  comments: 'none' | 'names' | 'all'
 }

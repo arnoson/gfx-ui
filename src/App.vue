@@ -73,7 +73,7 @@ project.load(testProject)
 </script>
 
 <template>
-  <SplitterGroup direction="horizontal">
+  <SplitterGroup direction="horizontal" auto-save-id="main">
     <SplitterPanel
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
@@ -91,7 +91,7 @@ project.load(testProject)
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      <SplitterGroup direction="vertical">
+      <SplitterGroup direction="vertical" auto-save-id="sidebar-right">
         <SplitterPanel class="properties-panel">
           <PropertiesPanel />
         </SplitterPanel>

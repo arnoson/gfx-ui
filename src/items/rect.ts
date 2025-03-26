@@ -34,7 +34,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 
-import type { Bounds, Color, Point, Size } from '~/types'
+import type { Bounds, CodeContext, Color, Point, Size } from '~/types'
 import { pixelColors } from '~/utils/pixels'
 import { drawCircleHelper, fillCircleHelper } from './circle'
 import { drawHorizontalLine, drawVerticalLine } from './line'
@@ -137,16 +137,26 @@ const move = (rect: Rect, position: Point) => {
 const getBounds = (rect: Pick<Rect, 'position' | 'size'>) =>
   makeBounds(rect.position, rect.size)
 
-const toCode = (rect: Rect, getUniqueName: (name: string) => string) => {
+const toCode = (rect: Rect, ctx: CodeContext) => {
   const { name, size, position, isFilled, radius, color } = rect
-  const uniqueName = getUniqueName(name)
+  const uniqueName = ctx.getUniqueName(name)
+
+  let code = ''
   if (radius) {
     const method = isFilled ? 'fillRoundRect' : 'drawRoundRect'
-    return `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${radius}, ${color}); // ${uniqueName} ${serializeItemSettings(rect)}`
+    code += `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${radius}, ${color});`
   } else {
     const method = isFilled ? 'fillRect' : 'drawRect'
-    return `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${color}); // ${uniqueName} ${serializeItemSettings(rect)}`
+    code += `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${color});`
   }
+
+  if (ctx.comments === 'names') {
+    code += ` // ${uniqueName} ${serializeItemSettings(rect)}`
+  } else if (ctx.comments === 'all') {
+    code += ` // ${uniqueName} ${serializeItemSettings(rect)}`
+  }
+
+  return code
 }
 
 const regex = composeRegex(

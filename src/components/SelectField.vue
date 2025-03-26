@@ -25,8 +25,8 @@ const isOptionsGroup = (v: any): v is OptionGroup => !!v.options
     <label :for="id">{{ label }}</label>
     <select
       :id="id"
+      v-model="model"
       :aria-describedby="hasInfo ? infoId : undefined"
-      @change="model = ($event.target as HTMLSelectElement).value"
     >
       <option v-if="allowEmpty" value="">–</option>
       <template v-for="option of options">
