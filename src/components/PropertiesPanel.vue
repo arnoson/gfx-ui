@@ -34,7 +34,11 @@ const source = computed(() => {
       <h2 class="heading">{{ title }}</h2>
       <SwitchField label="View code" v-model="editor.viewCode" />
     </header>
-    <ViewCode v-if="source && editor.viewCode" :source="source" class="code" />
+    <ViewCode
+      v-if="source && editor.viewCode"
+      :source="source"
+      style="flex: 1"
+    />
     <template v-else-if="item">
       <BitmapProperties v-if="item.type === 'bitmap'" :item="item" />
       <RectProperties v-else-if="item.type === 'rect'" :item />
@@ -75,10 +79,5 @@ header {
   overflow: hidden;
   white-space: nowrap;
   text-transform: capitalize;
-}
-
-.code {
-  flex: 1;
-  overflow: hidden;
 }
 </style>

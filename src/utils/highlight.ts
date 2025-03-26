@@ -1,12 +1,10 @@
-import cpp from '@shikijs/langs/cpp'
-import githubDarkDefault from '@shikijs/themes/github-dark-default'
-import { createHighlighterCoreSync, createJavaScriptRegexEngine } from 'shiki'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-c'
+import 'prismjs/components/prism-cpp'
+// import 'prismjs/themes/prism-tomorrow.css'
+import '~/assets/theme-github-copiltot.css'
 
-const shiki = createHighlighterCoreSync({
-  themes: [githubDarkDefault],
-  langs: [cpp],
-  engine: createJavaScriptRegexEngine(),
-})
+Prism.manual = true
 
 export const highlight = (code: string) =>
-  shiki.codeToHtml(code, { lang: 'cpp', theme: 'github-dark-default' })
+  Prism.highlight(code, Prism.languages.cpp, 'cpp')
