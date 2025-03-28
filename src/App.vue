@@ -14,12 +14,13 @@ import ToolBar from './components/ToolBar.vue'
 import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
 import { useProject } from './stores/project'
+import miwos7pt from '~/fonts/miwos7pt.h?raw'
 
 const editor = useEditor()
 const project = useProject()
 const fonts = useFonts()
-// const frame = editor.addFrame({})
-// editor.activateFrame(frame.id)
+
+fonts.add(miwos7pt)
 
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
@@ -35,16 +36,28 @@ const activateFrame = () => {
 useEventListener(window, 'hashchange', activateFrame)
 activateFrame()
 
-// fonts.add(miwos7pt)
+// project.load(testProject)
 
-project.load(testProject)
+const component = editor.addComponent({
+  name: 'component',
+  size: { width: 10, height: 10 },
+})
+editor.activeFrame = component
+editor.addItem({
+  type: 'line',
+  from: { x: 0, y: 0 },
+  to: { x: 10, y: 10 },
+  color: 15,
+})
 
-// editor.addItem({
-//   type: 'line',
-//   from: { x: 0, y: 0 },
-//   to: { x: 10, y: 10 },
-//   color: 15,
-// })
+const { id } = editor.addFrame({})
+editor.activateFrame(id)
+
+editor.addItem({
+  type: 'instance',
+  position: { x: 5, y: 5 },
+  componentId: component.id,
+})
 
 // editor.addItem({
 //   type: 'rect',

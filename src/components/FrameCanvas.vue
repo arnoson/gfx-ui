@@ -9,7 +9,7 @@ import {
   watchEffect,
 } from 'vue'
 import { drawItem } from '~/items/item'
-import type { Frame } from '~/stores/editor'
+import type { Frame } from '~/frame'
 
 const props = defineProps<{ frame: Frame }>()
 const { size, children } = toRefs(props.frame)

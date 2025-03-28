@@ -5,6 +5,7 @@ import CircleIcon from '~/assets/icons/icon-layer-circle.svg'
 import LineIcon from '~/assets/icons/icon-layer-line.svg'
 import RectIcon from '~/assets/icons/icon-layer-rect.svg'
 import TextIcon from '~/assets/icons/icon-layer-text.svg'
+import InstanceIcon from '~/assets/icons/icon-layer-instance.svg'
 import GroupIcon from '~/assets/icons/icon-layer-group.svg'
 
 defineProps<{ item: Item }>()
@@ -16,5 +17,6 @@ defineProps<{ item: Item }>()
   <LineIcon v-else-if="item.type === 'line'" />
   <RectIcon v-else-if="item.type === 'rect'" />
   <TextIcon v-else-if="item.type === 'text'" />
+  <InstanceIcon v-else-if="item.type === 'instance'" />
   <GroupIcon v-else-if="item.type === 'group'" />
 </template>

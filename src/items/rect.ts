@@ -69,12 +69,13 @@ const drawNormalRect = (
     color,
     isFilled,
   }: Pick<Rect, 'position' | 'size' | 'color' | 'isFilled'>,
+  offset: Point,
 ) => {
   const { width, height } = size
-  const left = position.x
-  const top = position.y
-  const right = left + width - 1
-  const bottom = top + height - 1
+  const left = position.x + offset.x
+  const top = position.y + offset.y
+  const right = offset.x + left + width - 1
+  const bottom = offset.y + top + height - 1
 
   if (isFilled) {
     ctx.fillStyle = pixelColors[color]
@@ -90,21 +91,27 @@ const drawNormalRect = (
 const drawRoundRect = (
   ctx: CanvasRenderingContext2D,
   { color, radius, size, position, isFilled }: Rect,
+  offset: Point,
 ) => {
   const { width: w, height: h } = size
   let r = radius ?? 0
-  const { x, y } = position
+  const x = position.x + offset.x
+  const y = position.y + offset.y
 
   const max_radius = (w < h ? w : h) / 2
   if (r > max_radius) r = max_radius
 
   if (isFilled) {
-    drawNormalRect(ctx, {
-      position: { x: x + r, y },
-      size: { width: w - 2 * r, height: h },
-      color,
-      isFilled,
-    })
+    drawNormalRect(
+      ctx,
+      {
+        position: { x: x + r, y },
+        size: { width: w - 2 * r, height: h },
+        color,
+        isFilled,
+      },
+      offset,
+    )
     fillCircleHelper(ctx, x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color)
     fillCircleHelper(ctx, x + r, y + r, r, 2, h - 2 * r - 1, color)
   } else {
@@ -120,9 +127,13 @@ const drawRoundRect = (
   }
 }
 
-const draw = (ctx: CanvasRenderingContext2D, rect: Rect) => {
-  if (rect.radius) drawRoundRect(ctx, rect)
-  else drawNormalRect(ctx, rect)
+const draw = (
+  ctx: CanvasRenderingContext2D,
+  rect: Rect,
+  offset = { x: 0, y: 0 },
+) => {
+  if (rect.radius) drawRoundRect(ctx, rect, offset)
+  else drawNormalRect(ctx, rect, offset)
 }
 
 const translate = (rect: Rect, delta: Point) => {

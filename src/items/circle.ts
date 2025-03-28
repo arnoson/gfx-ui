@@ -62,8 +62,10 @@ export interface Circle {
 const strokeCircle = (
   ctx: CanvasRenderingContext2D,
   { center, radius: r, color }: Omit<Circle, 'type' | 'id' | 'bounds'>,
+  offset: Point,
 ) => {
-  const { x: x0, y: y0 } = center
+  const x0 = center.x + offset.x
+  const y0 = center.y + offset.y
 
   let f = 1 - r
   let ddF_x = 1
@@ -100,8 +102,10 @@ const strokeCircle = (
 const fillCircle = (
   ctx: CanvasRenderingContext2D,
   { center, radius: r, color }: Omit<Circle, 'type' | 'id'>,
+  offset: Point,
 ) => {
-  const { x: x0, y: y0 } = center
+  const x0 = center.x + offset.x
+  const y0 = center.y + offset.y
   drawVerticalLine(ctx, x0, y0 - r, 2 * r + 1, color)
   fillCircleHelper(ctx, x0, y0, r, 3, 0, color)
 }
@@ -196,9 +200,10 @@ export const drawCircleHelper = (
 const draw = (
   ctx: CanvasRenderingContext2D,
   circle: Omit<Circle, 'type' | 'id'>,
+  offset = { x: 0, y: 0 },
 ) => {
-  if (circle.isFilled) fillCircle(ctx, circle)
-  else strokeCircle(ctx, circle)
+  if (circle.isFilled) fillCircle(ctx, circle, offset)
+  else strokeCircle(ctx, circle, offset)
 }
 
 const translate = (circle: Circle, delta: Point) => {

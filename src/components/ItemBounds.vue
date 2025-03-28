@@ -5,8 +5,8 @@ import { getItemBounds, type Item } from '~/items/item'
 const props = defineProps<{ item: Item }>()
 
 const bounds = computed(() => {
-  // Group bounds aren't cached.
-  return props.item.type === 'group'
+  // Group and instance bounds aren't cached.
+  return props.item.type === 'group' || props.item.type === 'instance'
     ? getItemBounds(props.item)
     : props.item.bounds
 })

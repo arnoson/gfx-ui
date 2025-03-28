@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { toCode as frameToCode } from '~/frame'
+import { toCode as frameToCode, type Frame } from '~/frame'
 import type { Group } from '~/items/group'
 import { itemFromCode } from '~/items/item'
 import type { CodeContext, Size } from '~/types'
 import { createCodeContext } from '~/utils/codeContext'
 import { downloadFile } from '~/utils/file'
-import { useEditor, type Frame } from './editor'
+import { useEditor } from './editor'
 import { useFonts } from './fonts'
 
 export const useProject = defineStore('project', () => {
@@ -22,13 +22,16 @@ export const useProject = defineStore('project', () => {
 
   const save = () => {
     let code = `/**
-    * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
-    */\n\n`
+ * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
+ */\n\n`
 
     const ctx = createCodeContext({ comments: 'all', includeOffset: false })
+    code += editor.components.map((v) => frameToCode(v, ctx)).join('\n\n')
+    code += '\n\n'
     code += editor.frames.map((v) => frameToCode(v, ctx)).join('\n\n')
 
-    downloadFile(`${name.value}.h`, code)
+    // downloadFile(`${name.value}.h`, code)
+    console.log(code)
   }
 
   const parseFrameSettings = (str: string) => {

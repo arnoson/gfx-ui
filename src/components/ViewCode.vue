@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { watchDebounced } from '@vueuse/core'
 import { computed, ref, useTemplateRef, watch } from 'vue'
-import { toCode as frameToCode } from '~/frame'
+import { toCode as frameToCode, type Frame } from '~/frame'
 import { itemToCode, type Item } from '~/items/item'
-import { type Frame } from '~/stores/editor'
 import { useProject } from '~/stores/project'
 import { createCodeContext } from '~/utils/codeContext'
 import { highlight } from '~/utils/highlight'

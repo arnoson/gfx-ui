@@ -26,7 +26,7 @@ const move = (group: Group) => {}
 const translate = (group: Group, delta: Point) => {
   for (const item of group.children) {
     translateItem(item, delta)
-    if (item.type !== 'group') {
+    if (item.type !== 'group' && item.type !== 'instance') {
       item.bounds = getTranslatedBounds(item.bounds, delta)
     }
   }
@@ -36,6 +36,9 @@ const findEdges = (
   item: Item,
   edges: { top: number; left: number; bottom: number; right: number },
 ) => {
+  // TODO handle instance
+  if (item.type === 'instance') return
+
   if (item.type === 'group') {
     for (const child of item.children) findEdges(child, edges)
   } else {
@@ -59,8 +62,12 @@ const getBounds = (item: Pick<Group, 'type' | 'children'>) => {
   return makeBounds({ x: edges.left, y: edges.top }, { width, height })
 }
 
-const draw = (ctx: CanvasRenderingContext2D, group: Group) => {
-  for (const child of group.children.toReversed()) drawItem(ctx, child)
+const draw = (
+  ctx: CanvasRenderingContext2D,
+  group: Group,
+  offset = { x: 0, y: 0 },
+) => {
+  for (const child of group.children.toReversed()) drawItem(ctx, child, offset)
 }
 
 const toCode = (group: Group, ctx: CodeContext) => {

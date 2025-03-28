@@ -22,10 +22,14 @@ export interface Bitmap {
   color: Color
 }
 
-const draw = (ctx: CanvasRenderingContext2D, { pixels, color }: Bitmap) => {
+const draw = (
+  ctx: CanvasRenderingContext2D,
+  { pixels, color }: Bitmap,
+  offset = { x: 0, y: 0 },
+) => {
   for (const pixel of pixels) {
     const { x, y } = unpackPixel(pixel)
-    drawPixel(ctx, x, y, color)
+    drawPixel(ctx, x + offset.x, y + offset.y, color)
   }
 }
 

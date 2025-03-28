@@ -1,5 +1,6 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { Frame } from '~/frame'
 import {
   getItemBounds,
   type Item,
@@ -19,15 +20,6 @@ import { getBoundsSnap, getPointSnap } from '~/utils/snap'
 import { capitalizeFirstLetter } from '~/utils/text'
 
 type Id = number
-
-export interface Frame {
-  type: 'frame'
-  id: Id
-  name: string
-  scale: number
-  size: Size
-  children: Item[]
-}
 
 let id = 0
 const createId = () => id++
@@ -80,6 +72,7 @@ export const useEditor = defineStore('editor', () => {
     frames.value.push({
       type: 'frame',
       id,
+      isComponent: false,
       children: [],
       ...data,
       size: data.size ?? { width: 128, height: 64 },
@@ -90,10 +83,8 @@ export const useEditor = defineStore('editor', () => {
   }
 
   const removeFrame = (id: Id) => {
-    frames.value.splice(
-      frames.value.findIndex((v) => v.id === id),
-      1,
-    )
+    const index = frames.value.findIndex((v) => v.id === id)
+    frames.value.splice(index, 1)
     if (activeFrame.value?.id === id) activeFrame.value = undefined
   }
 
@@ -102,6 +93,29 @@ export const useEditor = defineStore('editor', () => {
     selectedItems.value.clear()
     focusedItem.value = null
     selectionBounds.value = null
+  }
+
+  // Components
+  const components = ref<Frame[]>([])
+
+  const addComponent = (data: Partial<Frame>): Frame => {
+    const id = createId()
+    components.value.push({
+      type: 'frame',
+      id,
+      isComponent: true,
+      children: [],
+      ...data,
+      size: data.size ?? { width: 128, height: 64 },
+      name: data.name ?? `Frame${id}`,
+      scale: data.scale ?? 5,
+    })
+    return components.value.at(-1)!
+  }
+
+  const removeComponent = (id: Id) => {
+    const index = components.value.findIndex((v) => v.id === id)
+    components.value.splice(index, 1)
   }
 
   // Items
@@ -242,6 +256,9 @@ export const useEditor = defineStore('editor', () => {
     addFrame,
     removeFrame,
     activateFrame,
+    components,
+    addComponent,
+    removeComponent,
     items,
     itemsFlat,
     copiedItems,

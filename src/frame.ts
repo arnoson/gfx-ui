@@ -1,7 +1,16 @@
-import { itemToCode } from './items/item'
-import type { Frame } from './stores/editor'
-import type { CodeContext } from './types'
+import { itemToCode, type Item } from './items/item'
+import type { CodeContext, Size } from './types'
 import { sanitizeIdentifier } from './utils/identifier'
+
+export interface Frame {
+  type: 'frame'
+  id: number
+  name: string
+  isComponent: boolean
+  scale: number
+  size: Size
+  children: Item[]
+}
 
 const indentLines = (str: string, indent: string) =>
   str
@@ -15,10 +24,13 @@ export const toCode = (frame: Frame, ctx: CodeContext): string => {
   const identifier = sanitizeIdentifier(name)
 
   const args = ctx.includeOffset ? `int x, int y` : ''
+  const type = frame.isComponent ? 'Component' : 'Frame'
 
-  code += `void drawFrame${identifier}(${args}) {`
-  if (ctx.comments) {
-    code + `// ${name} (${frame.size.width}x${frame.size.height})`
+  code += `void draw${type}${identifier}(${args}) {`
+  if (ctx.comments === 'names') {
+    code += ` // ${name}`
+  } else if (ctx.comments === 'all') {
+    code += ` // ${name} (${frame.size.width}x${frame.size.height})`
   }
   code += '\n'
 

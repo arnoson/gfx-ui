@@ -2,8 +2,9 @@
 import { computed, nextTick, ref, toRaw, useTemplateRef } from 'vue'
 import { useDraggable } from 'vue-draggable-plus'
 import { vEditable } from '~/directives/editable'
-import { useEditor, type Frame } from '~/stores/editor'
+import { useEditor } from '~/stores/editor'
 import FrameCanvas from './FrameCanvas.vue'
+import type { Frame } from '~/frame'
 
 const editor = useEditor()
 const frames = useTemplateRef('frames')

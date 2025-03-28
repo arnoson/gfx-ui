@@ -42,7 +42,11 @@ export const useSelect = defineTool(
       for (const item of editor.activeFrame.children) {
         if (item.isHidden || item.isLocked) continue
 
-        const bounds = item.type === 'group' ? getItemBounds(item) : item.bounds
+        const bounds =
+          item.type === 'group' || item.type === 'instance'
+            ? getItemBounds(item)
+            : item.bounds
+
         const isIntersecting =
           bounds.left <= editor.selectionBounds.right &&
           bounds.right >= editor.selectionBounds.left &&
@@ -100,7 +104,7 @@ export const useSelect = defineTool(
       for (const item of editor.selectedItems) {
         if (item.isLocked) continue
         translateItem(item, delta)
-        if (item.type !== 'group') {
+        if (item.type !== 'group' && item.type !== 'instance') {
           item.bounds = getTranslatedBounds(item.bounds, delta)
         }
       }

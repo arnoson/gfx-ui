@@ -5,25 +5,36 @@ import { group, type Group } from './group'
 import { line, type Line } from './line'
 import { rect, type Rect } from './rect'
 import { text, type Text } from './text'
+import { instance, type Instance } from './instance'
 
-const items = { bitmap, circle, group, line, rect, text }
+const items = { bitmap, circle, group, line, rect, text, instance }
 
-export type Item = Rect | Line | Circle | Bitmap | Text | Group
+export type Item = Rect | Line | Circle | Bitmap | Text | Instance | Group
 export type ItemData =
   | Omit<Rect, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
   | Omit<Line, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
   | Omit<Circle, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
   | Omit<Bitmap, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
   | Omit<Text, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
+  | Omit<Instance, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
   | Omit<Group, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
 
-export type ItemType = 'line' | 'rect' | 'circle' | 'bitmap' | 'text' | 'group'
+export type ItemType =
+  | 'line'
+  | 'rect'
+  | 'circle'
+  | 'bitmap'
+  | 'text'
+  | 'instance'
+  | 'group'
+
 export const itemTypes = [
   'line',
   'rect',
   'circle',
   'bitmap',
   'text',
+  'instance',
   'group',
 ] as const
 
@@ -37,9 +48,11 @@ export type ItemByType<T extends ItemType> = T extends 'line'
         ? Bitmap
         : T extends 'text'
           ? Text
-          : T extends 'group'
-            ? Group
-            : never
+          : T extends 'instance'
+            ? Instance
+            : T extends 'group'
+              ? Group
+              : never
 
 export type ParsedItem<T = Item> = Omit<T, 'id' | 'bounds' | 'name'> & {
   name?: string
@@ -63,7 +76,7 @@ export const parseItemArgs = (str: string) =>
   str.split(',').map((v) => Number(v.trim()))
 
 export type ItemActions<T = any> = {
-  draw: (ctx: CanvasRenderingContext2D, item: T) => void
+  draw: (ctx: CanvasRenderingContext2D, item: T, offset?: Point) => void
   translate: (item: T, delta: Point) => void
   move: (item: T, position: Point) => void
   getBounds: (item: T) => Bounds
@@ -77,9 +90,13 @@ export type ItemActions<T = any> = {
 // worth it since we can keep all the state in pinia and implement features
 // like history, copy & paste, ... without having to create any class instances.
 
-export const drawItem = (ctx: CanvasRenderingContext2D, item: Item) => {
+export const drawItem = (
+  ctx: CanvasRenderingContext2D,
+  item: Item,
+  offset?: Point,
+) => {
   if (item.isHidden) return
-  items[item.type].draw(ctx, item as any)
+  items[item.type].draw(ctx, item as any, offset)
 }
 
 export const translateItem = (item: Item, delta: Point) =>

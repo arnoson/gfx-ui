@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useActiveElement, useEventListener, useMagicKeys } from '@vueuse/core'
-import { computed, toRefs, useTemplateRef } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useZoomPan } from '~/composables/useZoomPan'
-import { useEditor, type Frame } from '~/stores/editor'
+import type { Frame } from '~/frame'
+import { useEditor } from '~/stores/editor'
 import { mouseToSvg } from '~/utils/mouse'
 import FrameCanvas from './FrameCanvas.vue'
 import ItemBounds from './ItemBounds.vue'

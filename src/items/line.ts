@@ -137,9 +137,12 @@ export const drawHorizontalLine = (
 const draw = (
   ctx: CanvasRenderingContext2D,
   { from, to, color }: Pick<Line, 'from' | 'to' | 'color'>,
+  offset = { x: 0, y: 0 },
 ) => {
-  let { x: x0, y: y0 } = from
-  let { x: x1, y: y1 } = to
+  let x0 = from.x + offset.x
+  let y0 = from.y + offset.y
+  let x1 = to.x + offset.x
+  let y1 = to.y + offset.y
 
   const isSteep = Math.abs(y1 - y0) > Math.abs(x1 - x0)
 

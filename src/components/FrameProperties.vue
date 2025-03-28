@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Frame } from '~/stores/editor'
+import type { Frame } from '~/frame'
 import SizeField from './SizeField.vue'
 
 defineProps<{ frame: Frame }>()

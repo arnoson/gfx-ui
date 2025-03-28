@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useEventListener, useMagicKeys } from '@vueuse/core'
-import { useTemplateRef } from 'vue'
-import { type Item } from '~/items/item'
+import { computed, useTemplateRef } from 'vue'
+import { instance } from '~/items/instance'
+import { itemFromCode, type Item } from '~/items/item'
 import { useEditor } from '~/stores/editor'
+import { emptyBounds } from '~/utils/bounds'
 
 const props = defineProps<{ item: Item; isGrouped?: boolean }>()
 const editor = useEditor()
@@ -18,6 +20,12 @@ useEventListener(handle, 'mousedown', (e) => {
   if (props.isGrouped && !ctrl.value) return
   editor.focusItem(props.item)
 })
+
+const bounds = computed(() => {
+  if (props.item.type === 'group') return emptyBounds
+  if (props.item.type === 'instance') return instance.getBounds(props.item)
+  return props.item.bounds
+})
 </script>
 
 <template>
@@ -26,19 +34,19 @@ useEventListener(handle, 'mousedown', (e) => {
     <rect
       v-if="item.type === 'bitmap'"
       ref="handle"
-      :x="item.bounds.topLeft.x"
-      :y="item.bounds.topLeft.y"
-      :width="item.bounds.width"
-      :height="item.bounds.height"
+      :x="bounds.topLeft.x"
+      :y="bounds.topLeft.y"
+      :width="bounds.width"
+      :height="bounds.height"
       fill="transparent"
     />
     <!-- Circle -->
     <circle
       v-else-if="item.type === 'circle'"
       ref="handle"
-      :cx="item.bounds.left + item.bounds.width / 2 + 0.5"
-      :cy="item.bounds.top + item.bounds.height / 2 + 0.5"
-      :r="item.bounds.width / 2"
+      :cx="bounds.left + bounds.width / 2 + 0.5"
+      :cy="bounds.top + bounds.height / 2 + 0.5"
+      :r="bounds.width / 2"
       :fill="item.isFilled ? 'transparent' : 'none'"
       stroke="transparent"
       stroke-width="3"
@@ -58,10 +66,10 @@ useEventListener(handle, 'mousedown', (e) => {
     <rect
       v-else-if="item.type === 'rect'"
       ref="handle"
-      :x="item.bounds.left"
-      :y="item.bounds.top"
-      :width="item.bounds.width"
-      :height="item.bounds.height"
+      :x="bounds.left"
+      :y="bounds.top"
+      :width="bounds.width"
+      :height="bounds.height"
       :fill="item.isFilled ? 'transparent' : 'none'"
       stroke="transparent"
       stroke-width="3"
@@ -70,10 +78,20 @@ useEventListener(handle, 'mousedown', (e) => {
     <rect
       v-else-if="item.type === 'text'"
       ref="handle"
-      :x="item.bounds.left"
-      :y="item.bounds.top"
-      :width="item.bounds.width"
-      :height="item.bounds.height"
+      :x="bounds.left"
+      :y="bounds.top"
+      :width="bounds.width"
+      :height="bounds.height"
+      fill="transparent"
+    />
+    <!-- Instance -->
+    <rect
+      v-else-if="item.type === 'instance'"
+      ref="handle"
+      :x="bounds.left"
+      :y="bounds.top"
+      :width="bounds.width"
+      :height="bounds.height"
       fill="transparent"
     />
     <!-- Group -->
