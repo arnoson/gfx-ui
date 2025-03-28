@@ -61,4 +61,5 @@ export interface ItemActions {
 export type CodeContext = {
   getUniqueName: (name: string) => string
   comments: 'none' | 'names' | 'all'
+  includeOffset: boolean
 }

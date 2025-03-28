@@ -141,13 +141,16 @@ const toCode = (rect: Rect, ctx: CodeContext) => {
   const { name, size, position, isFilled, radius, color } = rect
   const uniqueName = ctx.getUniqueName(name)
 
+  const x = ctx.includeOffset ? `x + ${position.x}` : position.x
+  const y = ctx.includeOffset ? `y + ${position.y}` : position.y
+
   let code = ''
   if (radius) {
     const method = isFilled ? 'fillRoundRect' : 'drawRoundRect'
-    code += `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${radius}, ${color});`
+    code += `display.${method}(${x}, ${y}, ${size.width}, ${size.height}, ${radius}, ${color});`
   } else {
     const method = isFilled ? 'fillRect' : 'drawRect'
-    code += `display.${method}(${position.x}, ${position.y}, ${size.width}, ${size.height}, ${color});`
+    code += `display.${method}(${x}, ${y}, ${size.width}, ${size.height}, ${color});`
   }
 
   if (ctx.comments === 'names') {

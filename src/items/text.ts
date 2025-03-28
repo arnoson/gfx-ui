@@ -99,17 +99,22 @@ const getBounds = (text: Pick<Text, 'font' | 'content' | 'position'>) => {
 }
 
 const toCode = (text: Text, ctx: CodeContext) => {
-  let code = ''
+  const { content, position, color, font } = text
   const uniqueName = ctx.getUniqueName(text.name)
+
+  let code = ''
 
   if (ctx.comments === 'all') {
     code += `// text-start ${uniqueName} ${serializeItemSettings(text)}\n`
   }
 
-  code += `display.setCursor(${text.position.x}, ${text.position.y});
-display.setTextColor(${text.color});
-display.setFont(&${text.font});
-display.print(${JSON.stringify(text.content)});`
+  const x = ctx.includeOffset ? `x + ${position.x}` : position.x
+  const y = ctx.includeOffset ? `y + ${position.y}` : position.y
+
+  code += `display.setCursor(${x}, ${y});
+display.setTextColor(${color});
+display.setFont(&${font});
+display.print(${JSON.stringify(content)});`
 
   if (ctx.comments === 'all') code += '\n// text-end'
   else if (ctx.comments === 'names') code += ` // ${uniqueName}`

@@ -213,7 +213,13 @@ const getBounds = (line: Pick<Line, 'from' | 'to'>): Bounds => {
 
 const toCode = (line: Line, ctx: CodeContext) => {
   const { from, to, color, name } = line
-  let code = `display.drawLine(${from.x}, ${from.y}, ${to.x}, ${to.y}, ${color});`
+
+  const fromX = ctx.includeOffset ? `x + ${from.x}` : from.x
+  const fromY = ctx.includeOffset ? `y + ${from.y}` : from.y
+  const toX = ctx.includeOffset ? `x + ${to.x}` : to.x
+  const toY = ctx.includeOffset ? `y + ${to.y}` : to.y
+
+  let code = `display.drawLine(${fromX}, ${fromY}, ${toX}, ${toY}, ${color});`
   if (ctx.comments === 'names') {
     code += ` // ${ctx.getUniqueName(name)} ${serializeItemSettings(line)}`
   } else if (ctx.comments === 'all') {

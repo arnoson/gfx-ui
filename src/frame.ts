@@ -14,7 +14,9 @@ export const toCode = (frame: Frame, ctx: CodeContext): string => {
   const name = ctx.getUniqueName(frame.name)
   const identifier = sanitizeIdentifier(name)
 
-  code += `void drawFrame${identifier}() {`
+  const args = ctx.includeOffset ? `int x, int y` : ''
+
+  code += `void drawFrame${identifier}(${args}) {`
   if (ctx.comments) {
     code + `// ${name} (${frame.size.width}x${frame.size.height})`
   }

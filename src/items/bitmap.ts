@@ -105,7 +105,10 @@ const toCode = (bitmap: Bitmap, ctx: CodeContext) => {
   if (code.at(-1) !== '\n') code += '\n'
   code += '};\n'
 
-  code += `display.drawBitmap(${bounds.x}, ${bounds.y}, ${bytesIdentifier}, ${bounds.width}, ${bounds.height}, ${color});`
+  const x = ctx.includeOffset ? `x + ${bounds.x}` : bounds.x
+  const y = ctx.includeOffset ? `y + ${bounds.y}` : bounds.y
+
+  code += `display.drawBitmap(${x}, ${y}, ${bytesIdentifier}, ${bounds.width}, ${bounds.height}, ${color});`
   if (ctx.comments === 'names') {
     code += ` // ${uniqueName}`
   } else if (ctx.comments === 'all') {

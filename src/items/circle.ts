@@ -224,7 +224,11 @@ const getBounds = (circle: Pick<Circle, 'center' | 'radius'>): Bounds => {
 const toCode = (circle: Circle, ctx: CodeContext) => {
   const method = circle.isFilled ? 'fillCircle' : 'drawCircle'
   const { center, radius, color, name } = circle
-  let code = `display.${method}(${center.x}, ${center.y}, ${radius}, ${color});`
+
+  const x = ctx.includeOffset ? `x + ${center.x}` : center.x
+  const y = ctx.includeOffset ? `y + ${center.y}` : center.y
+
+  let code = `display.${method}(${x}, ${y}, ${radius}, ${color});`
   if (ctx.comments === 'names') {
     code += ` // ${ctx.getUniqueName(name)}`
   } else if (ctx.comments === 'all') {

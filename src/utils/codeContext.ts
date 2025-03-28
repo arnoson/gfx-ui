@@ -5,7 +5,6 @@ export const createCodeContext = (
 ): CodeContext => {
   let nameCount: Record<string, number> = {}
   const getUniqueName = (name: string) => {
-    const input = name
     nameCount[name] ??= 0
     if (nameCount[name] > 0) name += `_${nameCount[name]}`
     return name
