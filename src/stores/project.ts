@@ -12,8 +12,10 @@ import { useFonts } from './fonts'
 export const useProject = defineStore('project', () => {
   const name = ref('Untitled')
 
-  const singleItemComments = ref<CodeContext['comments']>('none')
-  const multipleItemsComments = ref<CodeContext['comments']>('names')
+  const codeSettings = ref<Omit<CodeContext, 'getUniqueName'>>({
+    comments: 'names',
+    includeOffset: false,
+  })
 
   const editor = useEditor()
   const fonts = useFonts()
@@ -23,7 +25,7 @@ export const useProject = defineStore('project', () => {
     * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
     */\n\n`
 
-    const ctx = createCodeContext({ comments: 'all' })
+    const ctx = createCodeContext({ comments: 'all', includeOffset: false })
     code += editor.frames.map((v) => frameToCode(v, ctx)).join('\n\n')
 
     downloadFile(`${name.value}.h`, code)
@@ -124,7 +126,6 @@ export const useProject = defineStore('project', () => {
     name,
     load,
     save,
-    singleItemComments,
-    multipleItemsComments,
+    codeSettings,
   }
 })

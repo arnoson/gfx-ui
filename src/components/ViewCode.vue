@@ -11,8 +11,6 @@ import SelectField from './SelectField.vue'
 import { downloadFile } from '~/utils/file'
 import ModalDialog from './ModalDialog.vue'
 import CheckboxField from './CheckboxField.vue'
-import IconCopy from '~/assets/icons/icon-copy.svg'
-import IconDownload from '~/assets/icons/icon-download.svg'
 import IconSettings from '~/assets/icons/icon-settings.svg'
 
 const props = defineProps<{ source: Item[] | Item | Frame }>()
@@ -27,22 +25,7 @@ const commentsOptions = [
   { value: 'all', label: 'All' },
 ]
 
-const isSingleItem = computed(() =>
-  Array.isArray(props.source)
-    ? props.source.length === 1
-    : props.source.type !== 'frame' && props.source.type !== 'group',
-)
-
-const includeOffset = ref(false)
-
-const ctx = computed(() =>
-  createCodeContext({
-    includeOffset: includeOffset.value,
-    comments: isSingleItem.value
-      ? project.singleItemComments
-      : project.multipleItemsComments,
-  }),
-)
+const ctx = computed(() => createCodeContext(project.codeSettings))
 
 const updateCode = () => {
   codeHtml.value = highlight(getCode())
@@ -85,12 +68,8 @@ watchDebounced(() => props.source, updateCode, { debounce: 100, deep: true })
 
 <template>
   <div class="menu">
-    <button style="margin-left: auto" @click="copy">
-      <IconCopy />
-    </button>
-    <button @click="download">
-      <IconDownload />
-    </button>
+    <button style="margin-left: auto" @click="copy">copy</button>
+    <button @click="download">download</button>
     <button @click="settingsDialog?.open()" class="settings-trigger">
       <IconSettings />
     </button>
@@ -100,18 +79,14 @@ watchDebounced(() => props.source, updateCode, { debounce: 100, deep: true })
     <div class="flow">
       <h2>Code settings</h2>
       <SelectField
-        v-if="isSingleItem"
-        v-model="project.singleItemComments"
+        v-model="project.codeSettings.comments"
         :options="commentsOptions"
         label="Comments"
       />
-      <SelectField
-        v-else
-        v-model="project.multipleItemsComments"
-        :options="commentsOptions"
-        label="Comments"
+      <CheckboxField
+        v-model="project.codeSettings.includeOffset"
+        label="Offset"
       />
-      <CheckboxField v-model="includeOffset" label="Offset" />
     </div>
   </ModalDialog>
 </template>
@@ -123,9 +98,9 @@ watchDebounced(() => props.source, updateCode, { debounce: 100, deep: true })
   overflow: auto;
   border-radius: 4px;
   background-color: var(--color-grid);
-  anchor-name: --code;
   /* Prsim sets different flex value which interferes with this layout. */
   flex: 1 !important;
+  margin: 0;
 
   ::v-deep(.token) {
     background: none;
@@ -133,27 +108,14 @@ watchDebounced(() => props.source, updateCode, { debounce: 100, deep: true })
 }
 
 .menu {
-  position: absolute;
-  position-anchor: --code;
-  top: anchor(top);
-  right: anchor(right);
   display: flex;
   gap: 0.5rem;
-  margin: 0.5rem 0.5rem 0 0;
 
-  button {
-    border-radius: 99999px;
-    padding: 0;
-    height: 25px;
-    width: 25px;
+  button:has(svg) {
+    padding-inline: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    outline: 2px solid var(--color-grid);
-
-    svg {
-      display: block;
-    }
   }
 }
 
@@ -168,7 +130,7 @@ watchDebounced(() => props.source, updateCode, { debounce: 100, deep: true })
   left: anchor(left);
   translate: -100% 0;
   margin: -0.75rem -0.5rem;
-  width: 20rem;
+  width: 40ch;
   padding: 0.75rem;
 }
 </style>
