@@ -9,6 +9,7 @@ import IconAlignRight from '~/assets/icons/icon-align-right.svg'
 import IconAlignTop from '~/assets/icons/icon-align-top.svg'
 import IconAlignMiddle from '~/assets/icons/icon-align-middle.svg'
 import IconAlignBottom from '~/assets/icons/icon-align-bottom.svg'
+import type { Point } from '~/types'
 
 const props = defineProps<{ items: Item[] }>()
 const editor = useEditor()
@@ -79,109 +80,73 @@ const alignBottom = () => {
   }
 }
 
-const distributeHorizontal = (gap?: number) => {
-  if (!editor.selectedItemBounds) return
-  if (props.items.length < 2) return
+type Axis = 'horizontal' | 'vertical'
+const axisProps = {
+  horizontal: { start: 'left', end: 'right', size: 'width', coordinate: 'x' },
+  vertical: { start: 'top', end: 'bottom', size: 'height', coordinate: 'y' },
+} as const
+
+const sortItemsByAxis = (items: Item[], axis: Axis) => {
+  const { start } = axisProps[axis]
+  return items.toSorted((a, b) => {
+    const boundsA = a.bounds ?? getItemBounds(a)
+    const boundsB = b.bounds ?? getItemBounds(b)
+    return boundsA[start] - boundsB[start]
+  })
+}
+
+const distribute = (axis: Axis, gap?: number) => {
+  if (!editor.selectedItemBounds || props.items.length < 2) return
+
+  const { start, size, coordinate } = axisProps[axis]
 
   if (gap === undefined) {
-    let allWidths = 0
+    let totalSize = 0
     for (const item of props.items) {
-      const { width } = item.bounds ?? getItemBounds(item)
-      allWidths += width
+      const bounds = item.bounds ?? getItemBounds(item)
+      totalSize += bounds[size]
     }
-    let space = editor.selectedItemBounds.width - allWidths - 1
+    const space = editor.selectedItemBounds[size] - totalSize - 1
     gap = Math.round(space / (props.items.length - 1))
   }
 
-  const itemsLeftToRight = props.items.toSorted((a, b) => {
-    const boundsA = a.bounds ?? getItemBounds(a)
-    const boundsB = b.bounds ?? getItemBounds(b)
-    return boundsA.left - boundsB.left
-  })
-  let offset = editor.selectedItemBounds.left
-  for (const item of itemsLeftToRight) {
-    const { y, width } = item.bounds ?? getItemBounds(item)
-    moveItem(item, { x: offset, y })
-    offset += width + gap
+  const sortedItems = sortItemsByAxis(props.items, axis)
+  let offset = editor.selectedItemBounds[start]
+
+  for (const item of sortedItems) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    const position: Point = {
+      x: coordinate === 'x' ? offset : bounds.x,
+      y: coordinate === 'y' ? offset : bounds.y,
+    }
+    moveItem(item, position)
+    offset += bounds[size] + gap
     if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
-const distributeVertical = (gap?: number) => {
-  if (!editor.selectedItemBounds) return
-  if (props.items.length < 2) return
+const getDistributedGap = (axis: Axis) => {
+  if (!editor.selectedItemBounds || props.items.length < 2) return
 
-  if (gap === undefined) {
-    let allHeights = 0
-    for (const item of props.items) {
-      const { height } = item.bounds ?? getItemBounds(item)
-      allHeights += height
-    }
-    let space = editor.selectedItemBounds.height - allHeights - 1
-    gap = Math.round(space / (props.items.length - 1))
-  }
-
-  const itemsTopToBottom = props.items.toSorted((a, b) => {
-    const boundsA = a.bounds ?? getItemBounds(a)
-    const boundsB = b.bounds ?? getItemBounds(b)
-    return boundsA.top - boundsB.top
-  })
-  let offset = editor.selectedItemBounds.top
-  for (const item of itemsTopToBottom) {
-    const { x, height } = item.bounds ?? getItemBounds(item)
-    moveItem(item, { x, y: offset })
-    offset += height + gap
-    if (item.bounds !== null) item.bounds = getItemBounds(item)
-  }
-}
-
-const distributedVerticalGap = computed(() => {
-  if (!editor.selectedItemBounds) return
-  if (props.items.length < 2) return
-
-  const itemsTopToBottom = props.items.toSorted((a, b) => {
-    const boundsA = a.bounds ?? getItemBounds(a)
-    const boundsB = b.bounds ?? getItemBounds(b)
-    return boundsA.top - boundsB.top
-  })
+  const { start, end } = axisProps[axis]
+  const sortedItems = sortItemsByAxis(props.items, axis)
 
   let lastGap: number | undefined
-  for (let i = 1; i < itemsTopToBottom.length; i++) {
-    const lastItem = itemsTopToBottom[i - 1]
+  for (let i = 1; i < sortedItems.length; i++) {
+    const lastItem = sortedItems[i - 1]
     const lastItemBounds = lastItem.bounds ?? getItemBounds(lastItem)
-    const item = itemsTopToBottom[i]
+    const item = sortedItems[i]
     const itemBounds = item.bounds ?? getItemBounds(item)
-    const gap = itemBounds.top - lastItemBounds.bottom
+    const gap = itemBounds[start] - lastItemBounds[end]
     if (lastGap !== undefined && gap !== lastGap) return
     lastGap = gap
   }
 
   return lastGap
-})
+}
 
-const distributedHorizontalGap = computed(() => {
-  if (!editor.selectedItemBounds) return
-  if (props.items.length < 2) return
-
-  const itemsLeftToRight = props.items.toSorted((a, b) => {
-    const boundsA = a.bounds ?? getItemBounds(a)
-    const boundsB = b.bounds ?? getItemBounds(b)
-    return boundsA.left - boundsB.left
-  })
-
-  let lastGap: number | undefined
-  for (let i = 1; i < itemsLeftToRight.length; i++) {
-    const lastItem = itemsLeftToRight[i - 1]
-    const lastItemBounds = lastItem.bounds ?? getItemBounds(lastItem)
-    const item = itemsLeftToRight[i]
-    const itemBounds = item.bounds ?? getItemBounds(item)
-    const gap = itemBounds.left - lastItemBounds.right
-    if (lastGap !== undefined && gap !== lastGap) return
-    lastGap = gap
-  }
-
-  return lastGap
-})
+const distributedHorizontalGap = computed(() => getDistributedGap('horizontal'))
+const distributedVerticalGap = computed(() => getDistributedGap('vertical'))
 </script>
 
 <template>
@@ -199,15 +164,15 @@ const distributedHorizontalGap = computed(() => {
   <div class="flow">
     <label>Distribute</label>
     <div class="buttons-distribute">
-      <button @click="distributeHorizontal()">Horizontal</button>
-      <button @click="distributeVertical()">Vertical</button>
+      <button @click="distribute('horizontal')">Horizontal</button>
+      <button @click="distribute('vertical')">Vertical</button>
     </div>
     <GapField
       :horizontal="distributedHorizontalGap"
       :vertical="distributedVerticalGap"
       label="Gap"
-      @update:horizontal="distributeHorizontal($event)"
-      @update:vertical="distributeVertical($event)"
+      @update:horizontal="distribute('horizontal', $event)"
+      @update:vertical="distribute('vertical', $event)"
     />
   </div>
 </template>
