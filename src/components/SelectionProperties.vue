@@ -14,80 +14,38 @@ import type { Point } from '~/types'
 const props = defineProps<{ items: Item[] }>()
 const editor = useEditor()
 
-const alignLeft = () => {
-  if (!editor.selectedItemBounds) return
-  const { left } = editor.selectedItemBounds
-  for (const item of props.items) {
-    const bounds = item.bounds ?? getItemBounds(item)
-    moveItem(item, { x: left, y: bounds.y })
-    if (item.bounds !== null) item.bounds = getItemBounds(item)
-  }
-}
-
-const alignCenter = () => {
-  if (!editor.selectedItemBounds) return
-  const { left, right } = editor.selectedItemBounds
-  let center = left + Math.round((right - left) / 2)
-  for (const item of props.items) {
-    const bounds = item.bounds ?? getItemBounds(item)
-    const x = Math.round(center - bounds.width / 2)
-    moveItem(item, { x, y: bounds.y })
-    if (item.bounds !== null) item.bounds = getItemBounds(item)
-  }
-}
-
-const alignRight = () => {
-  if (!editor.selectedItemBounds) return
-  const { right } = editor.selectedItemBounds
-  for (const item of props.items) {
-    const bounds = item.bounds ?? getItemBounds(item)
-    const x = right - bounds.width
-    moveItem(item, { x, y: bounds.y })
-    if (item.bounds !== null) item.bounds = getItemBounds(item)
-  }
-}
-
-const alignTop = () => {
-  if (!editor.selectedItemBounds) return
-  const { top } = editor.selectedItemBounds
-  for (const item of props.items) {
-    const bounds = item.bounds ?? getItemBounds(item)
-    moveItem(item, { x: bounds.x, y: top })
-    if (item.bounds !== null) item.bounds = getItemBounds(item)
-  }
-}
-
-const alignMiddle = () => {
-  if (!editor.selectedItemBounds) return
-  const { top, bottom } = editor.selectedItemBounds
-  let middle = top + Math.round((bottom - top) / 2)
-  for (const item of props.items) {
-    const bounds = item.bounds ?? getItemBounds(item)
-    const y = Math.round(middle - bounds.height / 2)
-    moveItem(item, { x: bounds.x, y })
-    if (item.bounds !== null) item.bounds = getItemBounds(item)
-  }
-}
-
-const alignBottom = () => {
-  if (!editor.selectedItemBounds) return
-  const { bottom } = editor.selectedItemBounds
-  for (const item of props.items) {
-    const bounds = item.bounds ?? getItemBounds(item)
-    const y = bottom - bounds.height
-    moveItem(item, { x: bounds.x, y })
-    if (item.bounds !== null) item.bounds = getItemBounds(item)
-  }
-}
-
 type Axis = 'horizontal' | 'vertical'
-const axisProps = {
+type AlignType = 'start' | 'center' | 'end'
+const axes = {
   horizontal: { start: 'left', end: 'right', size: 'width', coordinate: 'x' },
   vertical: { start: 'top', end: 'bottom', size: 'height', coordinate: 'y' },
 } as const
 
+const align = (axis: Axis, type: AlignType) => {
+  if (!editor.selectedItemBounds) return
+  const selectedItemBounds = structuredClone(editor.selectedItemBounds)
+  const { start, end, size, coordinate } = axes[axis]
+
+  for (const item of props.items) {
+    const bounds = item.bounds ?? getItemBounds(item)
+    const point: Point = { x: bounds.x, y: bounds.y }
+
+    if (type === 'start') {
+      point[coordinate] = selectedItemBounds[start]
+    } else if (type === 'end') {
+      point[coordinate] = selectedItemBounds[end] - bounds[size]
+    } else {
+      const center = selectedItemBounds.center[coordinate]
+      point[coordinate] = Math.round(center - bounds[size] / 2)
+    }
+
+    moveItem(item, point)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
+  }
+}
+
 const sortItemsByAxis = (items: Item[], axis: Axis) => {
-  const { start } = axisProps[axis]
+  const { start } = axes[axis]
   return items.toSorted((a, b) => {
     const boundsA = a.bounds ?? getItemBounds(a)
     const boundsB = b.bounds ?? getItemBounds(b)
@@ -98,7 +56,7 @@ const sortItemsByAxis = (items: Item[], axis: Axis) => {
 const distribute = (axis: Axis, gap?: number) => {
   if (!editor.selectedItemBounds || props.items.length < 2) return
 
-  const { start, size, coordinate } = axisProps[axis]
+  const { start, size, coordinate } = axes[axis]
 
   if (gap === undefined) {
     let totalSize = 0
@@ -128,7 +86,7 @@ const distribute = (axis: Axis, gap?: number) => {
 const getDistributedGap = (axis: Axis) => {
   if (!editor.selectedItemBounds || props.items.length < 2) return
 
-  const { start, end } = axisProps[axis]
+  const { start, end } = axes[axis]
   const sortedItems = sortItemsByAxis(props.items, axis)
 
   let lastGap: number | undefined
@@ -153,12 +111,14 @@ const distributedVerticalGap = computed(() => getDistributedGap('vertical'))
   <div class="flow">
     <label>Align</label>
     <div class="buttons-align">
-      <button @click="alignLeft"><IconAlignLeft /></button>
-      <button @click="alignCenter"><IconAlignCenter /></button>
-      <button @click="alignRight"><IconAlignRight /></button>
-      <button @click="alignTop"><IconAlignTop /></button>
-      <button @click="alignMiddle"><IconAlignMiddle /></button>
-      <button @click="alignBottom"><IconAlignBottom /></button>
+      <button @click="align('horizontal', 'start')"><IconAlignLeft /></button>
+      <button @click="align('horizontal', 'center')">
+        <IconAlignCenter />
+      </button>
+      <button @click="align('horizontal', 'end')"><IconAlignRight /></button>
+      <button @click="align('vertical', 'start')"><IconAlignTop /></button>
+      <button @click="align('vertical', 'center')"><IconAlignMiddle /></button>
+      <button @click="align('vertical', 'end')"><IconAlignBottom /></button>
     </div>
   </div>
   <div class="flow">
