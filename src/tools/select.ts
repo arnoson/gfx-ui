@@ -107,7 +107,7 @@ export const useSelect = defineTool(
       for (const item of editor.selectedItems) {
         if (item.isLocked) continue
         translateItem(item, delta)
-        if (item.type !== 'group' && item.type !== 'instance') {
+        if (item.bounds !== null) {
           item.bounds = getTranslatedBounds(item.bounds, delta)
         }
       }

@@ -74,7 +74,7 @@ const getBounds = (bitmap: Pick<Bitmap, 'pixels'>): Bounds => {
 }
 
 const toCode = (bitmap: Bitmap, ctx: CodeContext) => {
-  const { bounds, pixels, color, name } = bitmap
+  const { bounds: bounds, pixels, color, name } = bitmap
 
   let bytesCount = Math.ceil((bounds.width * bounds.height) / 8)
   const bytes = new Uint8Array(bytesCount)

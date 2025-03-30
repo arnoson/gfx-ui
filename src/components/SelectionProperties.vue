@@ -19,7 +19,7 @@ const alignLeft = () => {
   for (const item of props.items) {
     const bounds = item.bounds ?? getItemBounds(item)
     moveItem(item, { x: left, y: bounds.y })
-    if (item.type !== 'group') item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
@@ -31,7 +31,7 @@ const alignCenter = () => {
     const bounds = item.bounds ?? getItemBounds(item)
     const x = Math.round(center - bounds.width / 2)
     moveItem(item, { x, y: bounds.y })
-    if (item.type !== 'group') item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
@@ -42,7 +42,7 @@ const alignRight = () => {
     const bounds = item.bounds ?? getItemBounds(item)
     const x = right - bounds.width
     moveItem(item, { x, y: bounds.y })
-    if (item.type !== 'group') item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
@@ -52,7 +52,7 @@ const alignTop = () => {
   for (const item of props.items) {
     const bounds = item.bounds ?? getItemBounds(item)
     moveItem(item, { x: bounds.x, y: top })
-    if (item.type !== 'group') item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
@@ -64,7 +64,7 @@ const alignMiddle = () => {
     const bounds = item.bounds ?? getItemBounds(item)
     const y = Math.round(middle - bounds.height / 2)
     moveItem(item, { x: bounds.x, y })
-    if (item.type !== 'group') item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
@@ -75,7 +75,7 @@ const alignBottom = () => {
     const bounds = item.bounds ?? getItemBounds(item)
     const y = bottom - bounds.height
     moveItem(item, { x: bounds.x, y })
-    if (item.type !== 'group') item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
@@ -103,7 +103,7 @@ const distributeHorizontal = (gap?: number) => {
     const { y, width } = item.bounds ?? getItemBounds(item)
     moveItem(item, { x: offset, y })
     offset += width + gap
-    item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 
@@ -131,7 +131,7 @@ const distributeVertical = (gap?: number) => {
     const { x, height } = item.bounds ?? getItemBounds(item)
     moveItem(item, { x, y: offset })
     offset += height + gap
-    item.bounds = getItemBounds(item)
+    if (item.bounds !== null) item.bounds = getItemBounds(item)
   }
 }
 

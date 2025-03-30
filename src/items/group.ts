@@ -17,7 +17,7 @@ export interface Group {
   isHidden: boolean
   isLocked: boolean
   children: Item[]
-  bounds: null
+  readonly bounds: null
 }
 
 // TODO: implement

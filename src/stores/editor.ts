@@ -132,7 +132,7 @@ export const useEditor = defineStore('editor', () => {
     const ignoreTargetsFlat = flattenNestedItems(ignoreTargets)
     const targets = itemsFlat.value
       .filter((v) => v.type !== 'group' && !ignoreTargetsFlat.includes(v))
-      .map((v) => v.bounds!)
+      .map((v) => v.bounds ?? getItemBounds(v))
 
     targets.push(frameBounds.value)
     const { amount, guides } = getPointSnap(point, targets, snapThreshold.value)
@@ -144,7 +144,7 @@ export const useEditor = defineStore('editor', () => {
     const ignoreTargetsFlat = flattenNestedItems(ignoreTargets)
     const targets = itemsFlat.value
       .filter((v) => v.type !== 'group' && !ignoreTargetsFlat.includes(v))
-      .map((v) => v.bounds!)
+      .map((v) => v.bounds ?? getItemBounds(v))
 
     targets.push(frameBounds.value)
     const { amount, guides } = getBoundsSnap(

@@ -83,7 +83,10 @@ export const useProject = defineStore('project', () => {
     if (!editor.activeFrame) return
 
     const id = createId()
-    const bounds = data.type !== 'group' ? getItemBounds(data) : null
+    const bounds =
+      data.type !== 'group' && data.type !== 'instance'
+        ? getItemBounds(data)
+        : null
     const name = capitalizeFirstLetter(data.type)
     const item = {
       isLocked: false,

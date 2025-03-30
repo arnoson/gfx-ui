@@ -19,7 +19,7 @@ export interface Instance {
   componentId: Number
   isHidden: boolean
   isLocked: boolean
-  bounds: null
+  readonly bounds: null
 }
 
 const draw = (ctx: CanvasRenderingContext2D, instance: Instance) => {
