@@ -5,11 +5,13 @@ import type { Point } from '~/types'
 import { defineTool } from './tool'
 import { useMagicKeys } from '@vueuse/core'
 import { clonePoint } from '~/utils/point'
+import { useProject } from '~/stores/project'
 
 export const useCircle = defineTool(
   'circle',
   () => {
     const editor = useEditor()
+    const project = useProject()
     const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'drag' | 'idle' = 'idle'
 
@@ -19,7 +21,7 @@ export const useCircle = defineTool(
     const startDrag = (point: Point) => {
       if (!snapDisabled.value) point = editor.snapPoint(point)
 
-      item = editor.addItem({
+      item = project.addItem({
         type: 'circle',
         center: clonePoint(point),
         radius: 0,

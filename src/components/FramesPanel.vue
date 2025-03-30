@@ -5,18 +5,20 @@ import { vEditable } from '~/directives/editable'
 import { useEditor } from '~/stores/editor'
 import FrameCanvas from './FrameCanvas.vue'
 import type { Frame } from '~/frame'
+import { useProject } from '~/stores/project'
 
 const editor = useEditor()
+const project = useProject()
 const frames = useTemplateRef('frames')
 
 const add = async () => {
-  const frame = editor.addFrame({})
+  const frame = project.addFrame({})
   editor.activateFrame(frame.id)
   await nextTick()
   frames.value?.querySelector<HTMLElement>(`[data-id='${frame.id}']`)?.focus()
 }
 
-const remove = (frame: Frame) => editor.removeFrame(frame.id)
+const remove = (frame: Frame) => project.removeFrame(frame.id)
 
 let copiedFrame: Frame | null = null
 const copy = (frame: Frame) => (copiedFrame = frame)
@@ -26,7 +28,7 @@ const paste = () => {
   const clone = structuredClone(toRaw(copiedFrame)) as Partial<Frame>
   delete clone.id
   clone.name = `${copiedFrame.name} Copy`
-  editor.addFrame(clone)
+  project.addFrame(clone)
 }
 
 const rename = (frame: Frame, e: Event) => {
@@ -34,8 +36,8 @@ const rename = (frame: Frame, e: Event) => {
 }
 
 const framesList = computed({
-  get: () => editor.frames,
-  set: (value) => (editor.frames = value),
+  get: () => project.frames,
+  set: (value) => (project.frames = value),
 })
 
 const isDragging = ref(false)
@@ -71,7 +73,7 @@ useDraggable(frames, framesList, {
       @keydown.ctrl.v.stop="paste"
     >
       <a
-        v-for="frame of editor.frames.values()"
+        v-for="frame of project.frames.values()"
         class="frame"
         :key="frame.id"
         :href="`#/frame/${frame.id}`"

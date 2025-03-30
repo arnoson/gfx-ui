@@ -9,11 +9,14 @@ import {
   makeBounds,
 } from '~/utils/bounds'
 import { defineTool } from './tool'
+import { useProject } from '~/stores/project'
 
 export const useSelect = defineTool(
   'select',
   () => {
+    const project = useProject()
     const editor = useEditor()
+
     const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'move' | 'select' | 'idle' = 'idle'
     let startPoint = { x: 0, y: 0 }
@@ -123,15 +126,15 @@ export const useSelect = defineTool(
     const remove = () => {
       for (const item of editor.selectedItems) {
         if (item === editor.focusedItem) editor.focusedItem = null
-        editor.removeItem(item)
+        project.removeItem(item)
       }
       editor.selectedItems.clear()
     }
 
     const group = () => {
       if (!editor.selectedItems.size) return
-      for (const item of editor.selectedItems) editor.removeItem(item)
-      const group = editor.addItem({
+      for (const item of editor.selectedItems) project.removeItem(item)
+      const group = project.addItem({
         type: 'group',
         children: [...editor.selectedItems],
       })
@@ -145,10 +148,10 @@ export const useSelect = defineTool(
         if (item.type !== 'group') continue
         // TODO: insert at correct position and parent.
         for (const child of item.children) {
-          editor.addItem(child)
+          project.addItem(child)
           newSelectedItems.add(child)
         }
-        editor.removeItem(item)
+        project.removeItem(item)
         if (editor.focusedItem === item) editor.focusedItem === null
       }
       editor.selectedItems = newSelectedItems
@@ -164,7 +167,7 @@ export const useSelect = defineTool(
       editor.focusedItem = null
       for (const item of editor.copiedItems) {
         const data = structuredClone(toRaw(item))
-        const copy = editor.addItem({ ...data, id: undefined })
+        const copy = project.addItem({ ...data, id: undefined })
         if (copy) editor.selectedItems.add(copy)
       }
     }
@@ -208,7 +211,7 @@ export const useSelect = defineTool(
         paste()
         e.preventDefault()
       } else if (e.key === 'a' && e.ctrlKey) {
-        editor.selectedItems = new Set(editor.items)
+        editor.selectedItems = new Set(project.items)
         e.preventDefault()
       }
     }

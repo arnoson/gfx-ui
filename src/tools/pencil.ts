@@ -4,11 +4,13 @@ import { getLinePixels } from '~/items/line'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
+import { useProject } from '~/stores/project'
 
 export const usePencil = defineTool(
   'pencil',
   () => {
     const editor = useEditor()
+    const project = useProject()
 
     let isDrawing = false
     let lastPoint: Point | null = null
@@ -19,7 +21,7 @@ export const usePencil = defineTool(
     })
 
     const createItem = () => {
-      const newItem = editor.addItem({
+      const newItem = project.addItem({
         type: 'bitmap',
         pixels: new Set(),
         color: 15,

@@ -4,11 +4,13 @@ import { type Line } from '~/items/line'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
+import { useProject } from '~/stores/project'
 
 export const useLine = defineTool(
   'line',
   () => {
     const editor = useEditor()
+    const project = useProject()
     const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'drag' | 'idle' = 'idle'
 
@@ -16,7 +18,7 @@ export const useLine = defineTool(
     let startPoint = { x: 0, y: 0 }
 
     const startDrag = ({ x, y }: Point) => {
-      item = editor.addItem({
+      item = project.addItem({
         type: 'line',
         from: { x, y },
         to: { x, y },

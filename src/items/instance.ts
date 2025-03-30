@@ -9,6 +9,7 @@ import {
 import { useEditor } from '~/stores/editor'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
+import { useProject } from '~/stores/project'
 
 export interface Instance {
   type: 'instance'
@@ -22,8 +23,10 @@ export interface Instance {
 }
 
 const draw = (ctx: CanvasRenderingContext2D, instance: Instance) => {
-  const editor = useEditor()
-  const component = editor.components.find((v) => v.id === instance.componentId)
+  const project = useProject()
+  const component = project.components.find(
+    (v) => v.id === instance.componentId,
+  )
   if (!component) return
 
   for (const child of component.children)
@@ -40,16 +43,18 @@ const translate = (instance: Instance, delta: Point) => {
 }
 
 const getBounds = (instance: Instance) => {
-  const editor = useEditor()
-  const component = editor.components.find((v) => v.id === instance.componentId)
+  const project = useProject()
+  const component = project.components.find(
+    (v) => v.id === instance.componentId,
+  )
   if (!component) return emptyBounds
   return makeBounds(instance.position, component.size)
 }
 
 const toCode = (instance: Instance, ctx: CodeContext) => {
   const { position, name, componentId } = instance
-  const editor = useEditor()
-  const component = editor.components.find((v) => v.id === componentId)
+  const project = useProject()
+  const component = project.components.find((v) => v.id === componentId)
   if (!component) return ''
 
   const x = ctx.includeOffset ? `x + ${position.x}` : position.x

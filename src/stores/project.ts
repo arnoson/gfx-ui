@@ -1,13 +1,23 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { toCode as frameToCode, type Frame } from '~/frame'
 import type { Group } from '~/items/group'
-import { itemFromCode } from '~/items/item'
+import {
+  getItemBounds,
+  itemFromCode,
+  type Item,
+  type ItemByType,
+  type ItemData,
+} from '~/items/item'
 import type { CodeContext, Size } from '~/types'
 import { createCodeContext } from '~/utils/codeContext'
-import { downloadFile } from '~/utils/file'
+import { capitalizeFirstLetter } from '~/utils/text'
 import { useEditor } from './editor'
 import { useFonts } from './fonts'
+
+type Id = number
+let id = 0
+const createId = () => id++
 
 export const useProject = defineStore('project', () => {
   const name = ref('Untitled')
@@ -16,6 +26,84 @@ export const useProject = defineStore('project', () => {
     comments: 'names',
     includeOffset: false,
   })
+
+  // Frames
+  const frames = ref<Frame[]>([])
+
+  const addFrame = (data: Partial<Frame>): Frame => {
+    const id = createId()
+    frames.value.push({
+      type: 'frame',
+      id,
+      isComponent: false,
+      children: [],
+      ...data,
+      size: data.size ?? { width: 128, height: 64 },
+      name: data.name ?? `Frame${id}`,
+      scale: data.scale ?? 5,
+    })
+    return frames.value.at(-1)!
+  }
+
+  const removeFrame = (id: Id) => {
+    const index = frames.value.findIndex((v) => v.id === id)
+    frames.value.splice(index, 1)
+    if (editor.activeFrame?.id === id) editor.activeFrame = undefined
+  }
+
+  // Components
+  const components = ref<Frame[]>([])
+
+  const addComponent = (data: Partial<Frame>): Frame => {
+    const id = createId()
+    components.value.push({
+      type: 'frame',
+      id,
+      isComponent: true,
+      children: [],
+      ...data,
+      size: data.size ?? { width: 128, height: 64 },
+      name: data.name ?? `Frame${id}`,
+      scale: data.scale ?? 5,
+    })
+    return components.value.at(-1)!
+  }
+
+  const removeComponent = (id: Id) => {
+    const index = components.value.findIndex((v) => v.id === id)
+    components.value.splice(index, 1)
+  }
+
+  // Items
+  const items = computed(() => editor.activeFrame?.children ?? [])
+
+  const addItem = <T extends ItemData, R = ItemByType<T['type']>>(
+    data: T,
+  ): R | undefined => {
+    if (!editor.activeFrame) return
+
+    const id = createId()
+    const bounds = data.type !== 'group' ? getItemBounds(data) : null
+    const name = capitalizeFirstLetter(data.type)
+    const item = {
+      isLocked: false,
+      isHidden: false,
+      name,
+      ...data,
+      bounds,
+      id,
+    } as R
+    editor.activeFrame.children.unshift(item as Item)
+    // Pushing the item makes it reactive, so in order return the reactive item
+    // we have to retrieve it from children.
+    return editor.activeFrame.children[0] as R
+  }
+
+  const removeItem = (item: Item, frame = editor.activeFrame) => {
+    if (!frame) return
+    const index = frame.children.findIndex((v) => v.id === item.id)
+    frame.children.splice(index, 1)
+  }
 
   const editor = useEditor()
   const fonts = useFonts()
@@ -26,9 +114,9 @@ export const useProject = defineStore('project', () => {
  */\n\n`
 
     const ctx = createCodeContext({ comments: 'all', includeOffset: false })
-    code += editor.components.map((v) => frameToCode(v, ctx)).join('\n\n')
+    code += components.value.map((v) => frameToCode(v, ctx)).join('\n\n')
     code += '\n\n'
-    code += editor.frames.map((v) => frameToCode(v, ctx)).join('\n\n')
+    code += frames.value.map((v) => frameToCode(v, ctx)).join('\n\n')
 
     // downloadFile(`${name.value}.h`, code)
     console.log(code)
@@ -48,7 +136,7 @@ export const useProject = defineStore('project', () => {
   }
 
   const load = (code: string) => {
-    editor.clear()
+    clear()
 
     let pos = 0
     let ignoredSections: [start: number, end: number][] = []
@@ -76,7 +164,7 @@ export const useProject = defineStore('project', () => {
         if (frameMatch) {
           const { name, settings } = frameMatch.groups!
           const { size } = parseFrameSettings(settings)
-          frame = editor.addFrame({ name, size })
+          frame = addFrame({ name, size })
           if (frame) editor.activateFrame(frame.id)
           pos += frameMatch[0].length
         } else {
@@ -91,11 +179,11 @@ export const useProject = defineStore('project', () => {
           ignoredSections.push([ignoredStart, pos])
           ignoredStart = null
         }
-        const item = editor.addItem(itemMatch.item)!
+        const item = addItem(itemMatch.item)!
 
         const group = groups.at(-1)
         if (group) {
-          editor.removeItem(item, frame)
+          removeItem(item, frame)
           group.children.unshift(item)
         }
 
@@ -125,10 +213,29 @@ export const useProject = defineStore('project', () => {
     }
   }
 
+  const clear = () => {
+    frames.value = []
+    editor.activeFrame = undefined
+  }
+
   return {
     name,
+    codeSettings,
+
+    frames,
+    addFrame,
+    removeFrame,
+
+    items,
+    addItem,
+    removeItem,
+
+    components,
+    addComponent,
+    removeComponent,
+
     load,
     save,
-    codeSettings,
+    clear,
   }
 })

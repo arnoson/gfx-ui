@@ -38,22 +38,22 @@ activateFrame()
 
 // project.load(testProject)
 
-const component = editor.addComponent({
+const component = project.addComponent({
   name: 'component',
   size: { width: 10, height: 10 },
 })
 editor.activeFrame = component
-editor.addItem({
+project.addItem({
   type: 'line',
   from: { x: 0, y: 0 },
   to: { x: 10, y: 10 },
   color: 15,
 })
 
-const { id } = editor.addFrame({})
+const { id } = project.addFrame({})
 editor.activateFrame(id)
 
-editor.addItem({
+project.addItem({
   type: 'instance',
   position: { x: 5, y: 5 },
   componentId: component.id,

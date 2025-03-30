@@ -4,10 +4,12 @@ import { type Rect } from '~/items/rect'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
+import { useProject } from '~/stores/project'
 
 export const useRect = defineTool(
   'rect',
   () => {
+    const project = useProject()
     const editor = useEditor()
     const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'drag' | 'idle' = 'idle'
@@ -18,7 +20,7 @@ export const useRect = defineTool(
     const startDrag = (point: Point) => {
       if (!snapDisabled.value) point = editor.snapPoint(point)
 
-      item = editor.addItem({
+      item = project.addItem({
         type: 'rect',
         position: point,
         size: { width: 0, height: 0 },

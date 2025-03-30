@@ -1,28 +1,20 @@
 import { acceptHMRUpdate, defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { Frame } from '~/frame'
-import {
-  getItemBounds,
-  type Item,
-  type ItemByType,
-  type ItemData,
-} from '~/items/item'
+import { getItemBounds, type Item } from '~/items/item'
 import { useCircle } from '~/tools/circle'
 import { useLine } from '~/tools/line'
 import { usePencil } from '~/tools/pencil'
 import { useRect } from '~/tools/rect'
 import { useSelect } from '~/tools/select'
 import { useText } from '~/tools/text'
-import type { Bounds, Point, Size } from '~/types'
+import type { Bounds, Point } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { addPoints } from '~/utils/point'
 import { getBoundsSnap, getPointSnap } from '~/utils/snap'
-import { capitalizeFirstLetter } from '~/utils/text'
+import { useProject } from './project'
 
 type Id = number
-
-let id = 0
-const createId = () => id++
 
 const flattenNestedItems = (items: Item[]): Item[] => {
   const result: Item[] = []
@@ -36,6 +28,12 @@ const flattenNestedItems = (items: Item[]): Item[] => {
 }
 
 export const useEditor = defineStore('editor', () => {
+  const project = useProject()
+
+  const viewCode = ref(false)
+  const isSelecting = ref(false)
+  const isMoving = ref(false)
+
   // Tools
   const pencil = usePencil()
   const select = useSelect()
@@ -54,107 +52,29 @@ export const useEditor = defineStore('editor', () => {
     activeToolId.value = id
     tools[id].activate?.()
   }
-
   activateTool(activeToolId.value)
 
-  const viewCode = ref(false)
-
   // Frames
-  const frames = ref<Frame[]>([])
   const activeFrame = ref<Frame>()
   const frameBounds = computed(() => {
     if (!activeFrame.value) return emptyBounds
     return makeBounds({ x: 0, y: 0 }, activeFrame.value.size)
   })
 
-  const addFrame = (data: Partial<Frame>): Frame => {
-    const id = createId()
-    frames.value.push({
-      type: 'frame',
-      id,
-      isComponent: false,
-      children: [],
-      ...data,
-      size: data.size ?? { width: 128, height: 64 },
-      name: data.name ?? `Frame${id}`,
-      scale: data.scale ?? 5,
-    })
-    return frames.value.at(-1)!
-  }
-
-  const removeFrame = (id: Id) => {
-    const index = frames.value.findIndex((v) => v.id === id)
-    frames.value.splice(index, 1)
-    if (activeFrame.value?.id === id) activeFrame.value = undefined
-  }
-
   const activateFrame = (id: Id) => {
-    activeFrame.value = frames.value.find((v) => v.id === id)
+    activeFrame.value = project.frames.find((v) => v.id === id)
     selectedItems.value.clear()
     focusedItem.value = null
     selectionBounds.value = null
   }
 
-  // Components
-  const components = ref<Frame[]>([])
-
-  const addComponent = (data: Partial<Frame>): Frame => {
-    const id = createId()
-    components.value.push({
-      type: 'frame',
-      id,
-      isComponent: true,
-      children: [],
-      ...data,
-      size: data.size ?? { width: 128, height: 64 },
-      name: data.name ?? `Frame${id}`,
-      scale: data.scale ?? 5,
-    })
-    return components.value.at(-1)!
-  }
-
-  const removeComponent = (id: Id) => {
-    const index = components.value.findIndex((v) => v.id === id)
-    components.value.splice(index, 1)
-  }
-
   // Items
-  const items = computed(() => activeFrame.value?.children ?? [])
+  const focusedItem = ref<Item | null>(null)
+  const copiedItems = ref<Item[] | null>(null)
   const itemsFlat = computed(() => {
     if (!activeFrame.value) return []
     return flattenNestedItems(activeFrame.value.children)
   })
-
-  const focusedItem = ref<Item | null>(null)
-  const copiedItems = ref<Item[] | null>(null)
-
-  const addItem = <T extends ItemData, R = ItemByType<T['type']>>(
-    data: T,
-  ): R | undefined => {
-    if (!activeFrame.value) return
-
-    const id = createId()
-    const bounds = data.type !== 'group' ? getItemBounds(data) : null
-    const name = capitalizeFirstLetter(data.type)
-    const item = {
-      isLocked: false,
-      isHidden: false,
-      name,
-      ...data,
-      bounds,
-      id,
-    } as R
-    activeFrame.value.children.unshift(item as Item)
-    // Pushing the item makes it reactive, so in order return the reactive item
-    // we have to retrieve it from children.
-    return activeFrame.value.children[0] as R
-  }
-
-  const removeItem = (item: Item, frame = activeFrame.value) => {
-    if (!frame) return
-    const index = frame.children.findIndex((v) => v.id === item.id)
-    frame.children.splice(index, 1)
-  }
 
   const focusItem = (item: Item) => {
     focusedItem.value = item
@@ -164,8 +84,6 @@ export const useEditor = defineStore('editor', () => {
 
   // Selection
   const selectionBounds = ref<Bounds | null>(null)
-  const isSelecting = ref(false)
-  const isMoving = ref(false)
   const selectedItems = ref(new Set<Item>())
 
   const selectedItemBounds = computed(() => {
@@ -240,43 +158,33 @@ export const useEditor = defineStore('editor', () => {
     return amount
   }
 
-  const clear = () => {
-    frames.value = []
-    activeFrame.value = undefined
-  }
-
   return {
+    viewCode,
+    isSelecting,
+    isMoving,
+
     tools,
     activeTool,
     activateTool,
-    viewCode,
+
     frames,
     activeFrame,
     frameBounds,
-    addFrame,
-    removeFrame,
     activateFrame,
-    components,
-    addComponent,
-    removeComponent,
-    items,
-    itemsFlat,
+
     copiedItems,
     focusedItem,
-    addItem,
-    removeItem,
     focusItem,
+
     selectionBounds,
     selectedItems,
     selectedItemBounds,
-    isSelecting,
-    isMoving,
+
     snapThreshold,
     snapGuides,
     resetSnapGuides,
     snapPoint,
     snapBounds,
-    clear,
   }
 })
 

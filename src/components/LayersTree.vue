@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useEditor } from '~/stores/editor'
 import LayersTreeNested from './LayersTreeNested.vue'
 const editor = useEditor()

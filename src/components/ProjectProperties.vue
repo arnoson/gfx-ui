@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { useProject } from '~/stores/project'
-import ProjectUpload from './ProjectUpload.vue'
-import ModalDialog from './ModalDialog.vue'
 import { useTemplateRef } from 'vue'
-import { useEditor } from '~/stores/editor'
 import { vEditable } from '~/directives/editable'
+import { useProject } from '~/stores/project'
+import ModalDialog from './ModalDialog.vue'
+import ProjectUpload from './ProjectUpload.vue'
 
 const project = useProject()
-const editor = useEditor()
 const clearDialog = useTemplateRef('clearDialog')
 
 const clear = async () => {
   const result = await clearDialog.value?.prompt()
-  if (result === 'submit') editor.clear()
+  if (result === 'submit') project.clear()
 }
 
 const rename = (e: Event) => {
