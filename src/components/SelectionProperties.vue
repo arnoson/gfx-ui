@@ -151,7 +151,7 @@ const distributedVerticalGap = computed(() => {
     const lastItemBounds = lastItem.bounds ?? getItemBounds(lastItem)
     const item = itemsTopToBottom[i]
     const itemBounds = item.bounds ?? getItemBounds(item)
-    const gap = itemBounds.top - lastItemBounds.bottom - 1
+    const gap = itemBounds.top - lastItemBounds.bottom
     if (lastGap !== undefined && gap !== lastGap) return
     lastGap = gap
   }
@@ -175,7 +175,7 @@ const distributedHorizontalGap = computed(() => {
     const lastItemBounds = lastItem.bounds ?? getItemBounds(lastItem)
     const item = itemsLeftToRight[i]
     const itemBounds = item.bounds ?? getItemBounds(item)
-    const gap = itemBounds.left - lastItemBounds.right - 1
+    const gap = itemBounds.left - lastItemBounds.right
     if (lastGap !== undefined && gap !== lastGap) return
     lastGap = gap
   }
