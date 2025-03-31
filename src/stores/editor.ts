@@ -62,7 +62,9 @@ export const useEditor = defineStore('editor', () => {
   })
 
   const activateFrame = (id: Id) => {
-    activeFrame.value = project.frames.find((v) => v.id === id)
+    activeFrame.value =
+      project.frames.find((v) => v.id === id) ??
+      project.components.find((v) => v.id === id)
     selectedItems.value.clear()
     focusedItem.value = null
     selectionBounds.value = null

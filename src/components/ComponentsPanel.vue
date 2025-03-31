@@ -9,39 +9,41 @@ import { useProject } from '~/stores/project'
 
 const editor = useEditor()
 const project = useProject()
-const frames = useTemplateRef('frames')
+const components = useTemplateRef('components')
 
 const add = async () => {
-  const frame = project.addFrame({})
-  editor.activateFrame(frame.id)
+  const component = project.addComponent({})
+  editor.activateFrame(component.id)
   await nextTick()
-  frames.value?.querySelector<HTMLElement>(`[data-id='${frame.id}']`)?.focus()
+  components.value
+    ?.querySelector<HTMLElement>(`[data-id='${component.id}']`)
+    ?.focus()
 }
 
 const remove = (frame: Frame) => project.removeFrame(frame.id)
 
-let copiedFrame: Frame | null = null
-const copy = (frame: Frame) => (copiedFrame = frame)
+let copiedComponent: Frame | null = null
+const copy = (component: Frame) => (copiedComponent = component)
 
 const paste = () => {
-  if (!copiedFrame) return
-  const clone = structuredClone(toRaw(copiedFrame)) as Partial<Frame>
+  if (!copiedComponent) return
+  const clone = structuredClone(toRaw(copiedComponent)) as Partial<Frame>
   delete clone.id
-  clone.name = `${copiedFrame.name} Copy`
+  clone.name = `${copiedComponent.name} Copy`
   project.addFrame(clone)
 }
 
-const rename = (frame: Frame, e: Event) => {
-  frame.name = (e.target as HTMLElement).textContent ?? ''
+const rename = (component: Frame, e: Event) => {
+  component.name = (e.target as HTMLElement).textContent ?? ''
 }
 
-const framesList = computed({
+const componentsList = computed({
   get: () => project.frames,
   set: (value) => (project.frames = value),
 })
 
 const isDragging = ref(false)
-useDraggable(frames, framesList, {
+useDraggable(components, componentsList, {
   onStart: () => (isDragging.value = true),
   onEnd: () => (isDragging.value = false),
 })
@@ -52,7 +54,7 @@ useDraggable(frames, framesList, {
     <header class="header">
       <h2>
         {{ project.frames.length }}
-        {{ project.frames.length === 1 ? 'Frame' : 'Frames' }}
+        {{ project.frames.length === 1 ? 'Component' : 'Components' }}
       </h2>
       <button class="add" @click="add">
         <svg
@@ -66,30 +68,30 @@ useDraggable(frames, framesList, {
       </button>
     </header>
     <div
-      class="frames"
-      ref="frames"
+      class="components"
+      ref="components"
       tabindex="-1"
       :data-dragging="isDragging"
       @keydown.ctrl.v.stop="paste"
     >
       <a
-        v-for="frame of project.frames.values()"
-        class="frame"
-        :key="frame.id"
-        :href="`#/frame/${frame.id}`"
-        :data-active="editor.activeFrame?.id === frame.id"
-        :data-id="frame.id"
-        @keydown.delete="remove(frame)"
-        @keydown.c.ctrl="copy(frame)"
+        v-for="component of project.components.values()"
+        class="component"
+        :key="component.id"
+        :href="`#/frame/${component.id}`"
+        :data-active="editor.activeFrame?.id === component.id"
+        :data-id="component.id"
+        @keydown.delete="remove(component)"
+        @keydown.c.ctrl="copy(component)"
       >
-        <FrameCanvas class="canvas" :frame="frame" />
+        <FrameCanvas class="canvas" :frame="component" />
         <header
-          class="frame-name"
+          class="component-name"
           v-editable
-          @blur="rename(frame, $event)"
+          @blur="rename(component, $event)"
           @keydown.delete.stop
         >
-          {{ frame.name }}
+          {{ component.name }}
         </header>
       </a>
     </div>
@@ -112,7 +114,7 @@ useDraggable(frames, framesList, {
   align-items: center;
 }
 
-.frames {
+.components {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   grid-auto-rows: max-content;
@@ -124,7 +126,7 @@ useDraggable(frames, framesList, {
   overflow-y: auto;
 }
 
-.frame {
+.component {
   border: 1px solid var(--color-border);
   border-radius: 4px;
 
@@ -140,7 +142,8 @@ useDraggable(frames, framesList, {
     border-color: var(--color-accent);
   }
 
-  .frames[data-dragging='false']:not(:has(.frame:focus)) &[data-active='true'] {
+  .components[data-dragging='false']:not(:has(.component:focus))
+    &[data-active='true'] {
     border-color: var(--color-accent);
   }
 
@@ -152,7 +155,7 @@ useDraggable(frames, framesList, {
   }
 }
 
-.frame-name {
+.component-name {
   text-align: center;
   margin-bottom: 0.25em;
 }

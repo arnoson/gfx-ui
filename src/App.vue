@@ -15,6 +15,7 @@ import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
 import { useProject } from './stores/project'
 import miwos7pt from '~/fonts/miwos7pt.h?raw'
+import ComponentsPanel from './components/ComponentsPanel.vue'
 
 const editor = useEditor()
 const project = useProject()
@@ -38,8 +39,12 @@ activateFrame()
 
 // project.load(testProject)
 
+if (import.meta.hot) {
+  project.clear()
+}
+
 const component = project.addComponent({
-  name: 'component',
+  name: 'Component',
   size: { width: 10, height: 10 },
 })
 editor.activeFrame = component
@@ -55,6 +60,7 @@ editor.activateFrame(id)
 
 project.addItem({
   type: 'instance',
+  name: component.name,
   position: { x: 5, y: 5 },
   componentId: component.id,
 })
@@ -92,7 +98,15 @@ project.addItem({
       :min-size="sidebarMinSize"
     >
       <ProjectProperties />
-      <FramesPanel />
+      <SplitterGroup direction="vertical" auto-save-id="sidebar-left">
+        <SplitterPanel>
+          <FramesPanel />
+        </SplitterPanel>
+        <SplitterResizeHandle />
+        <SplitterPanel>
+          <ComponentsPanel />
+        </SplitterPanel>
+      </SplitterGroup>
     </SplitterPanel>
     <SplitterResizeHandle />
     <SplitterPanel class="editor-panel">

@@ -218,6 +218,7 @@ export const useProject = defineStore('project', () => {
 
   const clear = () => {
     frames.value = []
+    components.value = []
     editor.activeFrame = undefined
   }
 
