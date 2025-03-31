@@ -6,6 +6,7 @@ import { useEditor } from '~/stores/editor'
 import FrameCanvas from './FrameCanvas.vue'
 import type { Frame } from '~/frame'
 import { useProject } from '~/stores/project'
+import IconDrag from '~/assets/icons/icon-drag.svg'
 
 const editor = useEditor()
 const project = useProject()
@@ -20,7 +21,7 @@ const add = async () => {
     ?.focus()
 }
 
-const remove = (frame: Frame) => project.removeFrame(frame.id)
+const remove = (component: Frame) => project.removeComponent(component.id)
 
 let copiedComponent: Frame | null = null
 const copy = (component: Frame) => (copiedComponent = component)
@@ -38,14 +39,15 @@ const rename = (component: Frame, e: Event) => {
 }
 
 const componentsList = computed({
-  get: () => project.frames,
-  set: (value) => (project.frames = value),
+  get: () => project.components,
+  set: (value) => (project.components = value),
 })
 
 const isDragging = ref(false)
 useDraggable(components, componentsList, {
   onStart: () => (isDragging.value = true),
   onEnd: () => (isDragging.value = false),
+  handle: '.drag-handle',
 })
 </script>
 
@@ -53,8 +55,8 @@ useDraggable(components, componentsList, {
   <div class="panel">
     <header class="header">
       <h2>
-        {{ project.frames.length }}
-        {{ project.frames.length === 1 ? 'Component' : 'Components' }}
+        {{ project.components.length }}
+        {{ project.components.length === 1 ? 'Component' : 'Components' }}
       </h2>
       <button class="add" @click="add">
         <svg
@@ -85,6 +87,7 @@ useDraggable(components, componentsList, {
         @keydown.c.ctrl="copy(component)"
       >
         <FrameCanvas class="canvas" :frame="component" />
+        <IconDrag class="drag-handle" />
         <header
           class="component-name"
           v-editable
@@ -116,7 +119,7 @@ useDraggable(components, componentsList, {
 
 .components {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
   grid-auto-rows: max-content;
   align-items: start;
   gap: 1rem;
@@ -127,6 +130,7 @@ useDraggable(components, componentsList, {
 }
 
 .component {
+  position: relative;
   border: 1px solid var(--color-border);
   border-radius: 4px;
 
@@ -152,6 +156,23 @@ useDraggable(components, componentsList, {
     height: auto;
     max-height: 10rem;
     object-fit: contain;
+  }
+
+  .drag-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 4px;
+    box-sizing: content-box;
+    margin: 0.1rem;
+    padding: 0.1rem;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    cursor: grab;
+
+    .component:not(:hover) & {
+      display: none;
+    }
   }
 }
 

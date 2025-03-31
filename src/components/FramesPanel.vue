@@ -6,6 +6,7 @@ import { useEditor } from '~/stores/editor'
 import FrameCanvas from './FrameCanvas.vue'
 import type { Frame } from '~/frame'
 import { useProject } from '~/stores/project'
+import IconDrag from '~/assets/icons/icon-drag.svg'
 
 const editor = useEditor()
 const project = useProject()
@@ -44,6 +45,7 @@ const isDragging = ref(false)
 useDraggable(frames, framesList, {
   onStart: () => (isDragging.value = true),
   onEnd: () => (isDragging.value = false),
+  handle: '.drag-handle',
 })
 </script>
 
@@ -83,6 +85,7 @@ useDraggable(frames, framesList, {
         @keydown.c.ctrl="copy(frame)"
       >
         <FrameCanvas class="canvas" :frame="frame" />
+        <IconDrag class="drag-handle" />
         <header
           class="frame-name"
           v-editable
@@ -125,6 +128,7 @@ useDraggable(frames, framesList, {
 }
 
 .frame {
+  position: relative;
   border: 1px solid var(--color-border);
   border-radius: 4px;
 
@@ -149,6 +153,23 @@ useDraggable(frames, framesList, {
     height: auto;
     max-height: 10rem;
     object-fit: contain;
+  }
+
+  .drag-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border-radius: 4px;
+    box-sizing: content-box;
+    margin: 0.1rem;
+    padding: 0.1rem;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    cursor: grab;
+
+    .frame:not(:hover) & {
+      display: none;
+    }
   }
 }
 
