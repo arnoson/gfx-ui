@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, toRaw, useTemplateRef } from 'vue'
 import { useDraggable } from 'vue-draggable-plus'
-import { vEditable } from '~/directives/editable'
-import { useEditor } from '~/stores/editor'
-import FrameCanvas from './FrameCanvas.vue'
-import type { Frame } from '~/frame'
-import { useProject } from '~/stores/project'
 import IconDrag from '~/assets/icons/icon-drag.svg'
+import { vEditable } from '~/directives/editable'
+import type { Frame } from '~/frame'
+import type { Instance } from '~/items/instance'
+import { useEditor } from '~/stores/editor'
+import { useProject } from '~/stores/project'
+import { mouseToSvg } from '~/utils/mouse'
+import FrameCanvas from './FrameCanvas.vue'
+import { useMagicKeys } from '@vueuse/core'
+import { getItemBounds } from '~/items/item'
+import { addPoints, subtractPoints } from '~/utils/point'
 
 const editor = useEditor()
 const project = useProject()
@@ -49,6 +54,69 @@ useDraggable(components, componentsList, {
   onEnd: () => (isDragging.value = false),
   handle: '.drag-handle',
 })
+
+const { ctrl: snapDisabled } = useMagicKeys()
+let currentComponent: Frame | null = null
+let draggingInstance: Instance | null = null
+let editorEl: HTMLElement | null = null
+let dragDelta = { x: 0, y: 0 }
+
+const startDragInstance = (e: MouseEvent, component: Frame) => {
+  if ((e.target as HTMLElement).closest('.drag-handle')) return
+  if (editor.activeFrame === component) return
+
+  currentComponent = component
+  dragDelta = {
+    x: Math.round(currentComponent.size.width / 2),
+    y: Math.round(currentComponent.size.height / 2),
+  }
+
+  editorEl = document.querySelector('.editor')
+  window.addEventListener('mousemove', dragInstance)
+  window.addEventListener('mouseup', endDragInstance, { once: true })
+}
+
+const dragInstance = (e: MouseEvent) => {
+  if (!currentComponent) return
+
+  const point = mouseToSvg(e, editorEl!.querySelector('svg')!, 'floor')
+  const position = subtractPoints(point, dragDelta)
+
+  if (!draggingInstance) {
+    draggingInstance ??= project.addItem({
+      type: 'instance',
+      componentId: currentComponent.id,
+      name: currentComponent.name,
+      position,
+    })!
+  }
+
+  if (snapDisabled.value) {
+    draggingInstance.position = position
+  } else {
+    const bounds = getItemBounds(draggingInstance)
+    const snapAmount = editor.snapBounds(bounds, [draggingInstance])
+    draggingInstance.position = addPoints(position, snapAmount)
+  }
+}
+
+const endDragInstance = (e: MouseEvent) => {
+  if (!editorEl?.contains(e.target as HTMLElement)) {
+    if (draggingInstance) project.removeItem(draggingInstance)
+  }
+  window.removeEventListener('mousemove', dragInstance)
+  currentComponent = null
+  draggingInstance = null
+  editor.resetSnapGuides()
+}
+
+const cancelDragInstance = () => {
+  if (draggingInstance) project.removeItem(draggingInstance)
+  window.removeEventListener('mousemove', dragInstance)
+  currentComponent = null
+  draggingInstance = null
+  editor.resetSnapGuides()
+}
 </script>
 
 <template>
@@ -83,7 +151,10 @@ useDraggable(components, componentsList, {
         :href="`#/frame/${component.id}`"
         :data-active="editor.activeFrame?.id === component.id"
         :data-id="component.id"
-        @keydown.delete="remove(component)"
+        draggable="false"
+        @mousedown="startDragInstance($event, component)"
+        @keydown.delete="!draggingInstance && remove(component)"
+        @keydown.escape="draggingInstance && cancelDragInstance()"
         @keydown.c.ctrl="copy(component)"
       >
         <FrameCanvas class="canvas" :frame="component" />

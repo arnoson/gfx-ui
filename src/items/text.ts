@@ -26,17 +26,21 @@ export interface Text {
 const getBit = (buffer: Uint8Array, byteIndex: number, bitIndex: number) =>
   (buffer[byteIndex] & (1 << bitIndex)) === 0 ? 0 : 1
 
-const draw = (ctx: CanvasRenderingContext2D, text: Text) => {
+const draw = (
+  ctx: CanvasRenderingContext2D,
+  text: Text,
+  offset = { x: 0, y: 0 },
+) => {
   const fonts = useFonts()
   const font = fonts.fonts.get(text.font)
   if (!font) return
 
-  let offsetX = text.position.x
-  let offsetY = text.position.y
+  let glyphX = text.position.x + offset.x
+  let glyphY = text.position.y + offset.y
   for (const char of text.content) {
     if (char === '\n') {
-      offsetX = text.position.x
-      offsetY += font.yAdvance
+      glyphX = text.position.x
+      glyphY += font.yAdvance
       continue
     }
 
@@ -52,14 +56,14 @@ const draw = (ctx: CanvasRenderingContext2D, text: Text) => {
         const bit = getBit(font.bytes, glyph.byteOffset + byteIndex, bitIndex)
 
         if (bit) {
-          const canvasX = offsetX + x + glyph.deltaX
-          const canvasY = offsetY + y + font.baseline + glyph.deltaY
+          const canvasX = x + glyphX + glyph.deltaX
+          const canvasY = y + glyphY + font.baseline + glyph.deltaY
           drawPixel(ctx, canvasX, canvasY, text.color)
         }
       }
     }
 
-    offsetX += glyph.xAdvance
+    glyphX += glyph.xAdvance
   }
 }
 

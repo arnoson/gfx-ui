@@ -16,5 +16,5 @@ export const mouseToSvg = (
     svgSpacePoint.x = round(svgSpacePoint.x)
     svgSpacePoint.y = round(svgSpacePoint.y)
   }
-  return svgSpacePoint
+  return { x: svgSpacePoint.x, y: svgSpacePoint.y }
 }
