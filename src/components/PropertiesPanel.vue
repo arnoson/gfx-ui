@@ -10,6 +10,7 @@ import SelectionProperties from './SelectionProperties.vue'
 import SwitchField from './SwitchField.vue'
 import TextProperties from './TextProperties.vue'
 import ViewCode from './ViewCode.vue'
+import InstanceProperties from './InstanceProperties.vue'
 
 const editor = useEditor()
 const item = computed(() => editor.focusedItem ?? undefined)
@@ -41,6 +42,7 @@ const source = computed(() => {
       <CircleProperties v-else-if="item.type === 'circle'" :item />
       <LineProperties v-else-if="item.type === 'line'" :item />
       <TextProperties v-else-if="item.type === 'text'" :item />
+      <InstanceProperties v-else-if="item.type === 'instance'" :item />
       <SelectionProperties
         v-else-if="item.type === 'group'"
         :items="item.children"

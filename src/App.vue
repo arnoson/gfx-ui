@@ -34,9 +34,6 @@ const activateFrame = () => {
   editor.activateFrame(+id)
 }
 
-useEventListener(window, 'hashchange', activateFrame)
-activateFrame()
-
 // project.load(testProject)
 
 if (import.meta.hot) {
@@ -89,6 +86,9 @@ project.addItem({
 //   font: 'miwos7pt',
 //   position: { x: 10, y: 10 },
 // })
+
+useEventListener(window, 'hashchange', activateFrame)
+activateFrame()
 </script>
 
 <template>

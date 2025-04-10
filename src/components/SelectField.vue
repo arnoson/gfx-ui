@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import { getInputId } from '~/utils/id'
 import { useSlots } from 'vue'
 
-type Option = { value: string; label: string }
+type Option = { value: T; label: string }
 type OptionGroup = { label: string; options: Option[] }
 
 defineProps<{
@@ -10,7 +10,7 @@ defineProps<{
   options: (Option | OptionGroup)[]
   allowEmpty?: boolean
 }>()
-const model = defineModel<string>({ required: true })
+const model = defineModel<T>({ required: true })
 const id = getInputId()
 const infoId = `info-${id}`
 
