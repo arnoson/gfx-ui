@@ -4,6 +4,7 @@ import { useEditor } from '~/stores/editor'
 import { useEventBus, useMagicKeys } from '@vueuse/core'
 import { clonePoint } from '~/utils/point'
 import { useProject } from '~/stores/project'
+import { useHistory } from '~/stores/history'
 
 // in `TextProperties` we wan't to autofocus the content. This event bus emits
 // when the mouseup event occurred after a text is added.
@@ -14,6 +15,7 @@ export const useText = defineTool(
   () => {
     const project = useProject()
     const editor = useEditor()
+    const history = useHistory()
     const { ctrl: snapDisabled } = useMagicKeys()
 
     const onMouseDown = (point: Point) => {
@@ -27,6 +29,7 @@ export const useText = defineTool(
         font: 'miwos7pt',
       })
       if (text) editor.focusItem(text)
+      if (text) history.saveState()
       editor.activateTool('select')
       editor.resetSnapGuides()
 

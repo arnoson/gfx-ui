@@ -6,17 +6,21 @@ import CheckboxField from './CheckboxField.vue'
 import ColorField from './ColorField.vue'
 import NumberField from './NumberField.vue'
 import PointField from './PointField.vue'
+import { useHistory } from '~/stores/history'
 
 const props = defineProps<{ item: Circle }>()
+const history = useHistory()
 
 const updateCenter = (point: Point) => {
   props.item.center = point
   props.item.bounds = getItemBounds(props.item)
+  history.saveState()
 }
 
 const updateRadius = (radius: number) => {
   props.item.radius = radius
   props.item.bounds = getItemBounds(props.item)
+  history.saveState()
 }
 </script>
 
@@ -33,6 +37,10 @@ const updateRadius = (radius: number) => {
       @update:model-value="updateRadius"
       label="Radius"
     />
-    <CheckboxField v-model="item.isFilled" label="Fill" />
+    <CheckboxField
+      v-model="item.isFilled"
+      @update:model-value="history.saveState()"
+      label="Fill"
+    />
   </div>
 </template>

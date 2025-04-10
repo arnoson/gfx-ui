@@ -8,24 +8,32 @@ import PointField from './PointField.vue'
 import SizeField from './SizeField.vue'
 import { getMovedBounds } from '~/utils/bounds'
 import { getItemBounds } from '~/items/item'
+import { useHistory } from '~/stores/history'
 
 const props = defineProps<{ item: Rect }>()
+const history = useHistory()
 
 const updatePosition = (point: Point) => {
   props.item.position = point
   props.item.bounds = getMovedBounds(props.item.bounds, point)
+  history.saveState()
 }
 
 const updateSize = (size: Size) => {
   props.item.size = size
   props.item.bounds = getItemBounds(props.item)
+  history.saveState()
 }
 </script>
 
 <template>
   <div class="flow">
     <h2>Rect Properties</h2>
-    <ColorField v-model="item.color" label="Color" />
+    <ColorField
+      v-model="item.color"
+      @update:model-value="history.saveState()"
+      label="Color"
+    />
     <PointField
       :model-value="item.position"
       @update:model-value="updatePosition"
@@ -36,7 +44,15 @@ const updateSize = (size: Size) => {
       @update:model-value="updateSize"
       label="Size"
     />
-    <NumberField v-model="item.radius" label="Radius" />
-    <CheckboxField v-model="item.isFilled" label="Fill" />
+    <NumberField
+      v-model="item.radius"
+      @update:model-value="history.saveState()"
+      label="Radius"
+    />
+    <CheckboxField
+      v-model="item.isFilled"
+      @update:model-value="history.saveState()"
+      label="Fill"
+    />
   </div>
 </template>

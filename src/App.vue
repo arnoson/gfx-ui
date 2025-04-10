@@ -16,9 +16,11 @@ import { useFonts } from './stores/fonts'
 import { useProject } from './stores/project'
 import miwos7pt from '~/fonts/miwos7pt.h?raw'
 import ComponentsPanel from './components/ComponentsPanel.vue'
+import { useHistory } from './stores/history'
 
 const editor = useEditor()
 const project = useProject()
+const history = useHistory()
 const fonts = useFonts()
 
 fonts.add(miwos7pt)
@@ -61,6 +63,8 @@ project.addItem({
   position: { x: 5, y: 5 },
   componentId: component.id,
 })
+
+history.saveState()
 
 // editor.addItem({
 //   type: 'rect',

@@ -84,6 +84,11 @@ export const useEditor = defineStore('editor', () => {
     selectedItems.value.add(item)
   }
 
+  const blur = () => {
+    focusedItem.value = null
+    selectedItems.value.clear()
+  }
+
   // Selection
   const selectionBounds = ref<Bounds | null>(null)
   const selectedItems = ref(new Set<Item>())
@@ -177,6 +182,7 @@ export const useEditor = defineStore('editor', () => {
     copiedItems,
     focusedItem,
     focusItem,
+    blur,
 
     selectionBounds,
     selectedItems,

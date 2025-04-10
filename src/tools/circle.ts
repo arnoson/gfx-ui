@@ -6,12 +6,14 @@ import { defineTool } from './tool'
 import { useMagicKeys } from '@vueuse/core'
 import { clonePoint } from '~/utils/point'
 import { useProject } from '~/stores/project'
+import { useHistory } from '~/stores/history'
 
 export const useCircle = defineTool(
   'circle',
   () => {
     const editor = useEditor()
     const project = useProject()
+    const history = useHistory()
     const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'drag' | 'idle' = 'idle'
 
@@ -63,6 +65,7 @@ export const useCircle = defineTool(
     const endDrag = () => {
       editor.activateTool('select')
       editor.resetSnapGuides()
+      if (item) history.saveState()
       mode = 'idle'
     }
 

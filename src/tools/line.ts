@@ -5,12 +5,14 @@ import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
 import { useProject } from '~/stores/project'
+import { useHistory } from '~/stores/history'
 
 export const useLine = defineTool(
   'line',
   () => {
     const editor = useEditor()
     const project = useProject()
+    const history = useHistory()
     const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'drag' | 'idle' = 'idle'
 
@@ -47,6 +49,7 @@ export const useLine = defineTool(
     const endDrag = () => {
       editor.resetSnapGuides()
       editor.activateTool('select')
+      if (item) history.saveState()
       mode = 'idle'
     }
 

@@ -9,9 +9,11 @@ import FrameCanvas from './FrameCanvas.vue'
 import ItemBounds from './ItemBounds.vue'
 import ItemControls from './ItemControls.vue'
 import ItemHandle from './ItemHandle.vue'
+import { useHistory } from '~/stores/history'
 
 const props = defineProps<{ frame: Frame }>()
 const editor = useEditor()
+const history = useHistory()
 const overlay = useTemplateRef('overlay')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
@@ -66,6 +68,15 @@ useEventListener('keydown', (e) => {
       editor.activateTool('select')
       editor.focusedItem = null
     }
+  }
+
+  if (e.key === 'z' && e.ctrlKey) {
+    e.preventDefault()
+    history.undo()
+  }
+  if (e.key === 'y' && e.ctrlKey) {
+    e.preventDefault()
+    history.redo()
   }
 })
 

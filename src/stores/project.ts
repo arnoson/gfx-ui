@@ -14,12 +14,14 @@ import { createCodeContext } from '~/utils/codeContext'
 import { capitalizeFirstLetter } from '~/utils/text'
 import { useEditor } from './editor'
 import { useFonts } from './fonts'
+import { useHistory } from './history'
 
 type Id = number
 let id = 0
 const createId = () => id++
 
 export const useProject = defineStore('project', () => {
+  const history = useHistory()
   const name = ref('Untitled')
 
   const codeSettings = ref<Omit<CodeContext, 'getUniqueName'>>({
@@ -42,12 +44,15 @@ export const useProject = defineStore('project', () => {
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
     })
-    return frames.value.at(-1)!
+    const frame = frames.value.at(-1)!
+    history.add(frame)
+    return frame
   }
 
   const removeFrame = (id: Id) => {
     const index = frames.value.findIndex((v) => v.id === id)
     frames.value.splice(index, 1)
+    history.remove(id)
     if (editor.activeFrame?.id === id) editor.activeFrame = undefined
   }
 
@@ -140,6 +145,7 @@ export const useProject = defineStore('project', () => {
 
   const load = (code: string) => {
     clear()
+    history.clear()
 
     let pos = 0
     let ignoredSections: [start: number, end: number][] = []

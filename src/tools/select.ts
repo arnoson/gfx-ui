@@ -10,12 +10,15 @@ import {
 } from '~/utils/bounds'
 import { defineTool } from './tool'
 import { useProject } from '~/stores/project'
+import { useHistory } from '~/stores/history'
+import { addPoints, pointsAreEqual, subtractPoints } from '~/utils/point'
 
 export const useSelect = defineTool(
   'select',
   () => {
     const project = useProject()
     const editor = useEditor()
+    const history = useHistory()
 
     const { ctrl: snapDisabled } = useMagicKeys()
     let mode: 'move' | 'select' | 'idle' = 'idle'
@@ -111,16 +114,15 @@ export const useSelect = defineTool(
           item.bounds = getTranslatedBounds(item.bounds, delta)
         }
       }
-      lastPoint = {
-        x: point.x + snapAmount.x,
-        y: point.y + snapAmount.y,
-      }
+      lastPoint = addPoints(point, snapAmount)
     }
 
-    const endMove = () => {
-      mode = 'idle'
+    const endMove = (point: Point) => {
       editor.isMoving = false
       editor.resetSnapGuides()
+      const hasMoved = !pointsAreEqual(startPoint, point)
+      if (hasMoved) history.saveState()
+      mode = 'idle'
     }
 
     const remove = () => {
@@ -188,9 +190,9 @@ export const useSelect = defineTool(
       else if (mode === 'move') move(point)
     }
 
-    const onMouseUp = () => {
+    const onMouseUp = (point: Point) => {
       if (mode === 'select') endSelect()
-      else if (mode === 'move') endMove()
+      else if (mode === 'move') endMove(point)
     }
 
     const onKeyDown = (e: KeyboardEvent) => {

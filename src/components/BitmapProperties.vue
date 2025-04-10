@@ -4,8 +4,10 @@ import { getMovedBounds } from '~/utils/bounds'
 import ColorField from './ColorField.vue'
 import PointField from './PointField.vue'
 import { bitmap, type Bitmap } from '~/items/bitmap'
+import { useHistory } from '~/stores/history'
 
 const props = defineProps<{ item: Bitmap }>()
+const history = useHistory()
 
 const updatePosition = (point: Point) => {
   const delta = {
@@ -14,6 +16,7 @@ const updatePosition = (point: Point) => {
   }
   bitmap.translate(props.item, delta)
   props.item.bounds = getMovedBounds(props.item.bounds, point)
+  history.saveState()
 }
 </script>
 

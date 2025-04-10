@@ -6,9 +6,11 @@ import { getItemBounds } from '~/items/item'
 import { computed, nextTick, onMounted, useTemplateRef } from 'vue'
 import { afterTextAdded } from '~/tools/text'
 import { useFonts } from '~/stores/fonts'
+import { useHistory } from '~/stores/history'
 
 const props = defineProps<{ item: Text }>()
 const fonts = useFonts()
+const history = useHistory()
 
 const fontOptions = computed(() =>
   [...fonts.fonts.values()].map((v) => ({ value: v.name, label: v.name })),
@@ -18,11 +20,13 @@ const updateContent = (e: Event) => {
   const value = (e.target as HTMLTextAreaElement).value
   props.item.content = value
   props.item.bounds = getItemBounds(props.item)
+  history.saveState()
 }
 
 const updateFont = (value: string) => {
   props.item.font = value
   props.item.bounds = getItemBounds(props.item)
+  history.saveState()
 }
 
 const content = useTemplateRef('content')
@@ -36,7 +40,11 @@ afterTextAdded.on(() => {
 <template>
   <div class="flow">
     <h2>Text Properties</h2>
-    <ColorField v-model="item.color" label="Color" />
+    <ColorField
+      v-model="item.color"
+      @update:model-value="history.saveState()"
+      label="Color"
+    />
     <SelectField
       :model-value="item.font"
       @update:model-value="updateFont"

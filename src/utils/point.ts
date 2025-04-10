@@ -39,3 +39,5 @@ export const clonePoint = (point: Point) => ({
   x: point.x,
   y: point.y,
 })
+
+export const pointsAreEqual = (a: Point, b: Point) => a.x === b.x && a.y === b.y

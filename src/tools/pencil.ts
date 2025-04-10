@@ -1,19 +1,22 @@
-import { computed } from 'vue'
+import { computed, toRaw } from 'vue'
 import { getItemBounds } from '~/items/item'
 import { getLinePixels } from '~/items/line'
 import { useEditor } from '~/stores/editor'
-import type { Point } from '~/types'
+import type { Pixels, Point } from '~/types'
 import { defineTool } from './tool'
 import { useProject } from '~/stores/project'
+import { useHistory } from '~/stores/history'
 
 export const usePencil = defineTool(
   'pencil',
   () => {
     const editor = useEditor()
     const project = useProject()
+    const history = useHistory()
 
     let isDrawing = false
     let lastPoint: Point | null = null
+    let pixelsStart: Pixels | null = null
 
     const item = computed(() => {
       if (!editor.focusedItem || editor.focusedItem.type !== 'bitmap') return
@@ -33,6 +36,7 @@ export const usePencil = defineTool(
       if (!item.value) createItem()
       isDrawing = true
       lastPoint = point
+      pixelsStart = structuredClone(toRaw(item.value?.pixels)) ?? null
     }
 
     const onMouseMove = (point: Point) => {
@@ -46,7 +50,15 @@ export const usePencil = defineTool(
       lastPoint = point
     }
 
-    const onMouseUp = () => (isDrawing = false)
+    const onMouseUp = () => {
+      if (item.value && editor.activeFrame) {
+        const pixels = item.value.pixels
+        const hasDrawn = pixelsStart && pixelsStart.size !== pixels.size
+        if (hasDrawn) history.saveState()
+      }
+      pixelsStart = null
+      isDrawing = false
+    }
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },

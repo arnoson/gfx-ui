@@ -3,12 +3,14 @@ import { useMagicKeys } from '@vueuse/core'
 import { getItemBounds } from '~/items/item'
 import { type Rect } from '~/items/rect'
 import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
 import { getOppositeCorner } from '~/utils/bounds'
 import { mouseToSvg } from '~/utils/mouse'
 import { floorPoint } from '~/utils/point'
 
 const props = defineProps<{ item: Rect }>()
 const editor = useEditor()
+const history = useHistory()
 const { ctrl: snapDisabled } = useMagicKeys()
 
 let dragEl: SVGGraphicsElement | null = null
@@ -53,6 +55,7 @@ const endDrag = () => {
   window.removeEventListener('mousemove', drag)
   window.removeEventListener('mouseup', endDrag)
   editor.resetSnapGuides()
+  history.saveState()
 }
 </script>
 
