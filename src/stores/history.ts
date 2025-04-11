@@ -3,6 +3,7 @@ import { ref, toRaw } from 'vue'
 import type { Frame } from '~/frame'
 import { useEditor } from './editor'
 import { useDebounceFn } from '@vueuse/core'
+import { stringify } from 'superjson'
 
 type Id = Frame['id']
 
@@ -72,7 +73,9 @@ export const useHistory = defineStore('history', () => {
       history.stack.splice(history.index + 1)
     }
 
-    history.stack.push(frameToState(frame))
+    const state = frameToState(frame)
+    history.stack.push(state)
+    localStorage.setItem(`gfxui:frame-${frame.id}`, stringify(state))
 
     if (history.stack.length > maxStackSize) history.stack.shift()
     history.index = history.stack.length - 1

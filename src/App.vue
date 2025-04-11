@@ -2,25 +2,20 @@
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
-import testProject from '~/assets/test-project.h?raw'
+import miwos7pt from '~/fonts/miwos7pt.h?raw'
+import ComponentsPanel from './components/ComponentsPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
-import FrameProperties from './components/FrameProperties.vue'
 import FramesPanel from './components/FramesPanel.vue'
-import PropertiesPanel from './components/PropertiesPanel.vue'
 import LayersTree from './components/LayersTree.vue'
 import ProjectProperties from './components/ProjectProperties.vue'
-import SelectionProperties from './components/SelectionProperties.vue'
+import PropertiesPanel from './components/PropertiesPanel.vue'
 import ToolBar from './components/ToolBar.vue'
 import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
 import { useProject } from './stores/project'
-import miwos7pt from '~/fonts/miwos7pt.h?raw'
-import ComponentsPanel from './components/ComponentsPanel.vue'
-import { useHistory } from './stores/history'
 
 const editor = useEditor()
 const project = useProject()
-const history = useHistory()
 const fonts = useFonts()
 
 fonts.add(miwos7pt)
@@ -37,10 +32,12 @@ const activateFrame = () => {
 }
 
 if (import.meta.hot) {
-  project.clear()
+  project.clear(false)
 }
 
-project.load(testProject)
+// project.load(testProject)
+
+project.restore()
 
 useEventListener(window, 'hashchange', activateFrame)
 activateFrame()

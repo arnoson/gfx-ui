@@ -12,9 +12,11 @@ import FrameCanvas from './FrameCanvas.vue'
 import { useMagicKeys } from '@vueuse/core'
 import { getItemBounds } from '~/items/item'
 import { addPoints, subtractPoints } from '~/utils/point'
+import { useHistory } from '~/stores/history'
 
 const editor = useEditor()
 const project = useProject()
+const history = useHistory()
 const components = useTemplateRef('components')
 
 const add = async () => {
@@ -101,9 +103,10 @@ const dragInstance = (e: MouseEvent) => {
 }
 
 const endDragInstance = (e: MouseEvent) => {
-  if (!editorEl?.contains(e.target as HTMLElement)) {
-    if (draggingInstance) project.removeItem(draggingInstance)
-  }
+  const isInsideEditor = editorEl?.contains(e.target as HTMLElement)
+  if (isInsideEditor) history.saveState()
+  else if (draggingInstance) project.removeItem(draggingInstance)
+
   window.removeEventListener('mousemove', dragInstance)
   currentComponent = null
   draggingInstance = null

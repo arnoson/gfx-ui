@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { toCode as frameToCode, type Frame } from '~/frame'
 import type { Group } from '~/items/group'
 import {
@@ -15,7 +15,8 @@ import { capitalizeFirstLetter } from '~/utils/text'
 import { useEditor } from './editor'
 import { useFonts } from './fonts'
 import { useHistory } from './history'
-import type { Instance } from '~/items/instance'
+import { useStorage } from '@vueuse/core'
+import { parse } from 'superjson'
 
 type Id = number
 let id = 0
@@ -54,6 +55,7 @@ export const useProject = defineStore('project', () => {
     const index = frames.value.findIndex((v) => v.id === id)
     frames.value.splice(index, 1)
     history.remove(id)
+    localStorage.removeItem(`frame-${id}`)
     if (editor.activeFrame?.id === id) editor.activeFrame = undefined
   }
 
@@ -73,12 +75,14 @@ export const useProject = defineStore('project', () => {
       scale: data.scale ?? 5,
     })
     const component = components.value.at(-1)!
+    history.add(component)
     return component
   }
 
   const removeComponent = (id: Id) => {
     const index = components.value.findIndex((v) => v.id === id)
     components.value.splice(index, 1)
+    localStorage.removeItem(`gfxui:frame-${id}`)
   }
 
   // Frames & Components
@@ -86,6 +90,12 @@ export const useProject = defineStore('project', () => {
     ...frames.value,
     ...components.value,
   ])
+
+  const storedFrameIds = useStorage<number[]>('gfxui:frame-ids', [])
+  watch(
+    framesAndComponents,
+    () => (storedFrameIds.value = framesAndComponents.value.map((v) => v.id)),
+  )
 
   // Items
   const items = computed(() => editor.activeFrame?.children ?? [])
@@ -275,7 +285,22 @@ export const useProject = defineStore('project', () => {
     for (const frame of framesAndComponents.value) history.saveState(frame)
   }
 
-  const clear = () => {
+  const restore = () => {
+    for (const id of storedFrameIds.value) {
+      const serialized = localStorage.getItem(`gfxui:frame-${id}`)
+      if (!serialized) continue
+      const frame = parse<Frame>(serialized)
+      if (frame.isComponent) addComponent(frame)
+      else addFrame(frame)
+    }
+  }
+
+  const clear = (clearStorage = true) => {
+    if (clearStorage) {
+      for (const id of storedFrameIds.value) {
+        localStorage.removeItem(`gfxui:frame-${id}`)
+      }
+    }
     frames.value = []
     components.value = []
     editor.activeFrame = undefined
@@ -301,6 +326,7 @@ export const useProject = defineStore('project', () => {
 
     load,
     save,
+    restore,
     clear,
   }
 })
