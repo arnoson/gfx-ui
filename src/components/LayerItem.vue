@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import type { Item } from '~/items/item'
-import { useEditor } from '~/stores/editor'
-import { vEditable } from '~/directives/editable'
-import IconVisible from '~/assets/icons/icon-visible.svg'
+import { computed } from 'vue'
 import IconInvisible from '~/assets/icons/icon-invisible.svg'
 import IconLocked from '~/assets/icons/icon-locked.svg'
 import IconUnlocked from '~/assets/icons/icon-unlocked.svg'
+import IconVisible from '~/assets/icons/icon-visible.svg'
+import type { Item } from '~/items/item'
+import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
+import InlineEdit from './InlineEdit.vue'
 import LayerIcon from './LayerIcon.vue'
-import { computed } from 'vue'
 
 const props = defineProps<{ item: Item }>()
 const editor = useEditor()
-
-const rename = (e: Event) => {
-  props.item.name = (e.target as HTMLElement).textContent ?? ''
-}
+const history = useHistory()
 
 const toggleHidden = () => {
   props.item.isHidden = !props.item.isHidden
@@ -33,7 +31,12 @@ const hasEnabledActions = computed(
   <div class="layer">
     <button class="name" @mousedown="editor.focusItem(item)">
       <LayerIcon :item="item" class="icon" />
-      <div v-editable @blur="rename" class="name-name">{{ item.name }}</div>
+      <div class="name-name">
+        <InlineEdit
+          v-model="item.name"
+          @update:model-value="history.saveState()"
+        />
+      </div>
     </button>
     <div class="actions" :data-always-show="hasEnabledActions">
       <button
@@ -85,6 +88,12 @@ const hasEnabledActions = computed(
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    /* Make sure the inline edit input isn't cropped by overflow hidden. */
+    padding-inline: 4px;
+    input {
+      width: 100%;
+    }
   }
 }
 
@@ -93,6 +102,7 @@ const hasEnabledActions = computed(
   gap: 0.25rem;
   padding-right: 0.25rem;
 
+  .layer:focus-within &,
   .layer:not(:hover) &[data-always-show='false'] {
     display: none;
   }

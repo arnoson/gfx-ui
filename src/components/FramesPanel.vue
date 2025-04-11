@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, toRaw, useTemplateRef } from 'vue'
 import { useDraggable } from 'vue-draggable-plus'
-import { vEditable } from '~/directives/editable'
-import { useEditor } from '~/stores/editor'
-import FrameCanvas from './FrameCanvas.vue'
-import type { Frame } from '~/frame'
-import { useProject } from '~/stores/project'
 import IconDrag from '~/assets/icons/icon-drag.svg'
+import type { Frame } from '~/frame'
+import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
+import FrameCanvas from './FrameCanvas.vue'
+import InlineEdit from './InlineEdit.vue'
 
 const editor = useEditor()
 const project = useProject()
+const history = useHistory()
 const frames = useTemplateRef('frames')
 
 const add = async () => {
@@ -30,10 +32,6 @@ const paste = () => {
   delete clone.id
   clone.name = `${copiedFrame.name} Copy`
   project.addFrame(clone)
-}
-
-const rename = (frame: Frame, e: Event) => {
-  frame.name = (e.target as HTMLElement).textContent ?? ''
 }
 
 const framesList = computed({
@@ -86,13 +84,11 @@ useDraggable(frames, framesList, {
       >
         <FrameCanvas class="canvas" :frame="frame" />
         <IconDrag class="drag-handle" />
-        <header
-          class="frame-name"
-          v-editable
-          @blur="rename(frame, $event)"
-          @keydown.delete.stop
-        >
-          {{ frame.name }}
+        <header class="frame-name">
+          <InlineEdit
+            v-model="frame.name"
+            @update:model-value="history.saveState(frame)"
+          />
         </header>
       </a>
     </div>

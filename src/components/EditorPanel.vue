@@ -18,6 +18,11 @@ const overlay = useTemplateRef('overlay')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
 
+const shouldIgnoreKeydown = () =>
+  document.activeElement?.tagName === 'INPUT' ||
+  document.activeElement?.tagName === 'TEXTAREA' ||
+  document.activeElement?.hasAttribute('contenteditable')
+
 const size = computed({
   get: () => props.frame.size,
   set: (value) => (props.frame.size = value),
@@ -43,19 +48,12 @@ useEventListener('mouseup', (e) => {
   onMouseUp?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
 })
 useEventListener('keydown', (e) => {
-  if (shouldIgnoreKeydown.value) return
+  if (shouldIgnoreKeydown()) return
   editor.activeTool.onKeyDown?.(e)
 })
 
-const activeElement = useActiveElement()
-const shouldIgnoreKeydown = computed(
-  () =>
-    activeElement.value?.tagName === 'INPUT' ||
-    activeElement.value?.tagName === 'TEXTAREA' ||
-    activeElement.value?.hasAttribute('contenteditable'),
-)
 useEventListener('keydown', (e) => {
-  if (shouldIgnoreKeydown.value) return
+  if (shouldIgnoreKeydown()) return
   const target = e.target as HTMLElement
 
   if (e.code === 'Space' && target === document.body) e.preventDefault()

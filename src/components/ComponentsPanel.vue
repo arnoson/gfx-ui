@@ -1,18 +1,18 @@
 <script setup lang="ts">
+import { useMagicKeys } from '@vueuse/core'
 import { computed, nextTick, ref, toRaw, useTemplateRef } from 'vue'
 import { useDraggable } from 'vue-draggable-plus'
 import IconDrag from '~/assets/icons/icon-drag.svg'
-import { vEditable } from '~/directives/editable'
 import type { Frame } from '~/frame'
 import type { Instance } from '~/items/instance'
+import { getItemBounds } from '~/items/item'
 import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
 import { useProject } from '~/stores/project'
 import { mouseToSvg } from '~/utils/mouse'
-import FrameCanvas from './FrameCanvas.vue'
-import { useMagicKeys } from '@vueuse/core'
-import { getItemBounds } from '~/items/item'
 import { addPoints, subtractPoints } from '~/utils/point'
-import { useHistory } from '~/stores/history'
+import FrameCanvas from './FrameCanvas.vue'
+import InlineEdit from './InlineEdit.vue'
 
 const editor = useEditor()
 const project = useProject()
@@ -39,10 +39,6 @@ const paste = () => {
   delete clone.id
   clone.name = `${copiedComponent.name} Copy`
   project.addFrame(clone)
-}
-
-const rename = (component: Frame, e: Event) => {
-  component.name = (e.target as HTMLElement).textContent ?? ''
 }
 
 const componentsList = computed({
@@ -162,13 +158,11 @@ const cancelDragInstance = () => {
       >
         <FrameCanvas class="canvas" :frame="component" />
         <IconDrag class="drag-handle" />
-        <header
-          class="component-name"
-          v-editable
-          @blur="rename(component, $event)"
-          @keydown.delete.stop
-        >
-          {{ component.name }}
+        <header class="component-name">
+          <InlineEdit
+            v-model="component.name"
+            @update:model-value="history.saveState(component)"
+          />
         </header>
       </a>
     </div>

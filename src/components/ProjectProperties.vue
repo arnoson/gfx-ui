@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import { vEditable } from '~/directives/editable'
 import { useProject } from '~/stores/project'
+import InlineEdit from './InlineEdit.vue'
 import ModalDialog from './ModalDialog.vue'
 import ProjectUpload from './ProjectUpload.vue'
 
@@ -12,10 +12,6 @@ const clear = async () => {
   const result = await clearDialog.value?.prompt()
   if (result === 'submit') project.clear()
 }
-
-const rename = (e: Event) => {
-  project.name = (e.target as HTMLElement).textContent ?? ''
-}
 </script>
 
 <template>
@@ -23,7 +19,7 @@ const rename = (e: Event) => {
     <ProjectUpload />
     <button @click="project.save()">Save</button>
     <button @click="clear()">Clear</button>
-    <h2 v-editable @blur="rename">{{ project.name }}</h2>
+    <h2><InlineEdit v-model="project.name" /></h2>
   </div>
   <ModalDialog ref="clearDialog" v-slot="{ close }" style="margin: auto">
     <form method="dialog" class="flow">
