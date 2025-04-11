@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { toCode as frameToCode, type Frame } from '~/frame'
 import type { Group } from '~/items/group'
 import {
@@ -7,9 +7,9 @@ import {
   itemFromCode,
   type Item,
   type ItemByType,
-  type ItemData,
+  type ItemType,
 } from '~/items/item'
-import type { CodeContext, Size } from '~/types'
+import type { CodeContext, Optional, Size } from '~/types'
 import { createCodeContext } from '~/utils/codeContext'
 import { capitalizeFirstLetter } from '~/utils/text'
 import { useEditor } from './editor'
@@ -34,8 +34,8 @@ export const useProject = defineStore('project', () => {
 
   const addFrame = (data: Partial<Frame>): Frame => {
     const id = createId()
-    frames.value.push({
-      type: 'frame',
+    const frame = reactive({
+      type: 'frame' as const,
       id,
       isComponent: false,
       children: [],
@@ -44,7 +44,7 @@ export const useProject = defineStore('project', () => {
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
     })
-    const frame = frames.value.at(-1)!
+    frames.value.push(frame)
     history.add(frame)
     return frame
   }
@@ -61,8 +61,8 @@ export const useProject = defineStore('project', () => {
 
   const addComponent = (data: Partial<Frame>): Frame => {
     const id = createId()
-    components.value.push({
-      type: 'frame',
+    const component = reactive({
+      type: 'frame' as const,
       id,
       isComponent: true,
       children: [],
@@ -71,7 +71,8 @@ export const useProject = defineStore('project', () => {
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
     })
-    return components.value.at(-1)!
+    components.value.push(component)
+    return component
   }
 
   const removeComponent = (id: Id) => {
@@ -82,29 +83,33 @@ export const useProject = defineStore('project', () => {
   // Items
   const items = computed(() => editor.activeFrame?.children ?? [])
 
+  type OptionalProps = 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'
+  type ItemData = {
+    [K in ItemType]: Optional<ItemByType<K>, OptionalProps>
+  }[ItemType]
+
   const addItem = <T extends ItemData, R = ItemByType<T['type']>>(
     data: T,
   ): R | undefined => {
     if (!editor.activeFrame) return
 
     const id = createId()
-    const bounds =
-      data.type !== 'group' && data.type !== 'instance'
-        ? getItemBounds(data)
-        : null
     const name = capitalizeFirstLetter(data.type)
-    const item = {
+
+    const itemWithoutBounds: Omit<Item, 'bounds'> = {
+      id,
+      name,
       isLocked: false,
       isHidden: false,
-      name,
       ...data,
-      bounds,
-      id,
-    } as R
-    editor.activeFrame.children.unshift(item as Item)
-    // Pushing the item makes it reactive, so in order return the reactive item
-    // we have to retrieve it from children.
-    return editor.activeFrame.children[0] as R
+    }
+
+    const hasCachedBounds = !['group', 'instance'].includes(data.type)
+    const bounds = hasCachedBounds ? getItemBounds(itemWithoutBounds) : null
+    const item = reactive({ ...itemWithoutBounds, bounds }) as Item
+    editor.activeFrame.children.unshift(item)
+
+    return item as R
   }
 
   const removeItem = (item: Item, frame = editor.activeFrame) => {

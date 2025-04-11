@@ -1,5 +1,7 @@
 import type { Item } from './items/item'
 
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+
 export type Point = {
   x: number
   y: number

@@ -9,25 +9,6 @@ import { instance, type Instance } from './instance'
 
 const items = { bitmap, circle, group, line, rect, text, instance }
 
-export type Item = Rect | Line | Circle | Bitmap | Text | Instance | Group
-export type ItemData =
-  | Omit<Rect, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
-  | Omit<Line, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
-  | Omit<Circle, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
-  | Omit<Bitmap, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
-  | Omit<Text, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
-  | Omit<Instance, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
-  | Omit<Group, 'id' | 'name' | 'bounds' | 'isLocked' | 'isHidden'>
-
-export type ItemType =
-  | 'line'
-  | 'rect'
-  | 'circle'
-  | 'bitmap'
-  | 'text'
-  | 'instance'
-  | 'group'
-
 export const itemTypes = [
   'line',
   'rect',
@@ -38,21 +19,17 @@ export const itemTypes = [
   'group',
 ] as const
 
-export type ItemByType<T extends ItemType> = T extends 'line'
-  ? Line
-  : T extends 'rect'
-    ? Rect
-    : T extends 'circle'
-      ? Circle
-      : T extends 'bitmap'
-        ? Bitmap
-        : T extends 'text'
-          ? Text
-          : T extends 'instance'
-            ? Instance
-            : T extends 'group'
-              ? Group
-              : never
+export type Item = Rect | Line | Circle | Bitmap | Text | Instance | Group
+
+export type ItemType = Item['type']
+
+type ItemTypeMap = {
+  [K in ItemType]: Extract<Item, { type: K }>
+}
+
+export type ItemByType<T extends ItemType> = T extends ItemType
+  ? ItemTypeMap[T]
+  : never
 
 export type ParsedItem<T = Item> = Omit<T, 'id' | 'bounds' | 'name'> & {
   name?: string
@@ -105,7 +82,7 @@ export const translateItem = (item: Item, delta: Point) =>
 export const moveItem = (item: Item, position: Point) =>
   items[item.type].move(item as any, position)
 
-export const getItemBounds = (item: ItemData): Bounds =>
+export const getItemBounds = (item: Omit<Item, 'bounds'>): Bounds =>
   items[item.type].getBounds(item as any)
 
 export const itemToCode = (item: Item, ctx: CodeContext): string =>
