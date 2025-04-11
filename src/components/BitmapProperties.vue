@@ -16,7 +16,7 @@ const updatePosition = (point: Point) => {
   }
   bitmap.translate(props.item, delta)
   props.item.bounds = getMovedBounds(props.item.bounds, point)
-  history.saveState()
+  history.saveStateDebounced()
 }
 </script>
 

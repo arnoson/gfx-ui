@@ -138,7 +138,7 @@ export const useSelect = defineTool(
       for (const item of editor.selectedItems) project.removeItem(item)
       const group = project.addItem({
         type: 'group',
-        children: [...editor.selectedItems],
+        children: [...toRaw(editor.selectedItems)],
       })
       if (group) editor.focusItem(group)
     }

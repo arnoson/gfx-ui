@@ -14,13 +14,13 @@ const history = useHistory()
 const updateCenter = (point: Point) => {
   props.item.center = point
   props.item.bounds = getItemBounds(props.item)
-  history.saveState()
+  history.saveStateDebounced()
 }
 
 const updateRadius = (radius: number) => {
   props.item.radius = radius
   props.item.bounds = getItemBounds(props.item)
-  history.saveState()
+  history.saveStateDebounced()
 }
 </script>
 
@@ -39,7 +39,7 @@ const updateRadius = (radius: number) => {
     />
     <CheckboxField
       v-model="item.isFilled"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       label="Fill"
     />
   </div>

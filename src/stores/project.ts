@@ -15,6 +15,7 @@ import { capitalizeFirstLetter } from '~/utils/text'
 import { useEditor } from './editor'
 import { useFonts } from './fonts'
 import { useHistory } from './history'
+import type { Instance } from '~/items/instance'
 
 type Id = number
 let id = 0
@@ -34,7 +35,7 @@ export const useProject = defineStore('project', () => {
 
   const addFrame = (data: Partial<Frame>): Frame => {
     const id = createId()
-    const frame = reactive({
+    frames.value.push({
       type: 'frame' as const,
       id,
       isComponent: false,
@@ -44,7 +45,7 @@ export const useProject = defineStore('project', () => {
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
     })
-    frames.value.push(frame)
+    const frame = frames.value.at(-1)!
     history.add(frame)
     return frame
   }
@@ -61,7 +62,7 @@ export const useProject = defineStore('project', () => {
 
   const addComponent = (data: Partial<Frame>): Frame => {
     const id = createId()
-    const component = reactive({
+    components.value.push({
       type: 'frame' as const,
       id,
       isComponent: true,
@@ -71,7 +72,7 @@ export const useProject = defineStore('project', () => {
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
     })
-    components.value.push(component)
+    const component = components.value.at(-1)!
     return component
   }
 
@@ -79,6 +80,12 @@ export const useProject = defineStore('project', () => {
     const index = components.value.findIndex((v) => v.id === id)
     components.value.splice(index, 1)
   }
+
+  // Frames & Components
+  const framesAndComponents = computed(() => [
+    ...frames.value,
+    ...components.value,
+  ])
 
   // Items
   const items = computed(() => editor.activeFrame?.children ?? [])
@@ -106,10 +113,10 @@ export const useProject = defineStore('project', () => {
 
     const hasCachedBounds = !['group', 'instance'].includes(data.type)
     const bounds = hasCachedBounds ? getItemBounds(itemWithoutBounds) : null
-    const item = reactive({ ...itemWithoutBounds, bounds }) as Item
+    const item = { ...itemWithoutBounds, bounds } as Item
     editor.activeFrame.children.unshift(item)
 
-    return item as R
+    return editor.activeFrame.children[0] as R
   }
 
   const removeItem = (item: Item, frame = editor.activeFrame) => {
@@ -148,6 +155,25 @@ export const useProject = defineStore('project', () => {
     return { size }
   }
 
+  const resolveInstances = (frame: Frame) => {
+    const queue = [...frame.children]
+    while (queue.length > 0) {
+      const item = queue.shift()!
+
+      if (item.type === 'instance' && item.componentName) {
+        const component = components.value.find(
+          (v) => v.name === item.componentName,
+        )
+        if (component) {
+          item.componentId = component.id
+          delete item.componentName
+        }
+      }
+
+      if (item.type === 'group') queue.push(...item.children)
+    }
+  }
+
   const load = (code: string) => {
     clear()
     history.clear()
@@ -162,6 +188,7 @@ export const useProject = defineStore('project', () => {
     while (pos < code.length) {
       const input = code.slice(pos)
 
+      // Fonts
       const fontMatch = input.match(
         /^\/\/ font-start(?<fontCode>[\s\S]+?)\/\/ font-end/,
       )
@@ -171,9 +198,10 @@ export const useProject = defineStore('project', () => {
         continue
       }
 
+      // Frames/components
       if (!frame) {
         const frameMatch = input.match(
-          /^drawFrame\w+\(\) \{( \/\/ (?<name>[\w ]+) \((?<settings>.+)\))?/,
+          /^void drawFrame\w+\(\) \{( \/\/ (?<name>[\w ]+) \((?<settings>.+)\))?/,
         )
         if (frameMatch) {
           const { name, settings } = frameMatch.groups!
@@ -181,12 +209,26 @@ export const useProject = defineStore('project', () => {
           frame = addFrame({ name, size })
           if (frame) editor.activateFrame(frame.id)
           pos += frameMatch[0].length
-        } else {
-          pos += 1
+          continue
         }
+
+        const componentMatch = input.match(
+          /^void drawComponent\w+\(\) \{( \/\/ (?<name>[\w ]+) \((?<settings>.+)\))?/,
+        )
+        if (componentMatch) {
+          const { name, settings } = componentMatch.groups!
+          const { size } = parseFrameSettings(settings)
+          frame = addComponent({ name, size })
+          if (frame) editor.activateFrame(frame.id)
+          pos += componentMatch[0].length
+          continue
+        }
+
+        pos += 1
         continue
       }
 
+      // Items
       const itemMatch = itemFromCode(input)
       if (itemMatch) {
         if (ignoredStart !== null) {
@@ -195,6 +237,7 @@ export const useProject = defineStore('project', () => {
         }
         const item = addItem(itemMatch.item)!
 
+        // Group start
         const group = groups.at(-1)
         if (group) {
           removeItem(item, frame)
@@ -209,6 +252,7 @@ export const useProject = defineStore('project', () => {
         continue
       }
 
+      // Group end
       const groupEndMatch = input.match(/^\/\/ group-end/)
       if (groupEndMatch) {
         groups.pop()
@@ -216,6 +260,7 @@ export const useProject = defineStore('project', () => {
         continue
       }
 
+      // Frame/Component end
       if (input.startsWith('}')) {
         frame = null
         pos += 1
@@ -225,6 +270,9 @@ export const useProject = defineStore('project', () => {
       ignoredStart ??= pos
       pos += 1
     }
+
+    for (const frame of framesAndComponents.value) resolveInstances(frame)
+    for (const frame of framesAndComponents.value) history.saveState(frame)
   }
 
   const clear = () => {
@@ -241,13 +289,15 @@ export const useProject = defineStore('project', () => {
     addFrame,
     removeFrame,
 
-    items,
-    addItem,
-    removeItem,
-
     components,
     addComponent,
     removeComponent,
+
+    framesAndComponents,
+
+    items,
+    addItem,
+    removeItem,
 
     load,
     save,

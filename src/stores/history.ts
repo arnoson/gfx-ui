@@ -60,7 +60,7 @@ export const useHistory = defineStore('history', () => {
     editor.blur()
   }
 
-  const saveState = useDebounceFn((frame = editor.activeFrame) => {
+  const saveState = (frame = editor.activeFrame) => {
     if (!frame) return
 
     let history = histories.value.get(frame.id)
@@ -76,11 +76,22 @@ export const useHistory = defineStore('history', () => {
 
     if (history.stack.length > maxStackSize) history.stack.shift()
     history.index = history.stack.length - 1
-  }, 250)
+  }
+
+  const saveStateDebounced = useDebounceFn(saveState, 250)
 
   const clear = () => histories.value.clear()
 
-  return { histories, add, remove, undo, redo, saveState, clear }
+  return {
+    histories,
+    add,
+    remove,
+    undo,
+    redo,
+    saveState,
+    saveStateDebounced,
+    clear,
+  }
 })
 
 if (import.meta.hot)

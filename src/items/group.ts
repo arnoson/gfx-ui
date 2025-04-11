@@ -2,6 +2,7 @@ import type { Bounds, CodeContext, Point } from '~/types'
 import { getTranslatedBounds, makeBounds } from '~/utils/bounds'
 import {
   drawItem,
+  getItemBounds,
   itemToCode,
   parseItemSettings,
   translateItem,
@@ -36,16 +37,14 @@ const findEdges = (
   item: Item,
   edges: { top: number; left: number; bottom: number; right: number },
 ) => {
-  // TODO handle instance
-  if (item.type === 'instance') return
-
   if (item.type === 'group') {
     for (const child of item.children) findEdges(child, edges)
   } else {
-    edges.left = Math.min(edges.left, item.bounds.left)
-    edges.right = Math.max(edges.right, item.bounds.right)
-    edges.top = Math.min(edges.top, item.bounds.top)
-    edges.bottom = Math.max(edges.bottom, item.bounds.bottom)
+    const bounds = item.bounds ?? getItemBounds(item)
+    edges.left = Math.min(edges.left, bounds.left)
+    edges.right = Math.max(edges.right, bounds.right)
+    edges.top = Math.min(edges.top, bounds.top)
+    edges.bottom = Math.max(edges.bottom, bounds.bottom)
   }
 }
 

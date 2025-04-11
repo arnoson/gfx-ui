@@ -42,7 +42,7 @@ const endDrag = () => {
   window.removeEventListener('mousemove', drag)
   window.removeEventListener('mouseup', endDrag)
   editor.resetSnapGuides()
-  history.saveState()
+  history.saveStateDebounced()
 }
 </script>
 

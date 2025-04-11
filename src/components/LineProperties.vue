@@ -12,13 +12,13 @@ const history = useHistory()
 const updateFrom = (point: Point) => {
   props.item.from = point
   props.item.bounds = getItemBounds(props.item)
-  history.saveState()
+  history.saveStateDebounced()
 }
 
 const updateTo = (point: Point) => {
   props.item.to = point
   props.item.bounds = getItemBounds(props.item)
-  history.saveState()
+  history.saveStateDebounced()
 }
 </script>
 
@@ -26,7 +26,7 @@ const updateTo = (point: Point) => {
   <div class="flow">
     <ColorField
       v-model="item.color"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       label="Color"
     />
     <PointField

@@ -20,13 +20,13 @@ const updateContent = (e: Event) => {
   const value = (e.target as HTMLTextAreaElement).value
   props.item.content = value
   props.item.bounds = getItemBounds(props.item)
-  history.saveState()
+  history.saveStateDebounced()
 }
 
 const updateFont = (value: string) => {
   props.item.font = value
   props.item.bounds = getItemBounds(props.item)
-  history.saveState()
+  history.saveStateDebounced()
 }
 
 const content = useTemplateRef('content')
@@ -42,7 +42,7 @@ afterTextAdded.on(() => {
     <h2>Text Properties</h2>
     <ColorField
       v-model="item.color"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       label="Color"
     />
     <SelectField

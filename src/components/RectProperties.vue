@@ -16,13 +16,13 @@ const history = useHistory()
 const updatePosition = (point: Point) => {
   props.item.position = point
   props.item.bounds = getMovedBounds(props.item.bounds, point)
-  history.saveState()
+  history.saveStateDebounced()
 }
 
 const updateSize = (size: Size) => {
   props.item.size = size
   props.item.bounds = getItemBounds(props.item)
-  history.saveState()
+  history.saveStateDebounced()
 }
 </script>
 
@@ -31,7 +31,7 @@ const updateSize = (size: Size) => {
     <h2>Rect Properties</h2>
     <ColorField
       v-model="item.color"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       label="Color"
     />
     <PointField
@@ -46,12 +46,12 @@ const updateSize = (size: Size) => {
     />
     <NumberField
       v-model="item.radius"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       label="Radius"
     />
     <CheckboxField
       v-model="item.isFilled"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       label="Fill"
     />
   </div>

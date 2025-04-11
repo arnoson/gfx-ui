@@ -11,7 +11,7 @@ const history = useHistory()
   <div class="flow">
     <SizeField
       v-model="frame.size"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       label="Size"
     />
   </div>
