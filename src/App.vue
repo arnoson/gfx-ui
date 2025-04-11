@@ -36,60 +36,11 @@ const activateFrame = () => {
   editor.activateFrame(+id)
 }
 
-// project.load(testProject)
-
 if (import.meta.hot) {
   project.clear()
 }
 
-const component = project.addComponent({
-  name: 'Component',
-  size: { width: 10, height: 10 },
-})
-editor.activeFrame = component
-project.addItem({
-  type: 'line',
-  from: { x: 0, y: 0 },
-  to: { x: 10, y: 10 },
-  color: 15,
-})
-
-const { id } = project.addFrame({})
-editor.activateFrame(id)
-
-project.addItem({
-  type: 'instance',
-  name: component.name,
-  position: { x: 5, y: 5 },
-  componentId: component.id,
-})
-
-history.saveState()
-
-// editor.addItem({
-//   type: 'rect',
-//   position: { x: 10, y: 10 },
-//   size: { width: 20, height: 8 },
-//   color: 15,
-//   isFilled: true,
-//   radius: 0,
-// })
-
-// editor.addItem({
-//   type: 'circle',
-//   center: { x: 30, y: 30 },
-//   radius: 5,
-//   color: 15,
-//   isFilled: false,
-// })
-
-// editor.addItem({
-//   type: 'text',
-//   content: 'Hello\nArggggh!',
-//   color: 15,
-//   font: 'miwos7pt',
-//   position: { x: 10, y: 10 },
-// })
+project.load(testProject)
 
 useEventListener(window, 'hashchange', activateFrame)
 activateFrame()

@@ -17,6 +17,7 @@ export interface Instance {
   name: string
   position: Point
   componentId: Number
+  componentName?: string
   isHidden: boolean
   isLocked: boolean
   readonly bounds: null
@@ -29,7 +30,7 @@ const draw = (ctx: CanvasRenderingContext2D, instance: Instance) => {
   )
   if (!component) return
 
-  for (const child of component.children)
+  for (const child of component.children.toReversed())
     drawItem(ctx, child, instance.position)
 }
 
@@ -60,7 +61,7 @@ const toCode = (instance: Instance, ctx: CodeContext) => {
   const x = ctx.includeOffset ? `x + ${position.x}` : position.x
   const y = ctx.includeOffset ? `y + ${position.y}` : position.y
 
-  let code = `drawComponent${ctx.getUniqueName(component.name)}(${x}, ${y})`
+  let code = `drawComponent${ctx.getUniqueName(component.name)}(${x}, ${y});`
   if (ctx.comments === 'names') {
     code += ` // ${ctx.getUniqueName(name)}`
   } else if (ctx.comments === 'all') {
@@ -83,14 +84,14 @@ const fromCode = (code: string) => {
   const { isLocked, isHidden } = parseItemSettings(settings)
   const { length } = match[0]
 
-  const editor = useEditor()
-  // const component = editor.components.fin
-
   const [x, y] = parseItemArgs(args)
   const item = {
     type: 'instance' as const,
     name,
-    componentId: 0,
+    componentName,
+    // We have to resolve the component id by the component name after the
+    // import has finished.
+    componentId: -1,
     position: { x, y },
     isLocked,
     isHidden,

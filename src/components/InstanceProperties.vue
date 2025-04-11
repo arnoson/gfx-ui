@@ -17,7 +17,7 @@ const componentOptions = computed(() =>
   <div class="flow">
     <SelectField
       v-model="item.componentId"
-      @update:model-value="history.saveState()"
+      @update:model-value="history.saveStateDebounced()"
       :options="componentOptions"
       label="Component"
     />

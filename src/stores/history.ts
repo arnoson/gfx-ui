@@ -17,8 +17,17 @@ const clone = <T>(value: T): T => structuredClone(toRaw(value))
 
 const frameToState = (frame: Frame) => {
   // Discard the scale, as we don't want it to change on undo/redo
-  const { scale, ...state } = clone(frame)
-  return state
+
+  try {
+    clone(toRaw(frame))
+  } catch (e) {
+    console.warn('oh no!', toRaw(frame))
+    console.error(e)
+  }
+
+  // const { scale, ...state } = clone(frame)
+  // return state
+  return {}
 }
 
 export const useHistory = defineStore('history', () => {
@@ -60,7 +69,7 @@ export const useHistory = defineStore('history', () => {
     editor.blur()
   }
 
-  const saveState = useDebounceFn((frame = editor.activeFrame) => {
+  const saveState = (frame = editor.activeFrame) => {
     if (!frame) return
 
     let history = histories.value.get(frame.id)
@@ -76,11 +85,22 @@ export const useHistory = defineStore('history', () => {
 
     if (history.stack.length > maxStackSize) history.stack.shift()
     history.index = history.stack.length - 1
-  }, 250)
+  }
+
+  const saveStateDebounced = useDebounceFn(saveState, 250)
 
   const clear = () => histories.value.clear()
 
-  return { histories, add, remove, undo, redo, saveState, clear }
+  return {
+    histories,
+    add,
+    remove,
+    undo,
+    redo,
+    saveState,
+    saveStateDebounced,
+    clear,
+  }
 })
 
 if (import.meta.hot)
