@@ -17,8 +17,17 @@ const clone = <T>(value: T): T => structuredClone(toRaw(value))
 
 const frameToState = (frame: Frame) => {
   // Discard the scale, as we don't want it to change on undo/redo
-  const { scale, ...state } = clone(frame)
-  return state
+
+  try {
+    clone(toRaw(frame))
+  } catch (e) {
+    console.warn('oh no!', toRaw(frame))
+    console.error(e)
+  }
+
+  // const { scale, ...state } = clone(frame)
+  // return state
+  return {}
 }
 
 export const useHistory = defineStore('history', () => {
