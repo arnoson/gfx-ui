@@ -183,7 +183,9 @@ export const useSelect = defineTool(
         boundsContainPoint(editor.selectedItemBounds, point)
       ) {
         startMove(point)
+        console.log('move')
       } else {
+        console.log('sekect')
         startSelect(point)
       }
     }
@@ -201,20 +203,24 @@ export const useSelect = defineTool(
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Delete' && e.target === document.body) {
         remove()
+        history.saveState()
       } else if (e.key === 'Escape') {
         editor.selectedItems.clear()
       } else if (e.key === 'g' && e.ctrlKey && !e.shiftKey) {
         e.preventDefault()
         group()
+        history.saveState()
       } else if (e.key.toLowerCase() === 'g' && e.ctrlKey && e.shiftKey) {
         e.preventDefault()
         ungroup()
+        history.saveState()
       } else if (e.key === 'c' && e.ctrlKey) {
         copy()
         e.preventDefault()
       } else if (e.key === 'v' && e.ctrlKey) {
-        paste()
         e.preventDefault()
+        paste()
+        history.saveState()
       } else if (e.key === 'a' && e.ctrlKey) {
         editor.selectedItems = new Set(project.items)
         e.preventDefault()
