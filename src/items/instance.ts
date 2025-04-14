@@ -10,6 +10,7 @@ import { useEditor } from '~/stores/editor'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 import { useProject } from '~/stores/project'
+import { sanitizeIdentifier } from '~/utils/identifier'
 
 export interface Instance {
   type: 'instance'
@@ -61,7 +62,9 @@ const toCode = (instance: Instance, ctx: CodeContext) => {
   const x = ctx.includeOffset ? `x + ${position.x}` : position.x
   const y = ctx.includeOffset ? `y + ${position.y}` : position.y
 
-  let code = `drawComponent${ctx.getUniqueName(component.name)}(${x}, ${y});`
+  const componentName = ctx.getUniqueName(component.name)
+  const componentIdentifier = sanitizeIdentifier(componentName)
+  let code = `drawComponent${componentIdentifier}(${x}, ${y});`
   if (ctx.comments === 'names') {
     code += ` // ${ctx.getUniqueName(name)}`
   } else if (ctx.comments === 'all') {

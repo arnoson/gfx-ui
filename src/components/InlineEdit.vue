@@ -36,5 +36,6 @@ input {
   background: none;
   color: inherit;
   text-align: inherit;
+  width: 100%;
 }
 </style>
