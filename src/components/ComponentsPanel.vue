@@ -38,7 +38,7 @@ const paste = () => {
   const clone = structuredClone(toRaw(copiedComponent)) as Partial<Frame>
   delete clone.id
   clone.name = `${copiedComponent.name} Copy`
-  project.addFrame(clone)
+  project.addComponent(clone)
 }
 
 const componentsList = computed({
