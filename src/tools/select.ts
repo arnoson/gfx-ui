@@ -76,6 +76,16 @@ export const useSelect = defineTool(
       mode = 'idle'
     }
 
+    const translateSelectedItems = (delta: Point) => {
+      for (const item of editor.selectedItems) {
+        if (item.isLocked) continue
+        translateItem(item, delta)
+        if (item.bounds !== null) {
+          item.bounds = getTranslatedBounds(item.bounds, delta)
+        }
+      }
+    }
+
     const startMove = (point: Point) => {
       lastPoint = point
       startPoint = point
@@ -106,14 +116,7 @@ export const useSelect = defineTool(
 
       delta.x += snapAmount.x
       delta.y += snapAmount.y
-
-      for (const item of editor.selectedItems) {
-        if (item.isLocked) continue
-        translateItem(item, delta)
-        if (item.bounds !== null) {
-          item.bounds = getTranslatedBounds(item.bounds, delta)
-        }
-      }
+      translateSelectedItems(delta)
       lastPoint = addPoints(point, snapAmount)
     }
 
@@ -215,6 +218,18 @@ export const useSelect = defineTool(
       } else if (e.key === 'a' && e.ctrlKey) {
         editor.selectedItems = new Set(project.items)
         e.preventDefault()
+      } else if (e.key.startsWith('Arrow')) {
+        e.preventDefault()
+        if (editor.selectedItems.size) {
+          const distance = e.shiftKey ? 5 : 1
+          const delta = { x: 0, y: 0 }
+          if (e.key === 'ArrowUp') delta.y = -distance
+          else if (e.key === 'ArrowDown') delta.y = distance
+          else if (e.key === 'ArrowLeft') delta.x = -distance
+          else if (e.key === 'ArrowRight') delta.x = distance
+          translateSelectedItems(delta)
+          history.saveStateDebounced()
+        }
       }
     }
 
