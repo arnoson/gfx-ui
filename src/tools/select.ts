@@ -183,9 +183,7 @@ export const useSelect = defineTool(
         boundsContainPoint(editor.selectedItemBounds, point)
       ) {
         startMove(point)
-        console.log('move')
       } else {
-        console.log('sekect')
         startSelect(point)
       }
     }
