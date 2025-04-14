@@ -13,14 +13,14 @@ import { useHistory } from '~/stores/history'
 const props = defineProps<{ item: Rect }>()
 const history = useHistory()
 
-const updatePosition = (point: Point) => {
-  props.item.position = point
-  props.item.bounds = getMovedBounds(props.item.bounds, point)
+const updatePosition = ({ x, y }: Point) => {
+  props.item.position = { x, y }
+  props.item.bounds = getMovedBounds(props.item.bounds, { x, y })
   history.saveStateDebounced()
 }
 
-const updateSize = (size: Size) => {
-  props.item.size = size
+const updateSize = ({ width, height }: Size) => {
+  props.item.size = { width, height }
   props.item.bounds = getItemBounds(props.item)
   history.saveStateDebounced()
 }
