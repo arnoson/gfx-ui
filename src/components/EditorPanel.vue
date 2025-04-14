@@ -147,6 +147,17 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
               :item="item"
             />
           </template>
+          <!-- Steal the pointer events from the handles that are below the
+          selection. Pointer events for the selection are then handled in the
+          select tool. -->
+          <rect
+            v-if="editor.selectedItemBounds"
+            fill="transparent"
+            :x="editor.selectedItemBounds.left"
+            :y="editor.selectedItemBounds.top"
+            :width="editor.selectedItemBounds.width"
+            :height="editor.selectedItemBounds.height"
+          />
         </g>
 
         <!-- Controls -->
