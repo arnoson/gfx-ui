@@ -20,8 +20,9 @@ export const useSelect = defineTool(
     const editor = useEditor()
     const history = useHistory()
 
-    const { ctrl: snapDisabled } = useMagicKeys()
+    const { ctrl: snapDisabled, alt } = useMagicKeys()
     let mode: 'move' | 'select' | 'idle' = 'idle'
+    let copiedBeforeMove = false
     let startPoint = { x: 0, y: 0 }
     let lastPoint = { x: 0, y: 0 }
 
@@ -86,7 +87,7 @@ export const useSelect = defineTool(
       }
     }
 
-    const startMove = (point: Point) => {
+    const startMove = (point: Point, copy = false) => {
       lastPoint = point
       startPoint = point
       mode = 'move'
@@ -105,6 +106,12 @@ export const useSelect = defineTool(
 
       if (!editor.selectedItems.size) return
       editor.resetSnapGuides()
+
+      if (alt.value && !copiedBeforeMove) {
+        copy()
+        paste()
+        copiedBeforeMove = true
+      }
 
       const delta = { x: point.x - lastPoint.x, y: point.y - lastPoint.y }
       let snapAmount = { x: 0, y: 0 }
@@ -125,6 +132,7 @@ export const useSelect = defineTool(
       editor.resetSnapGuides()
       const hasMoved = !pointsAreEqual(startPoint, point)
       if (hasMoved) history.saveState()
+      copiedBeforeMove = false
       mode = 'idle'
     }
 
