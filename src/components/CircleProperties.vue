@@ -26,7 +26,11 @@ const updateRadius = (radius: number) => {
 
 <template>
   <div class="flow">
-    <ColorField v-model="item.color" label="Color" />
+    <ColorField
+      v-model="item.color"
+      label="Color"
+      @update:model-value="history.saveStateDebounced()"
+    />
     <PointField
       :model-value="item.center"
       @update:model-value="updateCenter"

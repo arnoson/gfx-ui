@@ -22,7 +22,11 @@ const updatePosition = (point: Point) => {
 
 <template>
   <div class="flow">
-    <ColorField v-model="item.color" label="Color" />
+    <ColorField
+      v-model="item.color"
+      label="Color"
+      @update:model-value="history.saveStateDebounced()"
+    />
     <PointField
       :model-value="item.bounds.topLeft"
       @update:model-value="updatePosition"
