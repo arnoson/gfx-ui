@@ -37,6 +37,12 @@ export const usePencil = defineTool(
     const pixelIsEmpty = (point: Point) =>
       !item.value?.pixels?.has(packPixel(point.x, point.y))
 
+    const togglePixel = ({ x, y }: Point) => {
+      const pixel = packPixel(x, y)
+      if (mode === 'draw') item.value?.pixels.add(pixel)
+      else if (mode === 'erase') item.value?.pixels.delete(pixel)
+    }
+
     // Prevent flickering when setting `isErasing` during mousemove (which
     // changes to pencil tool icon).
     const setIsErasingDebounced = useDebounceFn(
@@ -50,6 +56,7 @@ export const usePencil = defineTool(
       pixelsStart = structuredClone(toRaw(item.value?.pixels)) ?? null
       mode = pixelIsEmpty(point) ? 'draw' : 'erase'
       editor.isErasing = mode === 'erase'
+      togglePixel(point)
     }
 
     const onMouseMove = (point: Point) => {
@@ -59,13 +66,7 @@ export const usePencil = defineTool(
         return
       }
 
-      const ctx: DrawContext = {
-        drawPixel(x, y) {
-          const pixel = packPixel(x, y)
-          if (mode === 'draw') item.value?.pixels.add(pixel)
-          else if (mode === 'erase') item.value?.pixels.delete(pixel)
-        },
-      }
+      const ctx: DrawContext = { drawPixel: (x, y) => togglePixel({ x, y }) }
       drawLine(ctx, { from: lastPoint!, to: point, color: 0 })
       item.value.bounds = getItemBounds(item.value)
       lastPoint = point
@@ -77,6 +78,7 @@ export const usePencil = defineTool(
         const hasDrawn = pixelsStart && pixelsStart.size !== pixels.size
         if (hasDrawn) history.saveState()
       }
+
       pixelsStart = null
       editor.isErasing = false
       mode = 'idle'
