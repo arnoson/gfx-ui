@@ -34,6 +34,7 @@ export const useEditor = defineStore('editor', () => {
   const viewCode = ref(false)
   const isSelecting = ref(false)
   const isMoving = ref(false)
+  const isErasing = ref(false)
 
   // Pixels
   const pixelColors = [
@@ -191,6 +192,7 @@ export const useEditor = defineStore('editor', () => {
     viewCode,
     isSelecting,
     isMoving,
+    isErasing,
     pixelColors,
 
     tools,

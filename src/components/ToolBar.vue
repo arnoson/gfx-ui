@@ -2,6 +2,7 @@
 import { useEditor } from '~/stores/editor'
 import SelectIcon from '~/assets/icons/icon-select.svg'
 import DrawIcon from '~/assets/icons/icon-draw.svg'
+import EraseIcon from '~/assets/icons/icon-erase.svg'
 import RectIcon from '~/assets/icons/icon-rect.svg'
 import CircleIcon from '~/assets/icons/icon-circle.svg'
 import LineIcon from '~/assets/icons/icon-line.svg'
@@ -25,8 +26,8 @@ const editor = useEditor()
       <PolygonIcon v-else-if="tool.id === 'polygon'" />
       <CircleIcon v-else-if="tool.id === 'circle'" />
       <TextIcon v-else-if="tool.id === 'text'" />
+      <EraseIcon v-else-if="tool.id === 'pencil' && editor.isErasing" />
       <DrawIcon v-else-if="tool.id === 'pencil'" />
-      <button v-else-if="tool.id === 'polygon'">Polygon</button>
     </button>
   </menu>
 </template>

@@ -2,11 +2,12 @@ import { computed, toRaw } from 'vue'
 import { getItemBounds, type DrawContext } from '~/items/item'
 import { draw as drawLine } from '~/items/line'
 import { useEditor } from '~/stores/editor'
-import type { Pixels, Point } from '~/types'
-import { defineTool } from './tool'
-import { useProject } from '~/stores/project'
 import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
+import type { Pixels, Point } from '~/types'
 import { packPixel } from '~/utils/pixels'
+import { defineTool } from './tool'
+import { useDebounceFn } from '@vueuse/core'
 
 export const usePencil = defineTool(
   'pencil',
@@ -15,7 +16,7 @@ export const usePencil = defineTool(
     const project = useProject()
     const history = useHistory()
 
-    let isDrawing = false
+    let mode: 'draw' | 'erase' | 'idle' = 'idle'
     let lastPoint: Point | null = null
     let pixelsStart: Pixels | null = null
 
@@ -33,24 +34,40 @@ export const usePencil = defineTool(
       if (newItem) editor.focusItem(newItem)
     }
 
+    const pixelIsEmpty = (point: Point) =>
+      !item.value?.pixels?.has(packPixel(point.x, point.y))
+
+    // Prevent flickering when setting `isErasing` during mousemove (which
+    // changes to pencil tool icon).
+    const setIsErasingDebounced = useDebounceFn(
+      (v: boolean) => (editor.isErasing = v),
+      10,
+    )
+
     const onMouseDown = (point: Point) => {
       if (!item.value) createItem()
-      isDrawing = true
       lastPoint = point
       pixelsStart = structuredClone(toRaw(item.value?.pixels)) ?? null
+      mode = pixelIsEmpty(point) ? 'draw' : 'erase'
+      editor.isErasing = mode === 'erase'
     }
 
     const onMouseMove = (point: Point) => {
-      if (!isDrawing) return
       if (!item.value) return
+      if (mode === 'idle') {
+        setIsErasingDebounced(!pixelIsEmpty(point))
+        return
+      }
 
       const ctx: DrawContext = {
-        drawPixel: (x, y) => item.value?.pixels.add(packPixel(x, y)),
+        drawPixel(x, y) {
+          const pixel = packPixel(x, y)
+          if (mode === 'draw') item.value?.pixels.add(pixel)
+          else if (mode === 'erase') item.value?.pixels.delete(pixel)
+        },
       }
       drawLine(ctx, { from: lastPoint!, to: point, color: 0 })
-
       item.value.bounds = getItemBounds(item.value)
-
       lastPoint = point
     }
 
@@ -61,7 +78,7 @@ export const usePencil = defineTool(
         if (hasDrawn) history.saveState()
       }
       pixelsStart = null
-      isDrawing = false
+      mode = 'idle'
     }
 
     return { onMouseDown, onMouseMove, onMouseUp }
