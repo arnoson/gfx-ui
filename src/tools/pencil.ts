@@ -78,10 +78,13 @@ export const usePencil = defineTool(
         if (hasDrawn) history.saveState()
       }
       pixelsStart = null
+      editor.isErasing = false
       mode = 'idle'
     }
 
-    return { onMouseDown, onMouseMove, onMouseUp }
+    const deactivate = () => (editor.isErasing = false)
+
+    return { onMouseDown, onMouseMove, onMouseUp, deactivate }
   },
   { pointRounding: 'floor', shortcut: 'p' },
 )
