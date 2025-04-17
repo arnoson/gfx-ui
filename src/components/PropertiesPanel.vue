@@ -11,6 +11,7 @@ import SwitchField from './SwitchField.vue'
 import TextProperties from './TextProperties.vue'
 import ViewCode from './ViewCode.vue'
 import InstanceProperties from './InstanceProperties.vue'
+import PolygonProperties from './PolygonProperties.vue'
 
 const editor = useEditor()
 const item = computed(() => editor.focusedItem ?? undefined)
@@ -37,9 +38,10 @@ const source = computed(() => {
     </header>
     <ViewCode v-if="source && editor.viewCode" :source="source" />
     <template v-else-if="item">
-      <BitmapProperties v-if="item.type === 'bitmap'" :item="item" />
+      <BitmapProperties v-if="item.type === 'bitmap'" :item />
       <RectProperties v-else-if="item.type === 'rect'" :item />
       <CircleProperties v-else-if="item.type === 'circle'" :item />
+      <PolygonProperties v-else-if="item.type === 'polygon'" :item />
       <LineProperties v-else-if="item.type === 'line'" :item />
       <TextProperties v-else-if="item.type === 'text'" :item />
       <InstanceProperties v-else-if="item.type === 'instance'" :item />

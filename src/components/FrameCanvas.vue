@@ -10,6 +10,7 @@ import {
 } from 'vue'
 import { drawItem } from '~/items/item'
 import type { Frame } from '~/frame'
+import { polygon } from '~/items/polygon'
 
 const props = defineProps<{ frame: Frame }>()
 const { size, children } = toRefs(props.frame)

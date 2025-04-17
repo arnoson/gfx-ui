@@ -13,6 +13,7 @@ import { emptyBounds, makeBounds } from '~/utils/bounds'
 import { addPoints } from '~/utils/point'
 import { getBoundsSnap, getPointSnap } from '~/utils/snap'
 import { useProject } from './project'
+import { usePolygon } from '~/tools/polygon'
 
 type Id = number
 
@@ -38,10 +39,11 @@ export const useEditor = defineStore('editor', () => {
   const pencil = usePencil()
   const select = useSelect()
   const rect = useRect()
+  const polygon = usePolygon()
   const circle = useCircle()
   const line = useLine()
   const text = useText()
-  const tools = { select, rect, circle, line, text, pencil }
+  const tools = { select, rect, circle, polygon, line, text, pencil }
   type ToolId = keyof typeof tools
 
   const activeToolId = ref<ToolId>('select')

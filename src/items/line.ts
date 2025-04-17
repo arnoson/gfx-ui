@@ -129,12 +129,12 @@ export const drawHorizontalLine = (
   width: number,
   color: Color,
 ) => {
-  const to = { x: x + width, y }
+  const to = { x: x + width - 1, y }
   draw(ctx, { from: { x, y }, to, color })
 }
 
 // Based on https://github.com/adafruit/Adafruit-GFX-Library/blob/87e15509a9e16892e60947bc4231027882edbd34/Adafruit_GFX.cpp#L132
-const draw = (
+export const draw = (
   ctx: CanvasRenderingContext2D,
   { from, to, color }: Pick<Line, 'from' | 'to' | 'color'>,
   offset = { x: 0, y: 0 },

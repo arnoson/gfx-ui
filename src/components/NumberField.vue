@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getInputId } from '~/utils/id'
 
-defineProps<{ label: string }>()
+defineProps<{ label: string; min?: number; max?: number; step?: number }>()
 const model = defineModel<number>({ required: true })
 const id = getInputId()
 </script>
@@ -9,6 +9,6 @@ const id = getInputId()
 <template>
   <div class="field">
     <label :for="id">{{ label }}</label>
-    <input :id="id" type="number" v-model="model" />
+    <input :id :min :max :step type="number" v-model="model" />
   </div>
 </template>

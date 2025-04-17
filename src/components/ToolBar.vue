@@ -6,6 +6,7 @@ import RectIcon from '~/assets/icons/icon-rect.svg'
 import CircleIcon from '~/assets/icons/icon-circle.svg'
 import LineIcon from '~/assets/icons/icon-line.svg'
 import TextIcon from '~/assets/icons/icon-text.svg'
+import PolygonIcon from '~/assets/icons/icon-polygon.svg'
 
 const editor = useEditor()
 </script>
@@ -21,9 +22,11 @@ const editor = useEditor()
       <SelectIcon v-if="tool.id === 'select'" />
       <LineIcon v-else-if="tool.id === 'line'" />
       <RectIcon v-else-if="tool.id === 'rect'" />
+      <PolygonIcon v-else-if="tool.id === 'polygon'" />
       <CircleIcon v-else-if="tool.id === 'circle'" />
       <TextIcon v-else-if="tool.id === 'text'" />
       <DrawIcon v-else-if="tool.id === 'pencil'" />
+      <button v-else-if="tool.id === 'polygon'">Polygon</button>
     </button>
   </menu>
 </template>

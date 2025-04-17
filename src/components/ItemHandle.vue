@@ -3,6 +3,7 @@ import { useEventListener, useMagicKeys } from '@vueuse/core'
 import { computed, useTemplateRef } from 'vue'
 import { instance } from '~/items/instance'
 import { itemFromCode, type Item } from '~/items/item'
+import { getPolygonPoints } from '~/items/polygon'
 import { useEditor } from '~/stores/editor'
 import { emptyBounds } from '~/utils/bounds'
 
@@ -70,6 +71,19 @@ const bounds = computed(() => {
       :y="bounds.top"
       :width="bounds.width"
       :height="bounds.height"
+      :fill="item.isFilled ? 'transparent' : 'none'"
+      stroke="transparent"
+      stroke-width="3"
+    />
+    <!-- Polygon -->
+    <polygon
+      v-else-if="item.type === 'polygon'"
+      ref="handle"
+      :points="
+        getPolygonPoints(item)
+          .map(({ x, y }) => [x, y].join(','))
+          .join(' ')
+      "
       :fill="item.isFilled ? 'transparent' : 'none'"
       stroke="transparent"
       stroke-width="3"

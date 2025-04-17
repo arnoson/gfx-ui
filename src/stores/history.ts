@@ -62,7 +62,6 @@ export const useHistory = defineStore('history', () => {
   }
 
   const saveState = (frame = editor.activeFrame) => {
-    console.log('save state!', frame)
     if (!frame) return
 
     let history = histories.value.get(frame.id)

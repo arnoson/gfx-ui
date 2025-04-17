@@ -6,12 +6,14 @@ import { line, type Line } from './line'
 import { rect, type Rect } from './rect'
 import { text, type Text } from './text'
 import { instance, type Instance } from './instance'
+import { polygon, type Polygon } from './polygon'
 
-const items = { bitmap, circle, group, line, rect, text, instance }
+const items = { bitmap, circle, group, line, rect, polygon, text, instance }
 
 export const itemTypes = [
   'line',
   'rect',
+  'polygon',
   'circle',
   'bitmap',
   'text',
@@ -19,7 +21,15 @@ export const itemTypes = [
   'group',
 ] as const
 
-export type Item = Rect | Line | Circle | Bitmap | Text | Instance | Group
+export type Item =
+  | Rect
+  | Line
+  | Circle
+  | Polygon
+  | Bitmap
+  | Text
+  | Instance
+  | Group
 
 export type ItemType = Item['type']
 

@@ -18,11 +18,11 @@ const overlay = useTemplateRef('overlay')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
 
-const shouldIgnoreKeydown = () =>
-  document.activeElement?.tagName === 'INPUT' ||
-  document.activeElement?.tagName === 'TEXTAREA' ||
-  document.activeElement?.hasAttribute('contenteditable')
-
+const shouldIgnoreKeydown = () => {
+  if (!document.activeElement) return false
+  const tag = document.activeElement.tagName
+  return ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag)
+}
 const size = computed({
   get: () => props.frame.size,
   set: (value) => (props.frame.size = value),

@@ -7,6 +7,7 @@ import RectIcon from '~/assets/icons/icon-layer-rect.svg'
 import TextIcon from '~/assets/icons/icon-layer-text.svg'
 import InstanceIcon from '~/assets/icons/icon-layer-instance.svg'
 import GroupIcon from '~/assets/icons/icon-layer-group.svg'
+import PolygonIcon from '~/assets/icons/icon-layer-polygon.svg'
 
 defineProps<{ item: Item }>()
 </script>
@@ -19,4 +20,5 @@ defineProps<{ item: Item }>()
   <TextIcon v-else-if="item.type === 'text'" />
   <InstanceIcon v-else-if="item.type === 'instance'" />
   <GroupIcon v-else-if="item.type === 'group'" />
+  <PolygonIcon v-else-if="item.type === 'polygon'" />
 </template>
