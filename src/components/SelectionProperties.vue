@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { getItemBounds, moveItem, type Item } from '~/items/item'
-import GapField from './GapField.vue'
-import { useEditor } from '~/stores/editor'
-import IconAlignLeft from '~/assets/icons/icon-align-left.svg'
+import IconAlignBottom from '~/assets/icons/icon-align-bottom.svg'
 import IconAlignCenter from '~/assets/icons/icon-align-center.svg'
+import IconAlignLeft from '~/assets/icons/icon-align-left.svg'
+import IconAlignMiddle from '~/assets/icons/icon-align-middle.svg'
 import IconAlignRight from '~/assets/icons/icon-align-right.svg'
 import IconAlignTop from '~/assets/icons/icon-align-top.svg'
-import IconAlignMiddle from '~/assets/icons/icon-align-middle.svg'
-import IconAlignBottom from '~/assets/icons/icon-align-bottom.svg'
+import { getItemBounds, moveItem, type Item } from '~/items/item'
+import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
+import GapField from './GapField.vue'
 
 const props = defineProps<{ items: Item[] }>()
 const editor = useEditor()

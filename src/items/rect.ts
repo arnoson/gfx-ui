@@ -35,17 +35,17 @@ POSSIBILITY OF SUCH DAMAGE.
  */
 
 import type { Bounds, CodeContext, Color, Point, Size } from '~/types'
-import { pixelColors } from '~/utils/pixels'
-import { drawCircleHelper, fillCircleHelper } from './circle'
-import { drawHorizontalLine, drawVerticalLine } from './line'
 import { makeBounds } from '~/utils/bounds'
+import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
+import { drawCircleHelper, fillCircleHelper } from './circle'
 import {
   parseItemArgs,
   parseItemSettings,
   serializeItemSettings,
+  type DrawContext,
   type ItemActions,
 } from './item'
-import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
+import { drawHorizontalLine, drawVerticalLine } from './line'
 
 export interface Rect {
   type: 'rect'
@@ -62,7 +62,7 @@ export interface Rect {
 }
 
 const drawNormalRect = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   {
     position,
     size,
@@ -78,8 +78,9 @@ const drawNormalRect = (
   const bottom = offset.y + top + height - 1
 
   if (isFilled) {
-    ctx.fillStyle = pixelColors[color]
-    ctx.fillRect(left, top, width, height)
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) ctx.drawPixel(left + x, top + y, color)
+    }
   } else {
     drawHorizontalLine(ctx, left, top, width - 1, color) // top
     drawHorizontalLine(ctx, left, bottom, width - 1, color) // bottom
@@ -89,7 +90,7 @@ const drawNormalRect = (
 }
 
 const drawRoundRect = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   { color, radius, size, position, isFilled }: Rect,
   offset: Point,
 ) => {
@@ -127,11 +128,7 @@ const drawRoundRect = (
   }
 }
 
-const draw = (
-  ctx: CanvasRenderingContext2D,
-  rect: Rect,
-  offset = { x: 0, y: 0 },
-) => {
+const draw = (ctx: DrawContext, rect: Rect, offset = { x: 0, y: 0 }) => {
   if (rect.radius) drawRoundRect(ctx, rect, offset)
   else drawNormalRect(ctx, rect, offset)
 }

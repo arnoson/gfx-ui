@@ -1,12 +1,12 @@
 import { useFonts } from '~/stores/fonts'
 import type { Bounds, CodeContext, Color, Point } from '~/types'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
-import { drawPixel } from '~/utils/pixels'
 import { composeRegex, metaRegex } from '~/utils/regex'
 import {
   parseItemArgs,
   parseItemSettings,
   serializeItemSettings,
+  type DrawContext,
   type ItemActions,
 } from './item'
 
@@ -26,11 +26,7 @@ export interface Text {
 const getBit = (buffer: Uint8Array, byteIndex: number, bitIndex: number) =>
   (buffer[byteIndex] & (1 << bitIndex)) === 0 ? 0 : 1
 
-const draw = (
-  ctx: CanvasRenderingContext2D,
-  text: Text,
-  offset = { x: 0, y: 0 },
-) => {
+const draw = (ctx: DrawContext, text: Text, offset = { x: 0, y: 0 }) => {
   const fonts = useFonts()
   const font = fonts.fonts.get(text.font)
   if (!font) return
@@ -58,7 +54,7 @@ const draw = (
         if (bit) {
           const canvasX = x + glyphX + glyph.deltaX
           const canvasY = y + glyphY + font.baseline + glyph.deltaY
-          drawPixel(ctx, canvasX, canvasY, text.color)
+          ctx.drawPixel(canvasX, canvasY, text.color)
         }
       }
     }

@@ -46,3 +46,9 @@ body {
   color: var(--color-text);
   font-family: monospace;
 }
+
+hr {
+  width: 100%;
+  border-color: var(--color-border);
+  margin-block: 0.5lh;
+}

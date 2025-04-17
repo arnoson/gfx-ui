@@ -1,11 +1,12 @@
 import { computed, toRaw } from 'vue'
-import { getItemBounds } from '~/items/item'
-import { getLinePixels } from '~/items/line'
+import { getItemBounds, type DrawContext } from '~/items/item'
+import { draw as drawLine } from '~/items/line'
 import { useEditor } from '~/stores/editor'
 import type { Pixels, Point } from '~/types'
 import { defineTool } from './tool'
 import { useProject } from '~/stores/project'
 import { useHistory } from '~/stores/history'
+import { packPixel } from '~/utils/pixels'
 
 export const usePencil = defineTool(
   'pencil',
@@ -43,8 +44,11 @@ export const usePencil = defineTool(
       if (!isDrawing) return
       if (!item.value) return
 
-      const pixels = getLinePixels(lastPoint!, point)
-      for (const pixel of pixels) item.value.pixels.add(pixel)
+      const ctx: DrawContext = {
+        drawPixel: (x, y) => item.value?.pixels.add(packPixel(x, y)),
+      }
+      drawLine(ctx, { from: lastPoint!, to: point, color: 0 })
+
       item.value.bounds = getItemBounds(item.value)
 
       lastPoint = point

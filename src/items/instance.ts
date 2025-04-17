@@ -1,16 +1,16 @@
-import type { Bounds, CodeContext, Point } from '~/types'
+import { useProject } from '~/stores/project'
+import type { CodeContext, Point } from '~/types'
+import { emptyBounds, makeBounds } from '~/utils/bounds'
+import { sanitizeIdentifier } from '~/utils/identifier'
+import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 import {
   drawItem,
   parseItemArgs,
   parseItemSettings,
   serializeItemSettings,
+  type DrawContext,
   type ItemActions,
 } from './item'
-import { useEditor } from '~/stores/editor'
-import { emptyBounds, makeBounds } from '~/utils/bounds'
-import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
-import { useProject } from '~/stores/project'
-import { sanitizeIdentifier } from '~/utils/identifier'
 
 export interface Instance {
   type: 'instance'
@@ -24,7 +24,7 @@ export interface Instance {
   readonly bounds: null
 }
 
-const draw = (ctx: CanvasRenderingContext2D, instance: Instance) => {
+const draw = (ctx: DrawContext, instance: Instance) => {
   const project = useProject()
   const component = project.components.find(
     (v) => v.id === instance.componentId,

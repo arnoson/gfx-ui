@@ -28,32 +28,3 @@ export const unpackPixel = (xy: number) => ({
   x: unpackPixelX(xy),
   y: unpackPixelY(xy),
 })
-
-export const pixelColors = [
-  'hsl(0, 0%, 0%)',
-  'hsl(0, 0%, 6.67%)',
-  'hsl(0, 0%, 13.33%)',
-  'hsl(0, 0%, 20%)',
-  'hsl(0, 0%, 26.67%)',
-  'hsl(0, 0%, 33.33%)',
-  'hsl(0, 0%, 40%)',
-  'hsl(0, 0%, 46.67%)',
-  'hsl(0, 0%, 53.33%)',
-  'hsl(0, 0%, 60%)',
-  'hsl(0, 0%, 66.67%)',
-  'hsl(0, 0%, 73.33%)',
-  'hsl(0, 0%, 80%)',
-  'hsl(0, 0%, 86.67%)',
-  'hsl(0, 0%, 93.33%)',
-  'hsl(0, 0%, 100%)',
-]
-
-export const drawPixel = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  color: Color,
-) => {
-  ctx.fillStyle = pixelColors[color]
-  ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1)
-}

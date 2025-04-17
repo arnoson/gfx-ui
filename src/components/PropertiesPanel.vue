@@ -12,8 +12,15 @@ import TextProperties from './TextProperties.vue'
 import ViewCode from './ViewCode.vue'
 import InstanceProperties from './InstanceProperties.vue'
 import PolygonProperties from './PolygonProperties.vue'
+import type { Pixels } from '~/types'
+import { drawItem, type DrawContext } from '~/items/item'
+import { packPixel } from '~/utils/pixels'
+import { useProject } from '~/stores/project'
+import { useHistory } from '~/stores/history'
 
 const editor = useEditor()
+const project = useProject()
+const history = useHistory()
 const item = computed(() => editor.focusedItem ?? undefined)
 const frame = computed(() => editor.activeFrame ?? undefined)
 
@@ -28,6 +35,31 @@ const source = computed(() => {
   if (editor.selectedItems.size) return [...editor.selectedItems]
   if (frame.value) return frame.value
 })
+
+const canRasterize = computed(() => {
+  if (item.value) return item.value.type !== 'bitmap'
+  if (!editor.selectedItems.size) return false
+  for (const item of editor.selectedItems) {
+    if (item.type !== 'bitmap') return true
+  }
+})
+
+const rasterize = () => {
+  const pixels: Pixels = new Set()
+  const ctx: DrawContext = {
+    drawPixel: (x, y) => pixels.add(packPixel(x, y)),
+  }
+
+  const items = [...editor.selectedItems]
+  for (const item of items) {
+    drawItem(ctx, item)
+    project.removeItem(item)
+  }
+
+  const item = project.addItem({ type: 'bitmap', color: 15, pixels })
+  if (item) editor.focusItem(item)
+  history.saveState()
+}
 </script>
 
 <template>
@@ -55,6 +87,10 @@ const source = computed(() => {
       :items="Array.from(editor.selectedItems)"
     />
     <FrameProperties v-else-if="frame" :frame="frame" />
+    <template v-if="canRasterize">
+      <hr />
+      <button @click="rasterize">Rasterize</button>
+    </template>
   </div>
 </template>
 

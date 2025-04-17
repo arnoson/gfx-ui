@@ -36,11 +36,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import type { Bounds, CodeContext, Color, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
-import { drawPixel } from '~/utils/pixels'
-import { composeRegex, metaRegex, commentRegex } from '~/utils/regex'
+import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 import {
   parseItemSettings,
   serializeItemSettings,
+  type DrawContext,
   type ItemActions,
 } from './item'
 import { drawVerticalLine } from './line'
@@ -60,7 +60,7 @@ export interface Circle {
 
 // Based on https://github.com/adafruit/Adafruit-GFX-Library/blob/87e15509a9e16892e60947bc4231027882edbd34/Adafruit_GFX.cpp#L357
 const strokeCircle = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   { center, radius: r, color }: Omit<Circle, 'type' | 'id' | 'bounds'>,
   offset: Point,
 ) => {
@@ -73,10 +73,10 @@ const strokeCircle = (
   let x = 0
   let y = r
 
-  drawPixel(ctx, x0, y0 + r, color)
-  drawPixel(ctx, x0, y0 - r, color)
-  drawPixel(ctx, x0 + r, y0, color)
-  drawPixel(ctx, x0 - r, y0, color)
+  ctx.drawPixel(x0, y0 + r, color)
+  ctx.drawPixel(x0, y0 - r, color)
+  ctx.drawPixel(x0 + r, y0, color)
+  ctx.drawPixel(x0 - r, y0, color)
 
   while (x < y) {
     if (f >= 0) {
@@ -88,19 +88,19 @@ const strokeCircle = (
     ddF_x += 2
     f += ddF_x
 
-    drawPixel(ctx, x0 + x, y0 + y, color)
-    drawPixel(ctx, x0 - x, y0 + y, color)
-    drawPixel(ctx, x0 + x, y0 - y, color)
-    drawPixel(ctx, x0 - x, y0 - y, color)
-    drawPixel(ctx, x0 + y, y0 + x, color)
-    drawPixel(ctx, x0 - y, y0 + x, color)
-    drawPixel(ctx, x0 + y, y0 - x, color)
-    drawPixel(ctx, x0 - y, y0 - x, color)
+    ctx.drawPixel(x0 + x, y0 + y, color)
+    ctx.drawPixel(x0 - x, y0 + y, color)
+    ctx.drawPixel(x0 + x, y0 - y, color)
+    ctx.drawPixel(x0 - x, y0 - y, color)
+    ctx.drawPixel(x0 + y, y0 + x, color)
+    ctx.drawPixel(x0 - y, y0 + x, color)
+    ctx.drawPixel(x0 + y, y0 - x, color)
+    ctx.drawPixel(x0 - y, y0 - x, color)
   }
 }
 
 const fillCircle = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   { center, radius: r, color }: Omit<Circle, 'type' | 'id'>,
   offset: Point,
 ) => {
@@ -111,7 +111,7 @@ const fillCircle = (
 }
 
 export const fillCircleHelper = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   x0: number,
   y0: number,
   r: number,
@@ -156,7 +156,7 @@ export const fillCircleHelper = (
 }
 
 export const drawCircleHelper = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   x0: number,
   y0: number,
   r: number,
@@ -179,26 +179,26 @@ export const drawCircleHelper = (
     ddF_x += 2
     f += ddF_x
     if (cornerName & 0x4) {
-      drawPixel(ctx, x0 + x, y0 + y, color)
-      drawPixel(ctx, x0 + y, y0 + x, color)
+      ctx.drawPixel(x0 + x, y0 + y, color)
+      ctx.drawPixel(x0 + y, y0 + x, color)
     }
     if (cornerName & 0x2) {
-      drawPixel(ctx, x0 + x, y0 - y, color)
-      drawPixel(ctx, x0 + y, y0 - x, color)
+      ctx.drawPixel(x0 + x, y0 - y, color)
+      ctx.drawPixel(x0 + y, y0 - x, color)
     }
     if (cornerName & 0x8) {
-      drawPixel(ctx, x0 - y, y0 + x, color)
-      drawPixel(ctx, x0 - x, y0 + y, color)
+      ctx.drawPixel(x0 - y, y0 + x, color)
+      ctx.drawPixel(x0 - x, y0 + y, color)
     }
     if (cornerName & 0x1) {
-      drawPixel(ctx, x0 - y, y0 - x, color)
-      drawPixel(ctx, x0 - x, y0 - y, color)
+      ctx.drawPixel(x0 - y, y0 - x, color)
+      ctx.drawPixel(x0 - x, y0 - y, color)
     }
   }
 }
 
 const draw = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   circle: Omit<Circle, 'type' | 'id'>,
   offset = { x: 0, y: 0 },
 ) => {

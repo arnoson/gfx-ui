@@ -36,15 +36,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import type { Bounds, CodeContext, Color, Point } from '~/types'
 import { makeBounds } from '~/utils/bounds'
+import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 import {
   parseItemArgs,
   parseItemSettings,
   serializeItemSettings,
+  type DrawContext,
   type ItemActions,
 } from './item'
 import { drawHorizontalLine, draw as drawLine } from './line'
-import { drawPixel } from '~/utils/pixels'
-import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 
 export interface Polygon {
   type: 'polygon'
@@ -63,7 +63,7 @@ export interface Polygon {
 
 // Based on https://github.com/adafruit/Adafruit-GFX-Library/blob/c450adbc04ca0b626993bf3b83aedbda655b8fca/Adafruit_GFX.cpp#L619
 const fillTriangle = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   x0: number,
   y0: number,
   x1: number,
@@ -164,11 +164,7 @@ export const getPolygonPoints = (polygon: Polygon) => {
   return points
 }
 
-const strokePolygon = (
-  ctx: CanvasRenderingContext2D,
-  polygon: Polygon,
-  offset: Point,
-) => {
+const strokePolygon = (ctx: DrawContext, polygon: Polygon, offset: Point) => {
   const { sides, color } = polygon
   const points = getPolygonPoints(polygon)
   for (let i = 0; i < sides; i++) {
@@ -178,11 +174,7 @@ const strokePolygon = (
   }
 }
 
-const fillPolygon = (
-  ctx: CanvasRenderingContext2D,
-  polygon: Polygon,
-  offset: Point,
-) => {
+const fillPolygon = (ctx: DrawContext, polygon: Polygon, offset: Point) => {
   const { sides, center, color } = polygon
   const points = getPolygonPoints(polygon)
   for (let i = 0; i < sides; i++) {
@@ -201,11 +193,7 @@ const fillPolygon = (
   }
 }
 
-const draw = (
-  ctx: CanvasRenderingContext2D,
-  rect: Polygon,
-  offset = { x: 0, y: 0 },
-) => {
+const draw = (ctx: DrawContext, rect: Polygon, offset = { x: 0, y: 0 }) => {
   if (rect.isFilled) fillPolygon(ctx, rect, offset)
   else strokePolygon(ctx, rect, offset)
 }

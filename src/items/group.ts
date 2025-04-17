@@ -1,15 +1,16 @@
-import type { Bounds, CodeContext, Point } from '~/types'
+import type { CodeContext, Point } from '~/types'
 import { getTranslatedBounds, makeBounds } from '~/utils/bounds'
+import { composeRegex, metaRegex } from '~/utils/regex'
 import {
   drawItem,
   getItemBounds,
   itemToCode,
   parseItemSettings,
   translateItem,
+  type DrawContext,
   type Item,
   type ItemActions,
 } from './item'
-import { composeRegex, metaRegex } from '~/utils/regex'
 
 export interface Group {
   type: 'group'
@@ -61,11 +62,7 @@ const getBounds = (item: Pick<Group, 'type' | 'children'>) => {
   return makeBounds({ x: edges.left, y: edges.top }, { width, height })
 }
 
-const draw = (
-  ctx: CanvasRenderingContext2D,
-  group: Group,
-  offset = { x: 0, y: 0 },
-) => {
+const draw = (ctx: DrawContext, group: Group, offset = { x: 0, y: 0 }) => {
   for (const child of group.children.toReversed()) drawItem(ctx, child, offset)
 }
 

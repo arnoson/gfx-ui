@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { PopoverContent, PopoverRoot, PopoverTrigger } from 'reka-ui'
 import { computed } from 'vue'
+import { useEditor } from '~/stores/editor'
 import type { Color } from '~/types'
-import { pixelColors } from '~/utils/pixels'
 
 defineProps<{ label: string }>()
 const model = defineModel<Color>({ required: true })
+const editor = useEditor()
 
 const name = computed(() => {
   if (model.value === 0) return 'Black'
@@ -21,14 +22,14 @@ const name = computed(() => {
       <PopoverTrigger class="preview">
         <div
           class="swatch"
-          :style="{ backgroundColor: pixelColors[model] }"
+          :style="{ backgroundColor: editor.pixelColors[model] }"
         ></div>
         <div class="name">{{ name }}</div>
       </PopoverTrigger>
       <PopoverContent :align="'end'" :side-offset="5">
         <div class="swatches">
           <button
-            v-for="(css, index) of pixelColors"
+            v-for="(css, index) of editor.pixelColors"
             @click="model = index"
             class="swatch"
             :style="{ backgroundColor: css }"

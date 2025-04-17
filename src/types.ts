@@ -54,7 +54,7 @@ export interface Tool {
 }
 
 export interface ItemActions {
-  draw: (ctx: CanvasRenderingContext2D, item: Item) => void
+  draw: (ctx: DrawContext, item: Item) => void
   translate: (item: Item, delta: Point) => void
   move: (item: Item, position: Point) => void
   getBounds: (item: Item) => Bounds

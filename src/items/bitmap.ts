@@ -1,15 +1,16 @@
 import type { Bounds, CodeContext, Color, Pixels, Point } from '~/types'
 import { getBit, setBit } from '~/utils/bit'
 import { emptyBounds, makeBounds } from '~/utils/bounds'
-import { drawPixel, packPixel, unpackPixel } from '~/utils/pixels'
-import { composeRegex, metaRegex, commentRegex } from '~/utils/regex'
+import { sanitizeIdentifier } from '~/utils/identifier'
+import { packPixel, unpackPixel } from '~/utils/pixels'
+import { commentRegex, composeRegex, metaRegex } from '~/utils/regex'
 import {
   parseItemArgs,
   parseItemSettings,
   serializeItemSettings,
+  type DrawContext,
   type ItemActions,
 } from './item'
-import { sanitizeIdentifier } from '~/utils/identifier'
 
 export interface Bitmap {
   type: 'bitmap'
@@ -23,13 +24,13 @@ export interface Bitmap {
 }
 
 const draw = (
-  ctx: CanvasRenderingContext2D,
+  ctx: DrawContext,
   { pixels, color }: Bitmap,
   offset = { x: 0, y: 0 },
 ) => {
   for (const pixel of pixels) {
     const { x, y } = unpackPixel(pixel)
-    drawPixel(ctx, x + offset.x, y + offset.y, color)
+    ctx.drawPixel(x + offset.x, y + offset.y, color)
   }
 }
 

@@ -1,12 +1,12 @@
-import type { Bounds, CodeContext, Point } from '~/types'
+import type { Bounds, CodeContext, Color, Point } from '~/types'
 import { bitmap, type Bitmap } from './bitmap'
 import { circle, type Circle } from './circle'
 import { group, type Group } from './group'
+import { instance, type Instance } from './instance'
 import { line, type Line } from './line'
+import { polygon, type Polygon } from './polygon'
 import { rect, type Rect } from './rect'
 import { text, type Text } from './text'
-import { instance, type Instance } from './instance'
-import { polygon, type Polygon } from './polygon'
 
 const items = { bitmap, circle, group, line, rect, polygon, text, instance }
 
@@ -63,7 +63,7 @@ export const parseItemArgs = (str: string) =>
   str.split(',').map((v) => Number(v.trim()))
 
 export type ItemActions<T = any> = {
-  draw: (ctx: CanvasRenderingContext2D, item: T, offset?: Point) => void
+  draw: (ctx: DrawContext, item: T, offset?: Point) => void
   translate: (item: T, delta: Point) => void
   move: (item: T, position: Point) => void
   getBounds: (item: T) => Bounds
@@ -77,11 +77,11 @@ export type ItemActions<T = any> = {
 // worth it since we can keep all the state in pinia and implement features
 // like history, copy & paste, ... without having to create any class instances.
 
-export const drawItem = (
-  ctx: CanvasRenderingContext2D,
-  item: Item,
-  offset?: Point,
-) => {
+export type DrawContext = {
+  drawPixel(x: number, y: number, color: Color): void
+}
+
+export const drawItem = (ctx: DrawContext, item: Item, offset?: Point) => {
   if (item.isHidden) return
   items[item.type].draw(ctx, item as any, offset)
 }

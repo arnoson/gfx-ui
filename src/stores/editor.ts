@@ -35,6 +35,26 @@ export const useEditor = defineStore('editor', () => {
   const isSelecting = ref(false)
   const isMoving = ref(false)
 
+  // Pixels
+  const pixelColors = [
+    'hsl(0, 0%, 0%)',
+    'hsl(0, 0%, 6.67%)',
+    'hsl(0, 0%, 13.33%)',
+    'hsl(0, 0%, 20%)',
+    'hsl(0, 0%, 26.67%)',
+    'hsl(0, 0%, 33.33%)',
+    'hsl(0, 0%, 40%)',
+    'hsl(0, 0%, 46.67%)',
+    'hsl(0, 0%, 53.33%)',
+    'hsl(0, 0%, 60%)',
+    'hsl(0, 0%, 66.67%)',
+    'hsl(0, 0%, 73.33%)',
+    'hsl(0, 0%, 80%)',
+    'hsl(0, 0%, 86.67%)',
+    'hsl(0, 0%, 93.33%)',
+    'hsl(0, 0%, 100%)',
+  ]
+
   // Tools
   const pencil = usePencil()
   const select = useSelect()
@@ -171,6 +191,7 @@ export const useEditor = defineStore('editor', () => {
     viewCode,
     isSelecting,
     isMoving,
+    pixelColors,
 
     tools,
     activeTool,
