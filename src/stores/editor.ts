@@ -204,6 +204,7 @@ export const useEditor = defineStore('editor', () => {
     frameBounds,
     activateFrame,
 
+    itemsFlat,
     copiedItems,
     focusedItem,
     focusItem,

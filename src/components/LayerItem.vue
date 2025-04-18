@@ -7,11 +7,13 @@ import IconVisible from '~/assets/icons/icon-visible.svg'
 import type { Item } from '~/items/item'
 import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
 import InlineEdit from './InlineEdit.vue'
 import LayerIcon from './LayerIcon.vue'
 
 const props = defineProps<{ item: Item }>()
 const editor = useEditor()
+const project = useProject()
 const history = useHistory()
 
 const toggleHidden = () => {
@@ -25,11 +27,69 @@ const toggleHidden = () => {
 const hasEnabledActions = computed(
   () => props.item.isLocked || props.item.isHidden,
 )
+
+const removeSelectedItems = () => {
+  for (const item of editor.selectedItems) {
+    if (item === editor.focusedItem) editor.focusedItem = null
+    project.removeItem(item)
+  }
+  editor.selectedItems.clear()
+  history.saveState()
+}
+
+const handleMouseDown = (e: MouseEvent) => {
+  if (e.ctrlKey) {
+    editor.focusedItem = null
+    editor.selectedItems.add(props.item)
+  } else if (e.shiftKey && editor.selectedItems.size) {
+    // Find range bounds from current selection.
+    const { selectedItems, itemsFlat } = editor
+    const currentIndex = itemsFlat.indexOf(props.item)
+    const selectedIndexes = [...selectedItems].map((v) => itemsFlat.indexOf(v))
+    const [fromIndex, toIndex] = [
+      Math.min(...selectedIndexes),
+      Math.max(...selectedIndexes),
+    ]
+
+    // First add non-group items.
+    editor.blur()
+    const rangeStart = Math.min(currentIndex, fromIndex)
+    const rangeEnd = Math.max(currentIndex, toIndex)
+    for (let i = rangeStart; i <= rangeEnd; i++) {
+      const item = itemsFlat[i]
+      if (item.type !== 'group') {
+        selectedItems.add(item)
+      }
+    }
+
+    // Add clicked group's children if applicable.
+    if (props.item.type === 'group') {
+      props.item.children.forEach((child) => selectedItems.add(child))
+    }
+
+    // Replace fully selected group children with their parent group.
+    for (const item of itemsFlat) {
+      if (
+        item.type === 'group' &&
+        item.children.every((child) => selectedItems.has(child))
+      ) {
+        selectedItems.add(item)
+        item.children.forEach((child) => selectedItems.delete(child))
+      }
+    }
+  } else {
+    editor.focusItem(props.item)
+  }
+}
 </script>
 
 <template>
   <div class="layer">
-    <button class="name" @mousedown="editor.focusItem(item)">
+    <button
+      class="name"
+      @mousedown="handleMouseDown"
+      @keydown.delete="removeSelectedItems"
+    >
       <LayerIcon :item="item" class="icon" />
       <div class="name-name">
         <InlineEdit
