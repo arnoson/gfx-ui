@@ -4,6 +4,7 @@ dialog {
   border: 1px solid var(--color-grid);
   color: var(--color-text);
   max-width: min(50ch, 80%);
+  min-width: 40ch;
 
   &::backdrop {
     background-color: hsla(0, 0%, 0%, 0.5);

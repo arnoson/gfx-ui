@@ -9,6 +9,7 @@ import {
   type DrawContext,
   type ItemActions,
 } from './item'
+import { useEditor } from '~/stores/editor'
 
 export interface Text {
   type: 'text'
@@ -140,7 +141,7 @@ const fromCode = (code: string) => {
   let x = 0
   let y = 0
   let color = 0
-  let font = '' // TODO: handle default font
+  let font = useEditor().currentFont
   let content = ''
 
   let commandMatch: RegExpMatchArray | null

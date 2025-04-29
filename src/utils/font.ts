@@ -15,6 +15,7 @@ export type GfxFont = {
   asciiEnd: number
   yAdvance: number
   baseline: number
+  isBuiltIn?: boolean
 }
 
 export const parseFont = (code: string): GfxFont => {
@@ -57,3 +58,80 @@ export const parseFont = (code: string): GfxFont => {
     baseline,
   }
 }
+
+export const serializeFont = ({
+  name,
+  bytes,
+  glyphs,
+  asciiStart,
+  asciiEnd,
+  yAdvance,
+}: GfxFont): string => {
+  name = sanitizeFontName(name)
+  return `const uint8_t ${name}Bitmaps[] PROGMEM = ${uint8ToString(bytes)};
+
+const GFXglyph ${name}Glyphs[] PROGMEM = {
+${glyphs
+  .map((glyph, index) => `  ${glyphToString(asciiStart + index, glyph)}`)
+  .join('\n')}
+};
+
+const GFXfont ${name} PROGMEM = {
+  (uint8_t *)${name}Bitmaps,
+  (GFXglyph *)${name}Glyphs,
+  ${asciiStart}, ${asciiEnd}, ${yAdvance}
+};
+`
+}
+
+const sanitizeFontName = (name: string): string => {
+  // Replace spaces with underscores and remove invalid characters.
+  let sanitized = name.replace(/\s+/g, '_')
+  sanitized = sanitized.replace(/[^a-zA-Z0-9_]/g, '')
+
+  // Ensure the name doesn't start with a digit.
+  if (/^\d/.test(sanitized)) sanitized = '_' + sanitized
+
+  return sanitized
+}
+
+const glyphToString = (charCode: number, glyph: GfxGlyph) => {
+  const pad = (num: number) => num.toString().padStart(4, ' ')
+
+  const str = `{ ${[
+    pad(glyph.byteOffset ?? 0),
+    pad(glyph.width),
+    pad(glyph.height),
+    pad(glyph.xAdvance),
+    pad(glyph.deltaX),
+    pad(glyph.deltaY),
+  ].join(', ')} },`
+
+  const char = String.fromCharCode(charCode)
+  const isPrintable = !char.match(/[\x00-\x1F\x7F-\x9F\xAD]/g)
+  const info = isPrintable ? `'${char}'` : '(non-printable)'
+
+  return str + ` // 0x${charCode.toString(16)} ${info}`
+}
+
+const uint8ToString = (buffer: Uint8Array) => {
+  const hexStrings: string[] = []
+
+  for (let i = 0; i < buffer.length; i++) {
+    hexStrings.push('0x' + buffer[i].toString(16).padStart(2, '0'))
+  }
+
+  // 12 hex strings fit nicely into a 80 characters line with 2 or 4 spaces
+  // indent.
+  const hexStringsPerRow = 12
+  const innerString = arrayToChunks(hexStrings, hexStringsPerRow)
+    .map((row: string[]) => '  ' + row.join(', '))
+    .join(',\n')
+
+  return `{\n${innerString}\n}`
+}
+
+const arrayToChunks = (array: any[], size: number): any[][] =>
+  array.length > size
+    ? [array.slice(0, size), ...arrayToChunks(array.slice(size), size)]
+    : [array]

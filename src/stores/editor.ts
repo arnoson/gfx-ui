@@ -35,6 +35,7 @@ export const useEditor = defineStore('editor', () => {
   const isSelecting = ref(false)
   const isMoving = ref(false)
   const isErasing = ref(false)
+  const currentFont = ref('FreeMono12pt7b')
 
   // Pixels
   const pixelColors = [
@@ -194,6 +195,7 @@ export const useEditor = defineStore('editor', () => {
     isMoving,
     isErasing,
     pixelColors,
+    currentFont,
 
     tools,
     activeTool,

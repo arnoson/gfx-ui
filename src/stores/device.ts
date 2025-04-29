@@ -1,5 +1,5 @@
 import { useStorage, useThrottleFn } from '@vueuse/core'
-import { defineStore } from 'pinia'
+import { acceptHMRUpdate, defineStore } from 'pinia'
 import { onUnmounted, ref } from 'vue'
 import { useProject } from './project'
 
@@ -85,3 +85,6 @@ export const useDevice = defineStore('device', () => {
     sendFrameBuffer: sendScreenBuffer,
   }
 })
+
+if (import.meta.hot)
+  import.meta.hot.accept(acceptHMRUpdate(useDevice, import.meta.hot))

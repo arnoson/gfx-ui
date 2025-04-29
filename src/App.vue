@@ -2,7 +2,6 @@
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
-import miwos7pt from '~/fonts/miwos7pt.h?raw'
 import ComponentsPanel from './components/ComponentsPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
 import FramesPanel from './components/FramesPanel.vue'
@@ -10,17 +9,14 @@ import LayersTree from './components/LayersTree.vue'
 import ProjectProperties from './components/ProjectProperties.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
 import ToolBar from './components/ToolBar.vue'
-import { useEditor } from './stores/editor'
-import { useFonts } from './stores/fonts'
-import { useProject } from './stores/project'
 import { useDevice } from './stores/device'
+import { useEditor } from './stores/editor'
+import { useProject } from './stores/project'
+import testProject from '~/assets/test-project.h?raw'
 
 const editor = useEditor()
 const project = useProject()
-const fonts = useFonts()
 const device = useDevice()
-
-fonts.add(miwos7pt)
 
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)

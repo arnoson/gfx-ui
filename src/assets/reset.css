@@ -20,6 +20,7 @@ a {
 
 p,
 pre,
-menu {
+menu,
+ul {
   margin: 0;
 }

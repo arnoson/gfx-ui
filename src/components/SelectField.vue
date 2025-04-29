@@ -23,21 +23,24 @@ const isOptionsGroup = (v: any): v is OptionGroup => !!v.options
 <template>
   <div class="field">
     <label :for="id">{{ label }}</label>
-    <select
-      :id="id"
-      v-model="model"
-      :aria-describedby="hasInfo ? infoId : undefined"
-    >
-      <option v-if="allowEmpty" value="">–</option>
-      <template v-for="option of options">
-        <optgroup v-if="isOptionsGroup(option)" :label="option.label">
-          <option v-for="{ value, label } of option.options" :value>
-            {{ label }}
-          </option>
-        </optgroup>
-        <option v-else :value="option.value">{{ option.label }}</option>
-      </template>
-    </select>
+    <div class="fu">
+      <select
+        :id="id"
+        v-model="model"
+        :aria-describedby="hasInfo ? infoId : undefined"
+      >
+        <option v-if="allowEmpty" value="">–</option>
+        <template v-for="option of options">
+          <optgroup v-if="isOptionsGroup(option)" :label="option.label">
+            <option v-for="{ value, label } of option.options" :value>
+              {{ label }}
+            </option>
+          </optgroup>
+          <option v-else :value="option.value">{{ option.label }}</option>
+        </template>
+      </select>
+      <slot name="settings"></slot>
+    </div>
     <div class="info" v-if="hasInfo" :id="`info-${id}`">
       <slot name="info"></slot>
     </div>
@@ -53,5 +56,16 @@ const isOptionsGroup = (v: any): v is OptionGroup => !!v.options
 
 select {
   min-width: 0;
+  width: 100%;
+}
+
+.fu {
+  display: flex;
+  flex-direction: row;
+  gap: 1ch;
+
+  select {
+    flex: 1;
+  }
 }
 </style>

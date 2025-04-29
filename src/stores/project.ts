@@ -17,6 +17,7 @@ import { useFonts } from './fonts'
 import { useHistory } from './history'
 import { useStorage } from '@vueuse/core'
 import { parse } from 'superjson'
+import { serializeFont } from '~/utils/font'
 
 type Id = number
 let id = 0
@@ -165,6 +166,13 @@ export const useProject = defineStore('project', () => {
  * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
  */\n\n`
 
+    const customFonts = [...fonts.fonts.values()].filter((v) => !v.isBuiltIn)
+    for (const font of customFonts) {
+      code += '// font-start\n'
+      code += serializeFont(font)
+      code += '// font-end\n\n\n'
+    }
+
     const ctx = createCodeContext({ comments: 'all', includeOffset: false })
     code += components.value.map((v) => frameToCode(v, ctx)).join('\n\n')
     code += '\n\n'
@@ -268,6 +276,7 @@ export const useProject = defineStore('project', () => {
           ignoredStart = null
         }
         const item = addItem(itemMatch.item)!
+        if (item.type === 'text') editor.currentFont = item.font
 
         // Group start
         const group = groups.at(-1)

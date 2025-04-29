@@ -26,7 +26,7 @@ export const useText = defineTool(
         content: 'Text',
         color: 15,
         position: clonePoint(point),
-        font: 'miwos7pt',
+        font: editor.currentFont,
       })
       if (text) editor.focusItem(text)
       if (text) history.saveState()
