@@ -5,7 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === 'development' ? '/' : '/gfx-ui/',
   plugins: [vue(), svgLoader()],
   resolve: {
     alias: { '~': fileURLToPath(new URL('./src', import.meta.url)) },
@@ -13,4 +14,4 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
-})
+}))
