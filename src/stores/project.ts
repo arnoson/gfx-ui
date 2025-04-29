@@ -24,8 +24,10 @@ const createId = () => id++
 
 export const useProject = defineStore('project', () => {
   const history = useHistory()
-  const name = ref('Untitled')
+  const name = useStorage('gfxui:project-name', 'Untitled')
+  const settings = useStorage('gfxui:settings', { rememberDevice: true })
 
+  // TODO: move this into settings
   const codeSettings = ref<Omit<CodeContext, 'getUniqueName'>>({
     comments: 'names',
     includeOffset: false,
@@ -131,8 +133,28 @@ export const useProject = defineStore('project', () => {
 
   const removeItem = (item: Item, frame = editor.activeFrame) => {
     if (!frame) return
+
+    // Since the item doesn't know anything about its parent, we have to find
+    // the items parent (the current frame or any group) manually.
+
     const index = frame.children.findIndex((v) => v.id === item.id)
-    frame.children.splice(index, 1)
+    if (index !== -1) {
+      frame.children.splice(index, 1)
+      return
+    }
+
+    const queue = [...frame.children]
+    while (queue.length > 0) {
+      const current = queue.shift()!
+      if (current.type === 'group') {
+        const index = current.children.findIndex((v) => v.id === item.id)
+        if (index !== -1) {
+          current.children.splice(index, 1)
+          return
+        }
+        queue.push(...current.children)
+      }
+    }
   }
 
   const editor = useEditor()
@@ -308,6 +330,7 @@ export const useProject = defineStore('project', () => {
 
   return {
     name,
+    settings,
     codeSettings,
 
     frames,

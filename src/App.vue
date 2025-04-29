@@ -13,10 +13,12 @@ import ToolBar from './components/ToolBar.vue'
 import { useEditor } from './stores/editor'
 import { useFonts } from './stores/fonts'
 import { useProject } from './stores/project'
+import { useDevice } from './stores/device'
 
 const editor = useEditor()
 const project = useProject()
 const fonts = useFonts()
+const device = useDevice()
 
 fonts.add(miwos7pt)
 
@@ -35,7 +37,7 @@ if (import.meta.hot) {
   project.clear(false)
 }
 
-// project.load(testProject)
+device.connect()
 
 project.restore()
 

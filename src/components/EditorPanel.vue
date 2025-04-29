@@ -10,10 +10,14 @@ import ItemBounds from './ItemBounds.vue'
 import ItemControls from './ItemControls.vue'
 import ItemHandle from './ItemHandle.vue'
 import { useHistory } from '~/stores/history'
+import { useDevice } from '~/stores/device'
 
 const props = defineProps<{ frame: Frame }>()
+
 const editor = useEditor()
 const history = useHistory()
+const device = useDevice()
+
 const overlay = useTemplateRef('overlay')
 const editorEl = useTemplateRef('editorEl')
 const { space } = useMagicKeys()
@@ -93,7 +97,12 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
           class="bounds"
         />
       </svg>
-      <FrameCanvas class="canvas" :frame="frame" :key="frame.id" />
+      <FrameCanvas
+        class="canvas"
+        :frame="frame"
+        :key="frame.id"
+        :live-preview="device.isConnected"
+      />
       <svg
         ref="overlay"
         :viewBox="`0 0 ${size.width} ${size.height}`"
