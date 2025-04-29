@@ -1,4 +1,4 @@
-import type { Item } from './items/item'
+import type { DrawContext, Item } from './items/item'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
 
