@@ -1,0 +1,80 @@
+<svg width="362" height="248" viewBox="0 0 362 248" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M352 10H10V238H352V10Z" fill="black"/>
+<path d="M55.6 10H32.8V32.8H55.6V10Z" fill="white"/>
+<path d="M78.4001 10H55.6001V32.8H78.4001V10Z" fill="white"/>
+<path d="M32.8 32.8H10V55.6H32.8V32.8Z" fill="white"/>
+<path d="M32.8 55.6H10V78.4H32.8V55.6Z" fill="white"/>
+<path d="M55.6 78.4H32.8V101.2H55.6V78.4Z" fill="white"/>
+<path d="M78.4001 78.4H55.6001V101.2H78.4001V78.4Z" fill="white"/>
+<path d="M101.2 32.8H78.3999V55.6H101.2V32.8Z" fill="white"/>
+<path d="M101.2 55.6H78.3999V78.4H101.2V55.6Z" fill="white"/>
+<path d="M101.2 101.2H78.3999V124H101.2V101.2Z" fill="white"/>
+<path d="M101.2 124H78.3999V146.8H101.2V124Z" fill="white"/>
+<path d="M78.4001 124H55.6001V146.8H78.4001V124Z" fill="white"/>
+<path d="M55.6 124H32.8V146.8H55.6V124Z" fill="white"/>
+<path d="M146.8 101.2H124V124H146.8V101.2Z" fill="white"/>
+<path d="M146.8 78.4H124V101.2H146.8V78.4Z" fill="white"/>
+<path d="M146.8 55.6H124V78.4H146.8V55.6Z" fill="white"/>
+<path d="M146.8 32.8H124V55.6H146.8V32.8Z" fill="white"/>
+<path d="M169.6 10H146.8V32.8H169.6V10Z" fill="white"/>
+<path d="M192.4 10H169.6V32.8H192.4V10Z" fill="white"/>
+<path d="M169.6 55.6H146.8V78.4H169.6V55.6Z" fill="white"/>
+<path d="M192.4 55.6H169.6V78.4H192.4V55.6Z" fill="white"/>
+<path d="M329.2 101.2H306.4V124H329.2V101.2Z" fill="white"/>
+<path d="M352 101.2H329.2V124H352V101.2Z" fill="white"/>
+<path d="M32.8 192.4H10V215.2H32.8V192.4Z" fill="white"/>
+<path d="M55.6 192.4H32.8V215.2H55.6V192.4Z" fill="white"/>
+<path d="M78.4001 192.4H55.6001V215.2H78.4001V192.4Z" fill="white"/>
+<path d="M124 192.4H101.2V215.2H124V192.4Z" fill="white"/>
+<path d="M146.8 169.6H124V192.4H146.8V169.6Z" fill="white"/>
+<path d="M192.4 192.4H169.6V215.2H192.4V192.4Z" fill="white"/>
+<path d="M215.2 169.6H192.4V192.4H215.2V169.6Z" fill="white"/>
+<path d="M238 10H215.2V32.8H238V10Z" fill="white"/>
+<path d="M283.6 10H260.8V32.8H283.6V10Z" fill="white"/>
+<path d="M260.8 32.8H238V55.6H260.8V32.8Z" fill="white"/>
+<path d="M260.8 55.6H238V78.4H260.8V55.6Z" fill="white"/>
+<path d="M260.8 78.4H238V101.2H260.8V78.4Z" fill="white"/>
+<path d="M238 101.2H215.2V124H238V101.2Z" fill="white"/>
+<path d="M283.6 101.2H260.8V124H283.6V101.2Z" fill="white"/>
+<path d="M169.6 146.8H146.8V169.6H169.6V146.8Z" fill="white"/>
+<path d="M238 146.8H215.2V169.6H238V146.8Z" fill="white"/>
+<path d="M146.8 215.2H124V238H146.8V215.2Z" fill="white"/>
+<path d="M169.6 215.2H146.8V238H169.6V215.2Z" fill="white"/>
+<path d="M352 78.4H329.2V101.2H352V78.4Z" fill="white"/>
+<path d="M329.2 78.4H306.4V101.2H329.2V78.4Z" fill="white"/>
+<path d="M238 215.2H215.2V238H238V215.2Z" fill="white"/>
+<path d="M260.8 192.4H238V215.2H260.8V192.4Z" fill="white"/>
+<path d="M283.6 169.6H260.8V192.4H283.6V169.6Z" fill="white"/>
+<path d="M306.4 146.8H283.6V169.6H306.4V146.8Z" fill="white"/>
+<path d="M10 32.8H352" stroke="#333333"/>
+<path d="M10 55.6H352" stroke="#333333"/>
+<path d="M10 78.4H352" stroke="#333333"/>
+<path d="M10 101.2H352" stroke="#333333"/>
+<path d="M10 124H352" stroke="#333333"/>
+<path d="M10 146.8H352" stroke="#333333"/>
+<path d="M10 169.6H352" stroke="#333333"/>
+<path d="M10 192.4H352" stroke="#333333"/>
+<path d="M10 215.2H352" stroke="#333333"/>
+<path d="M32.8 10V238" stroke="#333333"/>
+<path d="M55.6001 10V238" stroke="#333333"/>
+<path d="M78.3999 10V238" stroke="#333333"/>
+<path d="M101.2 10V238" stroke="#333333"/>
+<path d="M124 10V238" stroke="#333333"/>
+<path d="M146.8 10V238" stroke="#333333"/>
+<path d="M169.6 10V238" stroke="#333333"/>
+<path d="M192.4 10V238" stroke="#333333"/>
+<path d="M215.2 10V238" stroke="#333333"/>
+<path d="M238 10V238" stroke="#333333"/>
+<path d="M260.8 10V238" stroke="#333333"/>
+<path d="M283.6 10V238" stroke="#333333"/>
+<path d="M306.4 10V238" stroke="#333333"/>
+<path d="M329.2 10V238" stroke="#333333"/>
+<path d="M352 10H10V238H352V10Z" stroke="#FF6347" stroke-width="1.5"/>
+<circle cx="352" cy="10" r="8.6" stroke="#FF6347" stroke-width="1.5"/>
+<circle cx="352" cy="238" r="8.6" stroke="#FF6347" stroke-width="1.5"/>
+<circle cx="226.598" cy="226.598" r="8.6" stroke="#FF6347" stroke-width="1.5"/>
+<circle cx="294.998" cy="158.198" r="8.6" stroke="#FF6347" stroke-width="1.5"/>
+<circle cx="9.9999" cy="10" r="8.6" stroke="#FF6347" stroke-width="1.5"/>
+<circle cx="9.9999" cy="238" r="8.6" stroke="#FF6347" stroke-width="1.5"/>
+<line x1="226.737" y1="226.789" x2="295.134" y2="158.295" stroke="#FF6347" stroke-width="1.5"/>
+</svg>
