@@ -111,7 +111,7 @@ const drawRoundRect = (
         color,
         isFilled,
       },
-      offset,
+      { x: 0, y: 0 }, // Offset is already applied to the coordinates
     )
     fillCircleHelper(ctx, x + w - r - 1, y + r, r, 1, h - 2 * r - 1, color)
     fillCircleHelper(ctx, x + r, y + r, r, 2, h - 2 * r - 1, color)
