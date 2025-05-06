@@ -109,8 +109,10 @@ const toCode = (text: Text, ctx: CodeContext) => {
     code += `// text-start ${uniqueName} ${serializeItemSettings(text)}\n`
   }
 
+  const baseline = useFonts().fonts.get(font)?.baseline ?? 0
+  const baselineY = position.y + baseline
   const x = ctx.includeOffset ? `x + ${position.x}` : position.x
-  const y = ctx.includeOffset ? `y + ${position.y}` : position.y
+  const y = ctx.includeOffset ? `y + ${baselineY}` : baselineY
 
   code += `display.setCursor(${x}, ${y});
 display.setTextColor(${color});
@@ -160,10 +162,12 @@ const fromCode = (code: string) => {
     content = commandMatch.groups!.content
   }
 
+  const baseline = useFonts().fonts.get(font)?.baseline ?? 0
+
   const item = {
     type: 'text',
     name,
-    position: { x, y },
+    position: { x, y: y - baseline },
     content,
     font,
     color,
