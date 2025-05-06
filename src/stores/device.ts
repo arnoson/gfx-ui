@@ -15,12 +15,44 @@ export const useDevice = defineStore('device', () => {
     usbProductId: undefined,
   })
 
-  const setupPort = async (port: SerialPort) => {
+  const openPort = async (port: SerialPort) => {
     await port.open({ baudRate: 9600 })
-    writer = port.writable?.getWriter()
+    writer = port?.writable?.getWriter()
     isConnected.value = true
     lastDeviceInfo.value = port.getInfo()
-    console.log('setup', port.getInfo())
+    writer?.write(new TextEncoder().encode('gfxui:live=1'))
+  }
+
+  const connect = async () => {
+    // Try to auto-connect to the last opened port.
+    if (project.settings.rememberDevice) {
+      const ports = await navigator.serial.getPorts()
+      port = ports.find(isMatchingPort)
+    }
+
+    // This requires a user gesture (which might or might not have happened) so
+    // we have to try-catch it.
+    try {
+      port ??= await navigator.serial.requestPort()
+    } catch (e) {}
+
+    if (port) await openPort(port)
+
+    if (project.settings.rememberDevice && !autoConnectIsSetup) {
+      navigator.serial.addEventListener('connect', async (event) => {
+        const newPort = event.target as SerialPort
+        if (!isMatchingPort(newPort)) return
+        await openPort(newPort)
+      })
+      autoConnectIsSetup = true
+    }
+  }
+
+  const disconnect = async () => {
+    writer?.write(new TextEncoder().encode('gfxui:live=0'))
+    await writer?.close()
+    await port?.close()
+    isConnected.value = false
   }
 
   const isMatchingPort = (port: SerialPort) => {
@@ -31,47 +63,10 @@ export const useDevice = defineStore('device', () => {
     )
   }
 
-  const connect = async () => {
-    let port: SerialPort | undefined
-
-    // Try to auto-connect to the last opened port.
-    if (project.settings.rememberDevice) {
-      const ports = await navigator.serial.getPorts()
-      port = ports.find(isMatchingPort)
-    }
-
-    // This requires a user gesture (which might or might not have happened) we
-    // try-catch it.
-    try {
-      port ??= await navigator.serial.requestPort()
-    } catch (e) {}
-
-    if (port) setupPort(port)
-
-    // In case the port is unplugged and then plugged back in again, or if the
-    // user hasn't plugged in the device yet, we will also listen for any new
-    // connections.
-    if (project.settings.rememberDevice && !autoConnectIsSetup) {
-      navigator.serial.addEventListener('connect', (event) => {
-        const newPort = event.target as SerialPort
-        if (!isMatchingPort(newPort)) return
-        port = newPort
-        setupPort(port)
-      })
-      autoConnectIsSetup = true
-    }
-  }
-
-  const disconnect = async () => {
-    writer?.releaseLock()
-    await port?.close()
-    writer = undefined
-    port = undefined
-    isConnected.value = false
-  }
-
   const sendScreenBuffer = useThrottleFn(
-    async (bytes: Uint8Array) => writer?.write(bytes),
+    async (bytes: Uint8Array) => {
+      writer?.write(bytes)
+    },
     1000 / 12,
     true,
   )
