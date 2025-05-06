@@ -33,9 +33,8 @@ if (import.meta.hot) {
   project.clear(false)
 }
 
-device.connect()
-
 project.restore()
+if (project.settings.rememberDevice) device.connect()
 
 useEventListener(window, 'hashchange', activateFrame)
 activateFrame()
