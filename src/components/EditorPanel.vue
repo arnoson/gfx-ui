@@ -111,14 +111,6 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
       >
         <!-- Grid -->
         <g>
-          <rect
-            :x="0"
-            :y="0"
-            :width="size.width"
-            :height="size.height"
-            class="grid"
-            :style="`--stroke-width: 1`"
-          />
           <line
             v-for="row in size.height - 1"
             :x1="0"
@@ -134,6 +126,14 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
             :x2="column"
             :y2="size.height"
             class="grid"
+          />
+          <rect
+            :x="0"
+            :y="0"
+            :width="size.width"
+            :height="size.height"
+            class="grid"
+            :style="`--stroke-width: 1; stroke: var(--color-border)`"
           />
         </g>
 
