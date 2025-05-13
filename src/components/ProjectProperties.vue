@@ -18,6 +18,8 @@ const clear = async () => {
   const result = await clearDialog.value?.prompt()
   if (result === 'submit') project.clear()
 }
+
+const supportsFileSystemApi = 'showOpenFilePicker' in window
 </script>
 
 <template>

@@ -11,10 +11,12 @@ import ItemControls from './ItemControls.vue'
 import ItemHandle from './ItemHandle.vue'
 import { useHistory } from '~/stores/history'
 import { useDevice } from '~/stores/device'
+import { useProject } from '~/stores/project'
 
 const props = defineProps<{ frame: Frame }>()
 
 const editor = useEditor()
+const project = useProject()
 const history = useHistory()
 const device = useDevice()
 
@@ -79,6 +81,10 @@ useEventListener('keydown', (e) => {
   if (e.key === 'y' && e.ctrlKey) {
     e.preventDefault()
     history.redo()
+  }
+  if (e.key === 's' && e.ctrlKey) {
+    e.preventDefault()
+    project.save()
   }
 })
 

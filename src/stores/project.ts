@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { toCode as frameToCode, type Frame } from '~/frame'
 import type { Group } from '~/items/group'
 import {
@@ -18,6 +18,7 @@ import { useHistory } from './history'
 import { useStorage } from '@vueuse/core'
 import { parse } from 'superjson'
 import { serializeFont } from '~/utils/font'
+import { downloadFile } from '~/utils/file'
 
 type Id = number
 let id = 0
@@ -25,6 +26,9 @@ const createId = () => id++
 
 export const useProject = defineStore('project', () => {
   const history = useHistory()
+  const editor = useEditor()
+  const fonts = useFonts()
+
   const name = useStorage('gfxui:project-name', 'Untitled')
   const settings = useStorage('gfxui:settings', { rememberDevice: true })
 
@@ -158,10 +162,7 @@ export const useProject = defineStore('project', () => {
     }
   }
 
-  const editor = useEditor()
-  const fonts = useFonts()
-
-  const save = () => {
+  const exportCode = () => {
     let code = `/**
  * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
  */\n\n`
@@ -178,43 +179,10 @@ export const useProject = defineStore('project', () => {
     code += '\n\n'
     code += frames.value.map((v) => frameToCode(v, ctx)).join('\n\n')
 
-    // downloadFile(`${name.value}.h`, code)
-    console.log(code)
+    return code
   }
 
-  const parseFrameSettings = (str: string) => {
-    const flags = str?.split(',').map((v) => v.trim()) ?? []
-    let size: Size | undefined
-
-    const sizeFlag = flags.find((v) => v.match(/\d+x\d+/))
-    if (sizeFlag) {
-      const [width, height] = sizeFlag.split('x').map(Number)
-      size = { width, height }
-    }
-
-    return { size }
-  }
-
-  const resolveInstances = (frame: Frame) => {
-    const queue = [...frame.children]
-    while (queue.length > 0) {
-      const item = queue.shift()!
-
-      if (item.type === 'instance' && item.componentName) {
-        const component = components.value.find(
-          (v) => v.name === item.componentName,
-        )
-        if (component) {
-          item.componentId = component.id
-          delete item.componentName
-        }
-      }
-
-      if (item.type === 'group') queue.push(...item.children)
-    }
-  }
-
-  const load = (code: string) => {
+  const importCode = (code: string) => {
     clear()
     history.clear()
 
@@ -316,6 +284,32 @@ export const useProject = defineStore('project', () => {
     for (const frame of framesAndComponents.value) history.saveState(frame)
   }
 
+  const fileType: FilePickerAcceptType = { accept: { 'text/plain': '.h' } }
+
+  let fileHandle: FileSystemFileHandle | undefined
+  const open = async () => {
+    ;[fileHandle] = await window.showOpenFilePicker({ types: [fileType] })
+    const file = await fileHandle.getFile()
+    const code = await file.text()
+    importCode(code)
+  }
+
+  const save = async () => {
+    const code = exportCode()
+    if ('showOpenFilePicker' in window) {
+      fileHandle = await window.showSaveFilePicker({
+        types: [fileType],
+        id: `gfx-ui-${name.value}`,
+        suggestedName: name.value,
+      })
+      const writable = await fileHandle.createWritable()
+      await writable.write(new TextEncoder().encode(code))
+      await writable.close()
+    } else {
+      downloadFile(`${name.value}.h`, code)
+    }
+  }
+
   const restore = () => {
     for (const id of storedFrameIds.value) {
       const serialized = localStorage.getItem(`gfxui:frame-${id}`)
@@ -337,6 +331,38 @@ export const useProject = defineStore('project', () => {
     editor.activeFrame = undefined
   }
 
+  const parseFrameSettings = (str: string) => {
+    const flags = str?.split(',').map((v) => v.trim()) ?? []
+    let size: Size | undefined
+
+    const sizeFlag = flags.find((v) => v.match(/\d+x\d+/))
+    if (sizeFlag) {
+      const [width, height] = sizeFlag.split('x').map(Number)
+      size = { width, height }
+    }
+
+    return { size }
+  }
+
+  const resolveInstances = (frame: Frame) => {
+    const queue = [...frame.children]
+    while (queue.length > 0) {
+      const item = queue.shift()!
+
+      if (item.type === 'instance' && item.componentName) {
+        const component = components.value.find(
+          (v) => v.name === item.componentName,
+        )
+        if (component) {
+          item.componentId = component.id
+          delete item.componentName
+        }
+      }
+
+      if (item.type === 'group') queue.push(...item.children)
+    }
+  }
+
   return {
     name,
     settings,
@@ -356,7 +382,8 @@ export const useProject = defineStore('project', () => {
     addItem,
     removeItem,
 
-    load,
+    importCode,
+    open,
     save,
     restore,
     clear,

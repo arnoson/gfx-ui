@@ -17,13 +17,21 @@ const onDrop = async ([file]: File[]) => {
   }
 
   const code = await file.text()
-  project.load(code)
+  project.importCode(code)
   project.name = file.name.split('.').slice(0, -1).join('.')
 }
 
 const { getRootProps, getInputProps, isDragActive } = useDropzone({
   onDrop,
 })
+
+const openFile = (e: Event) => {
+  if ('showOpenFilePicker' in window) {
+    e.preventDefault()
+    e.stopPropagation()
+    project.open()
+  }
+}
 </script>
 
 <template>
@@ -33,7 +41,7 @@ const { getRootProps, getInputProps, isDragActive } = useDropzone({
     :data-drag-active="isDragActive"
   >
     <input v-bind="getInputProps()" />
-    <button>Load</button>
+    <button @click="openFile">Open</button>
     <div class="drop-hint">or drop file</div>
   </div>
 
