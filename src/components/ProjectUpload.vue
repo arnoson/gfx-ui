@@ -4,8 +4,10 @@ import { useProject } from '~/stores/project'
 import ModalDialog from './ModalDialog.vue'
 import { useTemplateRef } from 'vue'
 import { useEditor } from '~/stores/editor'
+import { useStorage } from '~/stores/storage'
 
 const project = useProject()
+const storage = useStorage()
 const editor = useEditor()
 const saveDialog = useTemplateRef('loadDialog')
 
@@ -13,11 +15,11 @@ const onDrop = async ([file]: File[]) => {
   if (editor.frames.length) {
     const result = await saveDialog.value?.prompt()
     if (!result) return
-    if (result === 'save') project.save()
+    if (result === 'save') storage.save()
   }
 
   const code = await file.text()
-  project.importCode(code)
+  project.fromCode(code)
   project.name = file.name.split('.').slice(0, -1).join('.')
 }
 
@@ -29,7 +31,7 @@ const openFile = (e: Event) => {
   if ('showOpenFilePicker' in window) {
     e.preventDefault()
     e.stopPropagation()
-    project.open()
+    storage.open()
   }
 }
 </script>

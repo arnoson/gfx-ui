@@ -1,5 +1,6 @@
+import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { computed, ref, shallowRef, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { toCode as frameToCode, type Frame } from '~/frame'
 import type { Group } from '~/items/group'
 import {
@@ -11,14 +12,11 @@ import {
 } from '~/items/item'
 import type { CodeContext, Optional, Size } from '~/types'
 import { createCodeContext } from '~/utils/codeContext'
+import { serializeFont } from '~/utils/font'
 import { capitalizeFirstLetter } from '~/utils/text'
 import { useEditor } from './editor'
 import { useFonts } from './fonts'
 import { useHistory } from './history'
-import { useStorage } from '@vueuse/core'
-import { parse } from 'superjson'
-import { serializeFont } from '~/utils/font'
-import { downloadFile } from '~/utils/file'
 
 type Id = number
 let id = 0
@@ -52,9 +50,11 @@ export const useProject = defineStore('project', () => {
       size: data.size ?? { width: 128, height: 64 },
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
+      version: 0,
     })
     const frame = frames.value.at(-1)!
     history.add(frame)
+    console.log('add frame')
     return frame
   }
 
@@ -80,6 +80,7 @@ export const useProject = defineStore('project', () => {
       size: data.size ?? { width: 128, height: 64 },
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
+      version: 0,
     })
     const component = components.value.at(-1)!
     history.add(component)
@@ -97,12 +98,6 @@ export const useProject = defineStore('project', () => {
     ...frames.value,
     ...components.value,
   ])
-
-  const storedFrameIds = useStorage<number[]>('gfxui:frame-ids', [])
-  watch(
-    framesAndComponents,
-    () => (storedFrameIds.value = framesAndComponents.value.map((v) => v.id)),
-  )
 
   // Items
   const items = computed(() => editor.activeFrame?.children ?? [])
@@ -162,7 +157,7 @@ export const useProject = defineStore('project', () => {
     }
   }
 
-  const exportCode = () => {
+  const toCode = () => {
     let code = `/**
  * Created with gfx-ui@${__APP_VERSION__} (github.com/arnoson/gfx-ui): a web based graphic editor for creating Adafruit GFX graphics.
  */\n\n`
@@ -182,7 +177,7 @@ export const useProject = defineStore('project', () => {
     return code
   }
 
-  const importCode = (code: string) => {
+  const fromCode = (code: string) => {
     clear()
     history.clear()
 
@@ -284,51 +279,11 @@ export const useProject = defineStore('project', () => {
     for (const frame of framesAndComponents.value) history.saveState(frame)
   }
 
-  const fileType: FilePickerAcceptType = { accept: { 'text/plain': '.h' } }
-
-  let fileHandle: FileSystemFileHandle | undefined
-  const open = async () => {
-    ;[fileHandle] = await window.showOpenFilePicker({ types: [fileType] })
-    const file = await fileHandle.getFile()
-    const code = await file.text()
-    importCode(code)
-  }
-
-  const save = async () => {
-    const code = exportCode()
-    if ('showOpenFilePicker' in window) {
-      fileHandle = await window.showSaveFilePicker({
-        types: [fileType],
-        id: `gfx-ui-${name.value}`,
-        suggestedName: name.value,
-      })
-      const writable = await fileHandle.createWritable()
-      await writable.write(new TextEncoder().encode(code))
-      await writable.close()
-    } else {
-      downloadFile(`${name.value}.h`, code)
-    }
-  }
-
-  const restore = () => {
-    for (const id of storedFrameIds.value) {
-      const serialized = localStorage.getItem(`gfxui:frame-${id}`)
-      if (!serialized) continue
-      const frame = parse<Frame>(serialized)
-      if (frame.isComponent) addComponent(frame)
-      else addFrame(frame)
-    }
-  }
-
-  const clear = (clearStorage = true) => {
-    if (clearStorage) {
-      for (const id of storedFrameIds.value) {
-        localStorage.removeItem(`gfxui:frame-${id}`)
-      }
-    }
+  const clear = () => {
     frames.value = []
     components.value = []
     editor.activeFrame = undefined
+    name.value = 'Untitled'
   }
 
   const parseFrameSettings = (str: string) => {
@@ -382,10 +337,8 @@ export const useProject = defineStore('project', () => {
     addItem,
     removeItem,
 
-    importCode,
-    open,
-    save,
-    restore,
+    fromCode,
+    toCode,
     clear,
   }
 })

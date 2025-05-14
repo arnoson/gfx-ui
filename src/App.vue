@@ -13,10 +13,12 @@ import { useDevice } from './stores/device'
 import { useEditor } from './stores/editor'
 import { useProject } from './stores/project'
 import testProject from '~/assets/test-project.h?raw'
+import { useStorage } from './stores/storage'
 
 const editor = useEditor()
 const project = useProject()
 const device = useDevice()
+const storage = useStorage()
 
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
@@ -30,14 +32,20 @@ const activateFrame = () => {
 }
 
 if (import.meta.hot) {
-  project.clear(false)
+  project.clear()
 }
 
-project.restore()
+storage.restoreBackup()
 if (project.settings.rememberDevice) device.connect()
 
 useEventListener(window, 'hashchange', activateFrame)
 activateFrame()
+
+if (!import.meta.hot) {
+  useEventListener(window, 'beforeunload', (e) => {
+    if (storage.hasUnsavedChanges) e.preventDefault()
+  })
+}
 </script>
 
 <template>

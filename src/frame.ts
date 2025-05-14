@@ -10,6 +10,7 @@ export interface Frame {
   scale: number
   size: Size
   children: Item[]
+  version: number
 }
 
 const indentLines = (str: string, indent: string) =>

@@ -4,6 +4,7 @@ import type { Frame } from '~/frame'
 import { useEditor } from './editor'
 import { useDebounceFn } from '@vueuse/core'
 import { stringify } from 'superjson'
+import { useStorage } from './storage'
 
 type Id = Frame['id']
 
@@ -24,6 +25,8 @@ const frameToState = (frame: Frame) => {
 
 export const useHistory = defineStore('history', () => {
   const editor = useEditor()
+  const storage = useStorage()
+
   const histories = ref(new Map<Id, History>())
   const maxStackSize = 50
 
@@ -73,9 +76,10 @@ export const useHistory = defineStore('history', () => {
       history.stack.splice(history.index + 1)
     }
 
+    frame.version++
     const state = frameToState(frame)
     history.stack.push(state)
-    localStorage.setItem(`gfxui:frame-${frame.id}`, stringify(state))
+    storage.backupFrame(state)
 
     if (history.stack.length > maxStackSize) history.stack.shift()
     history.index = history.stack.length - 1

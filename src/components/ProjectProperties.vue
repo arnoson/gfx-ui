@@ -7,30 +7,38 @@ import ProjectUpload from './ProjectUpload.vue'
 import IconSettings from '~/assets/icons/icon-settings.svg'
 import { useDevice } from '~/stores/device'
 import CheckboxField from './CheckboxField.vue'
+import { useStorage } from '~/stores/storage'
 
 const project = useProject()
+const storage = useStorage()
 const device = useDevice()
 
 const clearDialog = useTemplateRef('clearDialog')
 const settingsDialog = useTemplateRef('settingsDialog')
 
-const clear = async () => {
-  const result = await clearDialog.value?.prompt()
-  if (result === 'submit') project.clear()
+const save = () => {
+  if (storage.supportsFileAccessApi) storage.save()
+  else storage.download()
 }
 
-const supportsFileSystemApi = 'showOpenFilePicker' in window
+const clear = async () => {
+  const result = await clearDialog.value?.prompt()
+  if (result !== 'submit') return
+  project.clear()
+  storage.clear()
+}
 </script>
 
 <template>
   <div class="panel">
     <div class="load-save">
       <ProjectUpload />
-      <button @click="project.save()">Save</button>
+      <button @click="save">Save</button>
       <button @click="clear()">Clear</button>
     </div>
     <div class="name-settings">
       <h2><InlineEdit v-model="project.name" /></h2>
+      <div v-if="storage.hasUnsavedChanges" class="unsaved"></div>
       <button @click="settingsDialog?.open()"><IconSettings /></button>
     </div>
   </div>
@@ -75,7 +83,8 @@ const supportsFileSystemApi = 'showOpenFilePicker' in window
 
 .name-settings {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
 
   svg {
     display: block;
@@ -86,6 +95,15 @@ const supportsFileSystemApi = 'showOpenFilePicker' in window
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
+  }
+
+  .unsaved {
+    width: 1.2ch;
+    height: 1.2ch;
+    background: white;
+    display: block;
+    border-radius: 100%;
   }
 }
 

@@ -12,13 +12,14 @@ import ItemHandle from './ItemHandle.vue'
 import { useHistory } from '~/stores/history'
 import { useDevice } from '~/stores/device'
 import { useProject } from '~/stores/project'
+import { useStorage } from '~/stores/storage'
 
 const props = defineProps<{ frame: Frame }>()
 
 const editor = useEditor()
-const project = useProject()
 const history = useHistory()
 const device = useDevice()
+const storage = useStorage()
 
 const overlay = useTemplateRef('overlay')
 const editorEl = useTemplateRef('editorEl')
@@ -84,7 +85,7 @@ useEventListener('keydown', (e) => {
   }
   if (e.key === 's' && e.ctrlKey) {
     e.preventDefault()
-    project.save()
+    storage.save()
   }
 })
 
