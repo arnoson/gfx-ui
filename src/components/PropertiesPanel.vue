@@ -21,7 +21,13 @@ import { useHistory } from '~/stores/history'
 const editor = useEditor()
 const project = useProject()
 const history = useHistory()
-const item = computed(() => editor.focusedItem ?? undefined)
+const item = computed(() => {
+  if (editor.focusedItem) return editor.focusedItem
+  if (editor.selectedItems.size === 1) {
+    const [first] = [...editor.selectedItems]
+    return first
+  }
+})
 const frame = computed(() => editor.activeFrame ?? undefined)
 
 const title = computed(() => {
