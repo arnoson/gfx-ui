@@ -1,9 +1,8 @@
+import { useDebounceFn } from '@vueuse/core'
 import { acceptHMRUpdate, defineStore } from 'pinia'
-import { ref, toRaw } from 'vue'
+import { isProxy, isReactive, isRef, ref, toRaw } from 'vue'
 import type { Frame } from '~/frame'
 import { useEditor } from './editor'
-import { useDebounceFn } from '@vueuse/core'
-import { stringify } from 'superjson'
 import { useStorage } from './storage'
 
 type Id = Frame['id']
@@ -15,7 +14,27 @@ type History = {
   stack: State[]
 }
 
-const clone = <T>(value: T): T => structuredClone(toRaw(value))
+const deepToRaw = <T>(sourceObj: T): T => {
+  const objectIterator = (input: any): any => {
+    if (Array.isArray(input)) {
+      return input.map((item) => objectIterator(item))
+    }
+    if (isRef(input) || isReactive(input) || isProxy(input)) {
+      return objectIterator(toRaw(input))
+    }
+    if (input && typeof input === 'object') {
+      return Object.keys(input).reduce((acc, key) => {
+        acc[key as keyof typeof acc] = objectIterator(input[key])
+        return acc
+      }, {} as T)
+    }
+    return input
+  }
+
+  return objectIterator(sourceObj)
+}
+
+const clone = <T>(value: T): T => structuredClone(deepToRaw(value))
 
 const frameToState = (frame: Frame) => {
   // Discard the scale, as we don't want it to change on undo/redo
