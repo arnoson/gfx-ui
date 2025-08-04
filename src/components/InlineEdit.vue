@@ -37,5 +37,6 @@ input {
   color: inherit;
   text-align: inherit;
   width: 100%;
+  field-sizing: content;
 }
 </style>
