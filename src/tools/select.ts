@@ -156,18 +156,25 @@ export const useSelect = defineTool(
 
     const ungroup = () => {
       if (!editor.selectedItems.size) return
-      const newSelectedItems = new Set<Item>()
-      for (const item of editor.selectedItems) {
-        if (item.type !== 'group') continue
-        // TODO: insert at correct position and parent.
-        for (const child of item.children) {
-          project.addItem(child)
-          newSelectedItems.add(child)
+
+      const itemsToUngroup = [...editor.selectedItems].map(toRaw)
+
+      editor.selectedItems.clear()
+      if (editor.focusedItem?.type === 'group') editor.focusedItem = null
+
+      for (const item of itemsToUngroup) {
+        if (item.type !== 'group') {
+          editor.selectedItems.add(item)
+          continue
         }
+
         project.removeItem(item)
-        if (editor.focusedItem === item) editor.focusedItem === null
+
+        for (const child of item.children) {
+          const ungroupedChild = project.addItem(child)
+          if (ungroupedChild) editor.selectedItems.add(ungroupedChild)
+        }
       }
-      editor.selectedItems = newSelectedItems
     }
 
     const copy = () => {
