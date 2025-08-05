@@ -54,7 +54,6 @@ export const useProject = defineStore('project', () => {
     })
     const frame = frames.value.at(-1)!
     history.add(frame)
-    console.log('add frame')
     return frame
   }
 
