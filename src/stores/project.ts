@@ -17,10 +17,11 @@ import { capitalizeFirstLetter } from '~/utils/text'
 import { useEditor } from './editor'
 import { useFonts } from './fonts'
 import { useHistory } from './history'
+import { getMaxTreeId } from '~/utils/tree'
 
 type Id = number
-let id = 0
-const createId = () => id++
+let nextId = 0
+const createId = () => nextId++
 
 export const useProject = defineStore('project', () => {
   const history = useHistory()
@@ -40,7 +41,8 @@ export const useProject = defineStore('project', () => {
   const frames = ref<Frame[]>([])
 
   const addFrame = (data: Partial<Frame>): Frame => {
-    const id = createId()
+    const id = data.id ?? createId()
+
     frames.value.push({
       type: 'frame' as const,
       id,
@@ -52,8 +54,11 @@ export const useProject = defineStore('project', () => {
       scale: data.scale ?? 5,
       version: 0,
     })
+
     const frame = frames.value.at(-1)!
+    nextId = Math.max(nextId, getMaxTreeId(frame) + 1)
     history.add(frame)
+
     return frame
   }
 
@@ -69,7 +74,8 @@ export const useProject = defineStore('project', () => {
   const components = ref<Frame[]>([])
 
   const addComponent = (data: Partial<Frame>): Frame => {
-    const id = createId()
+    const id = data.id ?? createId()
+
     components.value.push({
       type: 'frame' as const,
       id,
@@ -81,8 +87,11 @@ export const useProject = defineStore('project', () => {
       scale: data.scale ?? 5,
       version: 0,
     })
+
     const component = components.value.at(-1)!
+    nextId = Math.max(nextId, getMaxTreeId(component) + 1)
     history.add(component)
+
     return component
   }
 
@@ -111,7 +120,8 @@ export const useProject = defineStore('project', () => {
   ): R | undefined => {
     if (!editor.activeFrame) return
 
-    const id = createId()
+    const id = data.id ?? createId()
+
     const name = capitalizeFirstLetter(data.type)
 
     const itemWithoutBounds: Omit<Item, 'bounds'> = {
@@ -126,6 +136,7 @@ export const useProject = defineStore('project', () => {
     const bounds = hasCachedBounds ? getItemBounds(itemWithoutBounds) : null
     const item = { ...itemWithoutBounds, bounds } as Item
     editor.activeFrame.children.unshift(item)
+    nextId = Math.max(nextId, getMaxTreeId(item) + 1)
 
     return editor.activeFrame.children[0] as R
   }
