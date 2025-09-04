@@ -45,10 +45,10 @@ export const useProject = defineStore('project', () => {
 
     frames.value.push({
       type: 'frame' as const,
-      id,
       isComponent: false,
       children: [],
       ...data,
+      id,
       size: data.size ?? { width: 128, height: 64 },
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
@@ -78,10 +78,10 @@ export const useProject = defineStore('project', () => {
 
     components.value.push({
       type: 'frame' as const,
-      id,
       isComponent: true,
       children: [],
       ...data,
+      id,
       size: data.size ?? { width: 128, height: 64 },
       name: data.name ?? `Frame${id}`,
       scale: data.scale ?? 5,
@@ -121,21 +121,22 @@ export const useProject = defineStore('project', () => {
     if (!editor.activeFrame) return
 
     const id = data.id ?? createId()
-
     const name = capitalizeFirstLetter(data.type)
 
     const itemWithoutBounds: Omit<Item, 'bounds'> = {
-      id,
       name,
       isLocked: false,
       isHidden: false,
       ...data,
+      id,
     }
 
     const hasCachedBounds = !['group', 'instance'].includes(data.type)
     const bounds = hasCachedBounds ? getItemBounds(itemWithoutBounds) : null
     const item = { ...itemWithoutBounds, bounds } as Item
     editor.activeFrame.children.unshift(item)
+
+    if (item.id === undefined) console.error('wtf!!!', { item, nextId })
     nextId = Math.max(nextId, getMaxTreeId(item) + 1)
 
     return editor.activeFrame.children[0] as R
@@ -294,6 +295,7 @@ export const useProject = defineStore('project', () => {
     components.value = []
     editor.activeFrame = undefined
     name.value = 'Untitled'
+    nextId = 0
   }
 
   const parseFrameSettings = (str: string) => {
