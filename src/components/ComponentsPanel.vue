@@ -104,6 +104,10 @@ const dragCancel = () => {
     @drag-cancel="dragCancel"
     @drag-end="dragEnd"
   >
+    <template #heading>
+      {{ project.components.length }}
+      {{ project.components.length === 1 ? 'Component' : 'Components' }}
+    </template>
     <template #preview="{ frame }">
       <FrameCanvas class="canvas" :frame />
     </template>
