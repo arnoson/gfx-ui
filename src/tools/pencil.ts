@@ -1,4 +1,6 @@
+import { useDebounceFn } from '@vueuse/core'
 import { computed, toRaw } from 'vue'
+import icon from '~/assets/icons/icon-draw.svg'
 import { getItemBounds, type DrawContext } from '~/items/item'
 import { draw as drawLine } from '~/items/line'
 import { useEditor } from '~/stores/editor'
@@ -7,11 +9,12 @@ import { useProject } from '~/stores/project'
 import type { Pixels, Point } from '~/types'
 import { packPixel } from '~/utils/pixels'
 import { defineTool } from './tool'
-import { useDebounceFn } from '@vueuse/core'
 
-export const usePencil = defineTool(
-  'pencil',
-  () => {
+export const usePencil = defineTool('pencil', {
+  icon,
+  pointRounding: 'floor',
+  shortcut: 'p',
+  setup: () => {
     const editor = useEditor()
     const project = useProject()
     const history = useHistory()
@@ -84,9 +87,10 @@ export const usePencil = defineTool(
       mode = 'idle'
     }
 
-    const deactivate = () => (editor.isErasing = false)
+    const deactivate = () => {
+      editor.isErasing = false
+    }
 
     return { onMouseDown, onMouseMove, onMouseUp, deactivate }
   },
-  { pointRounding: 'floor', shortcut: 'p' },
-)
+})

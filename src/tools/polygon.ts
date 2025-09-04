@@ -1,17 +1,18 @@
-import { type Circle } from '~/items/circle'
-import { getItemBounds } from '~/items/item'
-import { useEditor } from '~/stores/editor'
-import type { Point } from '~/types'
-import { defineTool } from './tool'
 import { useMagicKeys } from '@vueuse/core'
-import { clonePoint } from '~/utils/point'
-import { useProject } from '~/stores/project'
-import { useHistory } from '~/stores/history'
+import icon from '~/assets/icons/icon-polygon.svg'
+import { getItemBounds } from '~/items/item'
 import type { Polygon } from '~/items/polygon'
+import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
+import type { Point } from '~/types'
+import { clonePoint } from '~/utils/point'
+import { defineTool } from './tool'
 
-export const usePolygon = defineTool(
-  'polygon',
-  () => {
+export const usePolygon = defineTool('polygon', {
+  icon,
+  pointRounding: 'floor',
+  setup: () => {
     const editor = useEditor()
     const project = useProject()
     const history = useHistory()
@@ -85,5 +86,4 @@ export const usePolygon = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  { pointRounding: 'floor' },
-)
+})

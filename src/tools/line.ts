@@ -1,15 +1,18 @@
 import { useMagicKeys } from '@vueuse/core'
+import icon from '~/assets/icons/icon-line.svg'
 import { getItemBounds } from '~/items/item'
 import { type Line } from '~/items/line'
 import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
 import type { Point } from '~/types'
 import { defineTool } from './tool'
-import { useProject } from '~/stores/project'
-import { useHistory } from '~/stores/history'
 
-export const useLine = defineTool(
-  'line',
-  () => {
+export const useLine = defineTool('line', {
+  icon,
+  shortcut: 'l',
+  pointRounding: 'round',
+  setup: () => {
     const editor = useEditor()
     const project = useProject()
     const history = useHistory()
@@ -66,5 +69,4 @@ export const useLine = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  { pointRounding: 'round', shortcut: 'l' },
-)
+})

@@ -1,3 +1,4 @@
+import type { Component } from 'vue'
 import type { DrawContext, Item } from './items/item'
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
@@ -37,14 +38,11 @@ export type Color = number
  * */
 export type Pixels = Set<number>
 
-export type ToolConfig = {
-  pointRounding?: 'floor' | 'round' | 'ceil'
-  shortcut?: string
-}
-
 export interface Tool {
   id: string
-  config?: ToolConfig
+  icon: Component | string
+  shortcut?: string
+  pointRounding?: 'floor' | 'round' | 'ceil'
   onMouseDown?: (point: Point) => unknown
   onMouseMove?: (point: Point) => unknown
   onMouseUp?: (point: Point) => unknown

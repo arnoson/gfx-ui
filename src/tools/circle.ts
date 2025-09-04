@@ -1,16 +1,19 @@
+import { useMagicKeys } from '@vueuse/core'
+import icon from '~/assets/icons/icon-circle.svg'
 import { type Circle } from '~/items/circle'
 import { getItemBounds } from '~/items/item'
 import { useEditor } from '~/stores/editor'
-import type { Point } from '~/types'
-import { defineTool } from './tool'
-import { useMagicKeys } from '@vueuse/core'
-import { clonePoint } from '~/utils/point'
-import { useProject } from '~/stores/project'
 import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
+import type { Point } from '~/types'
+import { clonePoint } from '~/utils/point'
+import { defineTool } from './tool'
 
-export const useCircle = defineTool(
-  'circle',
-  () => {
+export const useCircle = defineTool('circle', {
+  icon,
+  shortcut: 'o',
+  pointRounding: 'floor',
+  setup: () => {
     const editor = useEditor()
     const project = useProject()
     const history = useHistory()
@@ -82,5 +85,4 @@ export const useCircle = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  { pointRounding: 'floor', shortcut: 'o' },
-)
+})

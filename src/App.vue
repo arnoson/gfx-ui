@@ -8,12 +8,11 @@ import FramesPanel from './components/FramesPanel.vue'
 import LayersTree from './components/LayersTree.vue'
 import ProjectProperties from './components/ProjectProperties.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
-import ToolBar from './components/ToolBar.vue'
 import { useDevice } from './stores/device'
 import { useEditor } from './stores/editor'
 import { useProject } from './stores/project'
-import testProject from '~/assets/test-project.h?raw'
 import { useStorage } from './stores/storage'
+import { ToolBar } from 'vue-toolkit'
 
 const editor = useEditor()
 const project = useProject()
@@ -68,7 +67,11 @@ if (!import.meta.hot) {
     <SplitterResizeHandle />
     <SplitterPanel class="editor-panel">
       <EditorPanel v-if="editor.activeFrame" :frame="editor.activeFrame" />
-      <ToolBar />
+      <ToolBar
+        :tools="editor.tools"
+        :selected="editor.activeToolId"
+        @select="editor.activateTool($event)"
+      />
     </SplitterPanel>
     <SplitterResizeHandle />
     <SplitterPanel

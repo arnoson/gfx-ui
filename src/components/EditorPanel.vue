@@ -41,18 +41,18 @@ const scale = computed({
 // Forward canvas mouse and key events to the active tool.
 useEventListener<MouseEvent>(editorEl, 'mousedown', (e) => {
   if (space.value) return
-  const { onMouseDown, config } = editor.activeTool
-  onMouseDown?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
+  const { onMouseDown, pointRounding } = editor.activeTool
+  onMouseDown?.(mouseToSvg(e, overlay.value!, pointRounding))
 })
 useEventListener('mousemove', (e) => {
   if (space.value) return
-  const { onMouseMove, config } = editor.activeTool
-  onMouseMove?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
+  const { onMouseMove, pointRounding } = editor.activeTool
+  onMouseMove?.(mouseToSvg(e, overlay.value!, pointRounding))
 })
 useEventListener('mouseup', (e) => {
   if (space.value) return
-  const { onMouseUp, config } = editor.activeTool
-  onMouseUp?.(mouseToSvg(e, overlay.value!, config?.pointRounding))
+  const { onMouseUp, pointRounding } = editor.activeTool
+  onMouseUp?.(mouseToSvg(e, overlay.value!, pointRounding))
 })
 useEventListener('keydown', (e) => {
   if (shouldIgnoreKeydown()) return
@@ -67,7 +67,7 @@ useEventListener('keydown', (e) => {
 
   if (!e.ctrlKey && !e.metaKey) {
     for (const tool of Object.values(editor.tools)) {
-      if (e.key === tool.config?.shortcut) editor.activateTool(tool.id as any)
+      if (e.key === tool.shortcut) editor.activateTool(tool.id as any)
     }
     if (e.key === 'Escape') {
       editor.activateTool('select')

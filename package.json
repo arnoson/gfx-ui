@@ -20,6 +20,7 @@
     "superjson": "^2.2.2",
     "vue": "^3.5.18",
     "vue-draggable-plus": "^0.6.0",
+    "vue-toolkit": "file:../vue-toolkit",
     "vue3-dropzone": "^2.2.1"
   },
   "devDependencies": {

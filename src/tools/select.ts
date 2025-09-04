@@ -1,21 +1,24 @@
 import { useMagicKeys } from '@vueuse/core'
 import { toRaw } from 'vue'
-import { getItemBounds, translateItem, type Item } from '~/items/item'
+import icon from '~/assets/icons/icon-select.svg'
+import { getItemBounds, translateItem } from '~/items/item'
 import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
 import type { Point } from '~/types'
 import {
   boundsContainPoint,
   getTranslatedBounds,
   makeBounds,
 } from '~/utils/bounds'
+import { addPoints, pointsAreEqual } from '~/utils/point'
 import { defineTool } from './tool'
-import { useProject } from '~/stores/project'
-import { useHistory } from '~/stores/history'
-import { addPoints, pointsAreEqual, subtractPoints } from '~/utils/point'
 
-export const useSelect = defineTool(
-  'select',
-  () => {
+export const useSelect = defineTool('select', {
+  icon,
+  shortcut: 'v',
+  pointRounding: 'floor',
+  setup: () => {
     const project = useProject()
     const editor = useEditor()
     const history = useHistory()
@@ -254,5 +257,4 @@ export const useSelect = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp, onKeyDown }
   },
-  { pointRounding: 'floor', shortcut: 'v' },
-)
+})

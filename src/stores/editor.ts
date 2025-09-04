@@ -199,6 +199,7 @@ export const useEditor = defineStore('editor', () => {
 
     tools,
     activeTool,
+    activeToolId,
     activateTool,
 
     frames,

@@ -6,10 +6,13 @@ import type { Point } from '~/types'
 import { defineTool } from './tool'
 import { useProject } from '~/stores/project'
 import { useHistory } from '~/stores/history'
+import icon from '~/assets/icons/icon-rect.svg'
 
-export const useRect = defineTool(
-  'rect',
-  () => {
+export const useRect = defineTool('rect', {
+  icon,
+  shortcut: 'r',
+  pointRounding: 'floor',
+  setup: () => {
     const project = useProject()
     const editor = useEditor()
     const history = useHistory()
@@ -72,5 +75,4 @@ export const useRect = defineTool(
 
     return { onMouseDown, onMouseMove, onMouseUp }
   },
-  { pointRounding: 'floor', shortcut: 'r' },
-)
+})
