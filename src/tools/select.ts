@@ -181,7 +181,10 @@ export const useSelect = defineTool('select', {
     }
 
     const copy = () => {
-      editor.copiedItems = [...editor.selectedItems]
+      // Store the selected items in the correct order.
+      editor.copiedItems = editor.itemsFlat.filter((item) =>
+        editor.selectedItems.has(item),
+      )
     }
 
     const paste = () => {
