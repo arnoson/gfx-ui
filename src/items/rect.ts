@@ -74,8 +74,8 @@ const drawNormalRect = (
   const { width, height } = size
   const left = position.x + offset.x
   const top = position.y + offset.y
-  const right = offset.x + left + width - 1
-  const bottom = offset.y + top + height - 1
+  const right = left + width - 1
+  const bottom = top + height - 1
 
   if (isFilled) {
     for (let x = 0; x < width; x++) {
