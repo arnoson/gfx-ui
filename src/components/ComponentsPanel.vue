@@ -95,6 +95,7 @@ const dragCancel = () => {
     v-model="project.components"
     size="small"
     :sortable="true"
+    :draggable="true"
     :selected="editor.activeFrame?.id"
     @update:selected="$event !== undefined && editor.activateFrame($event)"
     @add="add"
