@@ -2,17 +2,25 @@
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
+import { LayersTree, ToolBar } from 'vue-toolkit'
 import ComponentsPanel from './components/ComponentsPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
 import FramesPanel from './components/FramesPanel.vue'
-import LayersTree from './components/LayersTree.vue'
 import ProjectProperties from './components/ProjectProperties.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
 import { useDevice } from './stores/device'
 import { useEditor } from './stores/editor'
 import { useProject } from './stores/project'
 import { useStorage } from './stores/storage'
-import { ToolBar } from 'vue-toolkit'
+
+import CircleIcon from '~/assets/icons/icon-layer-circle.svg'
+import DrawIcon from '~/assets/icons/icon-layer-draw.svg'
+import GroupIcon from '~/assets/icons/icon-layer-group.svg'
+import InstanceIcon from '~/assets/icons/icon-layer-instance.svg'
+import LineIcon from '~/assets/icons/icon-layer-line.svg'
+import PolygonIcon from '~/assets/icons/icon-layer-polygon.svg'
+import RectIcon from '~/assets/icons/icon-layer-rect.svg'
+import TextIcon from '~/assets/icons/icon-layer-text.svg'
 
 const editor = useEditor()
 const project = useProject()
@@ -34,6 +42,17 @@ if (!import.meta.hot) {
   useEventListener(window, 'beforeunload', (e) => {
     if (storage.hasUnsavedChanges) e.preventDefault()
   })
+}
+
+const layerIcons = {
+  bitmap: DrawIcon,
+  circle: CircleIcon,
+  line: LineIcon,
+  rect: RectIcon,
+  text: TextIcon,
+  instance: InstanceIcon,
+  group: GroupIcon,
+  polygon: PolygonIcon,
 }
 </script>
 
@@ -74,7 +93,12 @@ if (!import.meta.hot) {
         </SplitterPanel>
         <SplitterResizeHandle />
         <SplitterPanel class="layers-panel">
-          <LayersTree />
+          <LayersTree
+            v-if="editor.activeFrame"
+            :items="editor.activeFrame?.children"
+            :selected-items="editor.selectedItems"
+            :icons="layerIcons"
+          />
         </SplitterPanel>
       </SplitterGroup>
     </SplitterPanel>
@@ -87,13 +111,12 @@ if (!import.meta.hot) {
   padding: 0.3rem;
 }
 
-.properties-panel,
-.layers-panel {
-  padding: 1rem;
+.properties-panel {
+  padding: var(--size-4);
 }
 
 .layers-panel {
-  padding-left: 0.6rem;
+  padding: var(--size-2);
 }
 
 [data-resize-handle] {
