@@ -23,22 +23,12 @@ const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
 const sidebarMinSize = computed(() => (175 / width.value) * 100)
 
-const activateFrame = () => {
-  if (!location.hash.startsWith('#/frame/')) return
-  const id = location.hash.split('/').at(-1)
-  if (id === undefined) return
-  editor.activateFrame(+id)
-}
-
 if (import.meta.hot) {
   project.clear()
 }
 
 storage.restoreBackup()
 if (project.settings.rememberDevice) device.connect()
-
-useEventListener(window, 'hashchange', activateFrame)
-activateFrame()
 
 if (!import.meta.hot) {
   useEventListener(window, 'beforeunload', (e) => {
