@@ -115,10 +115,6 @@ const layerIcons = {
   padding: var(--size-4);
 }
 
-.layers-panel {
-  padding: var(--size-2);
-}
-
 [data-resize-handle] {
   --size: 5px;
   --margin: 1rem;

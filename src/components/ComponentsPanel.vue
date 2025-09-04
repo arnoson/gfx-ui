@@ -93,6 +93,7 @@ const dragCancel = () => {
 <template>
   <FramesList
     v-model="project.components"
+    size="small"
     :sortable="true"
     :selected="editor.activeFrame?.id"
     @update:selected="$event !== undefined && editor.activateFrame($event)"
