@@ -16,10 +16,15 @@ export const useStorage = defineStore('storage', () => {
   const fileType: FilePickerAcceptType = { accept: { 'text/plain': '.h' } }
 
   const open = async () => {
+    clear()
     ;[fileHandle] = await window.showOpenFilePicker({ types: [fileType] })
     const file = await fileHandle.getFile()
     const code = await file.text()
     project.fromCode(code)
+    project.name = file.name.split('.').slice(0, -1).join('.')
+    savedVersions.value = new Map(
+      project.framesAndComponents.map((v) => [v.id, v.version]),
+    )
   }
 
   const save = async () => {
