@@ -49,3 +49,11 @@ const rename = (frame: Frame, name: string) => {
     </template>
   </FramesList>
 </template>
+
+<style scoped>
+.canvas {
+  background-color: var(--color-background);
+  padding: var(--size-2);
+  padding-bottom: var(--size-1);
+}
+</style>
