@@ -33,7 +33,9 @@ const clear = async () => {
     <div class="name-settings">
       <h2><InlineEdit v-model="project.name" /></h2>
       <div v-if="storage.hasUnsavedChanges" class="unsaved"></div>
-      <button @click="settingsDialog?.open()"><IconSettings /></button>
+      <button @click="settingsDialog?.open()" data-theme="dark">
+        <IconSettings />
+      </button>
     </div>
   </div>
 

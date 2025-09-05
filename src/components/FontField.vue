@@ -17,7 +17,7 @@ import {
   watchEffect,
 } from 'vue'
 import { ModalDialog } from 'vue-toolkit'
-import IconSettings from '~/assets/icons/icon-settings.svg'
+import IconSettings from '~/assets/icons/icon-add.svg'
 import { useFonts } from '~/stores/fonts'
 import type { GfxFont } from '~/utils/font'
 import { getInputId } from '../utils/id'
@@ -117,7 +117,7 @@ watchEffect(() => {
           <option v-else :value="option.value">{{ option.label }}</option>
         </template>
       </select>
-      <button @click="customFontsDialog?.open()">
+      <button @click="customFontsDialog?.open()" data-theme="dark">
         <IconSettings />
       </button>
     </div>
