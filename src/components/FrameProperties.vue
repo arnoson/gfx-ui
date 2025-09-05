@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { SizeField } from 'vue-toolkit'
 import type { Frame } from '~/frame'
-import SizeField from './SizeField.vue'
 import { useHistory } from '~/stores/history'
 
 defineProps<{ frame: Frame }>()

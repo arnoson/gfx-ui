@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { GapField } from 'vue-toolkit'
 import IconAlignBottom from '~/assets/icons/icon-align-bottom.svg'
 import IconAlignCenter from '~/assets/icons/icon-align-center.svg'
 import IconAlignLeft from '~/assets/icons/icon-align-left.svg'
@@ -9,7 +10,6 @@ import IconAlignTop from '~/assets/icons/icon-align-top.svg'
 import { getItemBounds, moveItem, type Item } from '~/items/item'
 import { useEditor } from '~/stores/editor'
 import type { Point } from '~/types'
-import GapField from './GapField.vue'
 
 const props = defineProps<{ items: Item[] }>()
 const editor = useEditor()

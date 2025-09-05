@@ -38,23 +38,23 @@ export const useEditor = defineStore('editor', () => {
   const currentFont = ref('FreeMono12pt7b')
 
   // Pixels
-  const pixelColors = [
-    'hsl(0, 0%, 0%)',
-    'hsl(0, 0%, 6.67%)',
-    'hsl(0, 0%, 13.33%)',
-    'hsl(0, 0%, 20%)',
-    'hsl(0, 0%, 26.67%)',
-    'hsl(0, 0%, 33.33%)',
-    'hsl(0, 0%, 40%)',
-    'hsl(0, 0%, 46.67%)',
-    'hsl(0, 0%, 53.33%)',
-    'hsl(0, 0%, 60%)',
-    'hsl(0, 0%, 66.67%)',
-    'hsl(0, 0%, 73.33%)',
-    'hsl(0, 0%, 80%)',
-    'hsl(0, 0%, 86.67%)',
-    'hsl(0, 0%, 93.33%)',
-    'hsl(0, 0%, 100%)',
+  const colors = [
+    { value: 0, color: 'hsl(0, 0%, 0%)', label: 'Black' },
+    { value: 1, color: 'hsl(0, 0%, 6.67%)', label: 'Gray #1' },
+    { value: 2, color: 'hsl(0, 0%, 13.33%)', label: 'Gray #2' },
+    { value: 3, color: 'hsl(0, 0%, 20%)', label: 'Gray #3' },
+    { value: 4, color: 'hsl(0, 0%, 26.67%)', label: 'Gray #4' },
+    { value: 5, color: 'hsl(0, 0%, 33.33%)', label: 'Gray #5' },
+    { value: 6, color: 'hsl(0, 0%, 40%)', label: 'Gray #6' },
+    { value: 7, color: 'hsl(0, 0%, 46.67%)', label: 'Gray #7' },
+    { value: 8, color: 'hsl(0, 0%, 53.33%)', label: 'Gray #8' },
+    { value: 9, color: 'hsl(0, 0%, 60%)', label: 'Gray #9' },
+    { value: 10, color: 'hsl(0, 0%, 66.67%)', label: 'Gray #10' },
+    { value: 11, color: 'hsl(0, 0%, 73.33%)', label: 'Gray #11' },
+    { value: 12, color: 'hsl(0, 0%, 80%)', label: 'Gray #12' },
+    { value: 13, color: 'hsl(0, 0%, 86.67%)', label: 'Gray #13' },
+    { value: 14, color: 'hsl(0, 0%, 93.33%)', label: 'Gray #14' },
+    { value: 15, color: 'hsl(0, 0%, 100%)', label: 'White' },
   ]
 
   // Tools
@@ -194,7 +194,7 @@ export const useEditor = defineStore('editor', () => {
     isSelecting,
     isMoving,
     isErasing,
-    pixelColors,
+    colors,
     currentFont,
 
     tools,

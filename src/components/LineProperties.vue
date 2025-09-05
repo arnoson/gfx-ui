@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { type Line } from '~/items/line'
-import type { Point } from '~/types'
-import ColorField from './ColorField.vue'
-import PointField from './PointField.vue'
+import { ColorField, PointField } from 'vue-toolkit'
 import { getItemBounds } from '~/items/item'
+import { type Line } from '~/items/line'
+import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'
+import type { Point } from '~/types'
 
 const props = defineProps<{ item: Line }>()
+const editor = useEditor()
 const history = useHistory()
 
 const updateFrom = (point: Point) => {
@@ -26,6 +27,7 @@ const updateTo = (point: Point) => {
   <div class="flow">
     <ColorField
       v-model="item.color"
+      :swatches="editor.colors"
       @update:model-value="history.saveStateDebounced()"
       label="Color"
     />

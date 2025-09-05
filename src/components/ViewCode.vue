@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { watchDebounced } from '@vueuse/core'
 import { computed, ref, useTemplateRef, watch } from 'vue'
+import { CheckboxField, ModalDialog, SelectField } from 'vue-toolkit'
+import IconSettings from '~/assets/icons/icon-settings.svg'
 import { toCode as frameToCode, type Frame } from '~/frame'
 import { itemToCode, type Item } from '~/items/item'
 import { useProject } from '~/stores/project'
 import { createCodeContext } from '~/utils/codeContext'
-import { highlight } from '~/utils/highlight'
-import SelectField from './SelectField.vue'
 import { downloadFile } from '~/utils/file'
-import ModalDialog from './ModalDialog.vue'
-import CheckboxField from './CheckboxField.vue'
-import IconSettings from '~/assets/icons/icon-settings.svg'
+import { highlight } from '~/utils/highlight'
 
 const props = defineProps<{ source: Item[] | Item | Frame }>()
 const project = useProject()

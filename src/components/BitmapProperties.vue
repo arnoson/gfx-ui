@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { ColorField, PointField } from 'vue-toolkit'
+import { bitmap, type Bitmap } from '~/items/bitmap'
+import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
 import type { Point } from '~/types'
 import { getMovedBounds } from '~/utils/bounds'
-import ColorField from './ColorField.vue'
-import PointField from './PointField.vue'
-import { bitmap, type Bitmap } from '~/items/bitmap'
-import { useHistory } from '~/stores/history'
 
 const props = defineProps<{ item: Bitmap }>()
+const editor = useEditor()
 const history = useHistory()
 
 const updatePosition = (point: Point) => {
@@ -25,6 +26,7 @@ const updatePosition = (point: Point) => {
     <ColorField
       v-model="item.color"
       label="Color"
+      :swatches="editor.colors"
       @update:model-value="history.saveStateDebounced()"
     />
     <PointField

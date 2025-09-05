@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import { CheckboxField, ColorField, NumberField, PointField } from 'vue-toolkit'
 import { type Circle } from '~/items/circle'
 import { getItemBounds } from '~/items/item'
-import type { Point } from '~/types'
-import CheckboxField from './CheckboxField.vue'
-import ColorField from './ColorField.vue'
-import NumberField from './NumberField.vue'
-import PointField from './PointField.vue'
+import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'
+import type { Point } from '~/types'
 
 const props = defineProps<{ item: Circle }>()
+const editor = useEditor()
 const history = useHistory()
 
 const updateCenter = (point: Point) => {
@@ -29,6 +28,7 @@ const updateRadius = (radius: number) => {
     <ColorField
       v-model="item.color"
       label="Color"
+      :swatches="editor.colors"
       @update:model-value="history.saveStateDebounced()"
     />
     <PointField

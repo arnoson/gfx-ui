@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { type Rect } from '~/items/rect'
-import type { Point, Size } from '~/types'
-import CheckboxField from './CheckboxField.vue'
-import ColorField from './ColorField.vue'
-import NumberField from './NumberField.vue'
-import PointField from './PointField.vue'
-import SizeField from './SizeField.vue'
-import { getMovedBounds } from '~/utils/bounds'
+import {
+  CheckboxField,
+  ColorField,
+  NumberField,
+  PointField,
+  SizeField,
+} from 'vue-toolkit'
 import { getItemBounds } from '~/items/item'
+import { type Rect } from '~/items/rect'
+import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'
+import type { Point, Size } from '~/types'
+import { getMovedBounds } from '~/utils/bounds'
 
 const props = defineProps<{ item: Rect }>()
+const editor = useEditor()
 const history = useHistory()
 
 const updatePosition = ({ x, y }: Point) => {
@@ -31,6 +35,7 @@ const updateSize = ({ width, height }: Size) => {
     <h2>Rect Properties</h2>
     <ColorField
       v-model="item.color"
+      :swatches="editor.colors"
       @update:model-value="history.saveStateDebounced()"
       label="Color"
     />

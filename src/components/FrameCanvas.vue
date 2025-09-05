@@ -58,7 +58,7 @@ const drawCtx: DrawContext = {
   drawPixel(x, y, color) {
     if (!ctx.value) return
 
-    ctx.value.fillStyle = editor.pixelColors[color]
+    ctx.value.fillStyle = editor.colors[color].color
     ctx.value.fillRect(Math.floor(x), Math.floor(y), 1, 1)
 
     if (props.livePreview) setFrameBufferPixel(x, y, color)

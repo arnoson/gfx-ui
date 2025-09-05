@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { type Circle } from '~/items/circle'
 import { getItemBounds } from '~/items/item'
 import type { Point } from '~/types'
-import CheckboxField from './CheckboxField.vue'
-import ColorField from './ColorField.vue'
-import NumberField from './NumberField.vue'
-import PointField from './PointField.vue'
-import { useHistory } from '~/stores/history'
+
+import {
+  CheckboxField,
+  ColorField,
+  NumberField,
+  PointField,
+  SelectField,
+} from 'vue-toolkit'
 import type { Polygon } from '~/items/polygon'
-import SelectField from './SelectField.vue'
+import { useEditor } from '~/stores/editor'
+import { useHistory } from '~/stores/history'
 
 const props = defineProps<{ item: Polygon }>()
+const editor = useEditor()
 const history = useHistory()
 
 const updateCenter = (point: Point) => {
@@ -28,7 +32,7 @@ const updateRadius = (radius: number) => {
 
 <template>
   <div class="flow">
-    <ColorField v-model="item.color" label="Color" />
+    <ColorField v-model="item.color" label="Color" :swatches="editor.colors" />
     <PointField
       :model-value="item.center"
       @update:model-value="updateCenter"

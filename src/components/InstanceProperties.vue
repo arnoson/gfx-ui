@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { SelectField } from 'vue-toolkit'
 import type { Instance } from '~/items/instance'
-import { useProject } from '~/stores/project'
-import SelectField from './SelectField.vue'
 import { useHistory } from '~/stores/history'
+import { useProject } from '~/stores/project'
 
 defineProps<{ item: Instance }>()
 const history = useHistory()

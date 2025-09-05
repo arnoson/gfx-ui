@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import { FileMenu } from 'vue-toolkit'
+import { CheckboxField, FileMenu, ModalDialog } from 'vue-toolkit'
 import IconSettings from '~/assets/icons/icon-settings.svg'
 import { useDevice } from '~/stores/device'
 import { useProject } from '~/stores/project'
 import { useStorage } from '~/stores/storage'
-import CheckboxField from './CheckboxField.vue'
 import InlineEdit from './InlineEdit.vue'
-import ModalDialog from './ModalDialog.vue'
 
 const project = useProject()
 const storage = useStorage()
@@ -80,11 +78,12 @@ const clear = async () => {
 </template>
 
 <style scoped>
-.load-save {
-  display: grid;
-  grid-template-columns: 1fr max-content max-content;
-  align-items: baseline;
-  gap: 0.75rem;
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4);
+  padding: var(--size-4);
+  padding-bottom: 0;
 }
 
 .name-settings {
@@ -92,15 +91,7 @@ const clear = async () => {
   align-items: center;
   gap: 0.5rem;
 
-  svg {
-    display: block;
-  }
-
   button {
-    padding-inline: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     margin-left: auto;
   }
 
@@ -111,13 +102,5 @@ const clear = async () => {
     display: block;
     border-radius: 100%;
   }
-}
-
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  padding-bottom: 0;
 }
 </style>
