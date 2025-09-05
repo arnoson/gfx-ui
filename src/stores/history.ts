@@ -14,27 +14,34 @@ type History = {
   stack: State[]
 }
 
-const deepToRaw = <T>(sourceObj: T): T => {
-  const objectIterator = (input: any): any => {
-    if (Array.isArray(input)) {
-      return input.map((item) => objectIterator(item))
-    }
-    if (isRef(input) || isReactive(input) || isProxy(input)) {
-      return objectIterator(toRaw(input))
-    }
-    if (input && typeof input === 'object') {
-      return Object.keys(input).reduce((acc, key) => {
-        acc[key as keyof typeof acc] = objectIterator(input[key])
-        return acc
-      }, {} as T)
-    }
-    return input
-  }
+// TODO: evaulate if deepToRaw is necessary. Theoretically there shouldn't
+// be a case where there are nested reactive objects in the frame, but somehow
+// this happened and causes issues with structuredClone().
 
-  return objectIterator(sourceObj)
-}
+// const deepToRaw = <T>(sourceObj: T): T => {
+//   const objectIterator = (input: any): any => {
+//     if (Array.isArray(input)) {
+//       return input.map((item) => objectIterator(item))
+//     }
+//     if (isRef(input) || isReactive(input) || isProxy(input)) {
+//       return objectIterator(toRaw(input))
+//     }
+//     if (input instanceof Set) {
+//       return new Set([...input].map((item) => objectIterator(item)))
+//     }
+//     if (input && typeof input === 'object') {
+//       return Object.keys(input).reduce((acc, key) => {
+//         acc[key as keyof typeof acc] = objectIterator(input[key])
+//         return acc
+//       }, {} as T)
+//     }
+//     return input
+//   }
 
-const clone = <T>(value: T): T => structuredClone(deepToRaw(value))
+//   return objectIterator(sourceObj)
+// }
+
+const clone = <T>(value: T): T => structuredClone(toRaw(value))
 
 const frameToState = (frame: Frame) => {
   // Discard the scale, as we don't want it to change on undo/redo
@@ -97,6 +104,7 @@ export const useHistory = defineStore('history', () => {
 
     frame.version++
     const state = frameToState(frame)
+    console.log(frame, state)
     history.stack.push(state)
     storage.backupFrame(state)
 
