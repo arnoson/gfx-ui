@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { SwitchField } from 'vue-toolkit'
-import { drawItem, type DrawContext } from '~/items/item'
+import { watchDebounced } from '@vueuse/core'
+import 'prismjs/components/prism-c'
+import 'prismjs/components/prism-cpp'
+import { computed, ref, watch } from 'vue'
+import {
+  CheckboxField,
+  CodeViewer,
+  SelectField,
+  SwitchField,
+} from 'vue-toolkit'
+import { toCode as frameToCode } from '~/frame'
+import { drawItem, itemToCode, type DrawContext } from '~/items/item'
 import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'
 import { useProject } from '~/stores/project'
 import type { Pixels } from '~/types'
+import { createCodeContext } from '~/utils/codeContext'
 import { packPixel } from '~/utils/pixels'
 import BitmapProperties from './BitmapProperties.vue'
 import CircleProperties from './CircleProperties.vue'
@@ -16,7 +26,6 @@ import PolygonProperties from './PolygonProperties.vue'
 import RectProperties from './RectProperties.vue'
 import SelectionProperties from './SelectionProperties.vue'
 import TextProperties from './TextProperties.vue'
-import ViewCode from './ViewCode.vue'
 
 const editor = useEditor()
 const project = useProject()
@@ -66,6 +75,40 @@ const rasterize = () => {
   if (item) editor.focusItem(item)
   history.saveState()
 }
+
+// Code
+const code = ref('')
+const ctx = computed(() => createCodeContext(project.codeSettings))
+const commentsOptions = [
+  { value: 'none', label: 'None' },
+  { value: 'names', label: 'Names' },
+  { value: 'all', label: 'All' },
+]
+const updateCode = () => (code.value = getCode())
+const getCode = () => {
+  if (!source.value) {
+    return ''
+  } else if (Array.isArray(source.value)) {
+    return source.value.map((v) => itemToCode(v, ctx.value)).join('\n')
+  } else if (source.value.type === 'frame') {
+    return frameToCode(source.value, ctx.value)
+  } else {
+    return itemToCode(source.value, ctx.value)
+  }
+}
+// Immediate update when source type changes.
+watch(
+  () => ({
+    isArray: Array.isArray(source.value),
+    type: !Array.isArray(source.value) && source.value?.type,
+    id: !Array.isArray(source.value) && source.value?.id,
+    comments: ctx.value,
+  }),
+  updateCode,
+  { immediate: true },
+)
+// Debounced update for content changes.
+watchDebounced(source, updateCode, { debounce: 100, deep: true })
 </script>
 
 <template>
@@ -74,7 +117,29 @@ const rasterize = () => {
       <h2 class="heading">{{ title }}</h2>
       <SwitchField label="View code" v-model="editor.viewCode" />
     </header>
-    <ViewCode v-if="source && editor.viewCode" :source="source" />
+
+    <CodeViewer
+      v-if="source && editor.viewCode"
+      :code
+      :file-name="`${project.name}.h`"
+      language="cpp"
+    >
+      <template #settings>
+        <div class="flow">
+          <h2>Code settings</h2>
+          <SelectField
+            v-model="project.codeSettings.comments"
+            :options="commentsOptions"
+            label="Comments"
+          />
+          <CheckboxField
+            v-model="project.codeSettings.includeOffset"
+            label="Offset"
+          />
+        </div>
+      </template>
+    </CodeViewer>
+
     <template v-else-if="item">
       <BitmapProperties v-if="item.type === 'bitmap'" :item />
       <RectProperties v-else-if="item.type === 'rect'" :item />
@@ -105,12 +170,12 @@ const rasterize = () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: 0.5rem;
+  gap: var(--size-2);
 }
 
 header {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--size-2);
   overflow: hidden;
   align-items: baseline;
 }
