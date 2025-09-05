@@ -29,6 +29,8 @@ export const useStorage = defineStore('storage', () => {
     savedVersions.value = new Map(
       project.framesAndComponents.map((v) => [v.id, v.version]),
     )
+
+    project.framesAndComponents.forEach(backupFrame)
   }
 
   const save = async () => {
@@ -53,9 +55,11 @@ export const useStorage = defineStore('storage', () => {
     )
   }
 
-  const backupFrame = useDebounceFn((frame: Omit<Frame, 'scale'>) => {
+  const backupFrame = (frame: Omit<Frame, 'scale'>) => {
     localStorage.setItem(`gfxui:frame-${frame.id}`, stringify(frame))
-  }, 5000)
+  }
+
+  const backupFrameDebounced = useDebounceFn(backupFrame, 2000)
 
   const restoreBackup = () => {
     for (const [key, serialized] of Object.entries(localStorage)) {
@@ -91,6 +95,7 @@ export const useStorage = defineStore('storage', () => {
     open,
     save,
     backupFrame,
+    backupFrameDebounced,
     restoreBackup,
     clear,
   }

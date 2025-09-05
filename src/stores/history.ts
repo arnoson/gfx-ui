@@ -105,7 +105,7 @@ export const useHistory = defineStore('history', () => {
     frame.version++
     const state = frameToState(frame)
     history.stack.push(state)
-    storage.backupFrame(state)
+    storage.backupFrameDebounced(state)
 
     if (history.stack.length > maxStackSize) history.stack.shift()
     history.index = history.stack.length - 1
