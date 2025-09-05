@@ -104,7 +104,6 @@ export const useHistory = defineStore('history', () => {
 
     frame.version++
     const state = frameToState(frame)
-    console.log(frame, state)
     history.stack.push(state)
     storage.backupFrame(state)
 
