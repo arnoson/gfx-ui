@@ -12,3 +12,6 @@ export const downloadFile = (name: string, text: string) => {
 
   window.URL.revokeObjectURL(url)
 }
+
+export const stripExtension = (name: string) =>
+  name.split('.').slice(0, -1).join('.')

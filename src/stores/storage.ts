@@ -1,4 +1,4 @@
-import { downloadFile } from '~/utils/file'
+import { downloadFile, stripExtension } from '~/utils/file'
 import { useProject } from './project'
 import type { Frame } from '~/frame'
 import { parse, stringify } from 'superjson'
@@ -9,19 +9,23 @@ import { acceptHMRUpdate, defineStore } from 'pinia'
 export const useStorage = defineStore('storage', () => {
   const project = useProject()
 
-  const supportsFileAccessApi = 'showOpenFilePicker' in window
   const savedVersions = ref(new Map<Frame['id'], Frame['version']>())
-
   let fileHandle: FileSystemFileHandle | null = null
-  const fileType: FilePickerAcceptType = { accept: { 'text/plain': '.h' } }
+  const fileType: FilePickerAcceptType = {
+    accept: { 'text/plain': '.h' },
+    description: 'C++ header file',
+  }
 
-  const open = async () => {
+  const open = async (fileOrHandle: File | FileSystemFileHandle) => {
     clear()
-    ;[fileHandle] = await window.showOpenFilePicker({ types: [fileType] })
-    const file = await fileHandle.getFile()
+
+    const isFileHandle = fileOrHandle instanceof FileSystemFileHandle
+    const file = isFileHandle ? await fileOrHandle.getFile() : fileOrHandle
     const code = await file.text()
+    if (isFileHandle) fileHandle = fileOrHandle
+
     project.fromCode(code)
-    project.name = file.name.split('.').slice(0, -1).join('.')
+    project.name = stripExtension(file.name)
     savedVersions.value = new Map(
       project.framesAndComponents.map((v) => [v.id, v.version]),
     )
@@ -30,24 +34,23 @@ export const useStorage = defineStore('storage', () => {
   const save = async () => {
     const code = project.toCode()
 
-    fileHandle ??= await window.showSaveFilePicker({
-      types: [fileType],
-      id: `gfx-ui-${project.name}`,
-      suggestedName: project.name,
-    })
+    if (fileHandle) {
+      fileHandle ??= await window.showSaveFilePicker({
+        types: [fileType],
+        id: `gfx-ui-${project.name}`,
+        suggestedName: project.name,
+      })
 
-    const writable = await fileHandle.createWritable()
-    await writable.write(new TextEncoder().encode(code))
-    await writable.close()
+      const writable = await fileHandle.createWritable()
+      await writable.write(new TextEncoder().encode(code))
+      await writable.close()
+    } else {
+      downloadFile(`${project.name}.h`, code)
+    }
 
     savedVersions.value = new Map(
       project.framesAndComponents.map((v) => [v.id, v.version]),
     )
-  }
-
-  const download = () => {
-    const code = project.toCode()
-    downloadFile(`${project.name}.h`, code)
   }
 
   const backupFrame = useDebounceFn((frame: Omit<Frame, 'scale'>) => {
@@ -83,11 +86,10 @@ export const useStorage = defineStore('storage', () => {
   )
 
   return {
-    supportsFileAccessApi,
+    fileType,
     hasUnsavedChanges,
     open,
     save,
-    download,
     backupFrame,
     restoreBackup,
     clear,

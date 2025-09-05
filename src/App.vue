@@ -36,7 +36,7 @@ if (import.meta.hot) {
 }
 
 storage.restoreBackup()
-if (project.settings.rememberDevice) device.connect()
+if (project.settings.rememberDevice && device.hasWebSerial) device.connect()
 
 if (!import.meta.hot) {
   useEventListener(window, 'beforeunload', (e) => {

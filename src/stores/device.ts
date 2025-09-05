@@ -6,6 +6,7 @@ import { useProject } from './project'
 export const useDevice = defineStore('device', () => {
   const project = useProject()
 
+  const hasWebSerial = 'serial' in navigator
   let port: SerialPort | undefined
   let writer: WritableStreamDefaultWriter<Uint8Array> | undefined
   let isConnected = ref(false)
@@ -74,6 +75,7 @@ export const useDevice = defineStore('device', () => {
   onUnmounted(() => disconnect())
 
   return {
+    hasWebSerial,
     isConnected,
     connect,
     disconnect,
