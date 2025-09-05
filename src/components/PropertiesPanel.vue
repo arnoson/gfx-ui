@@ -123,6 +123,7 @@ watchDebounced(source, updateCode, { debounce: 100, deep: true })
       :code
       :file-name="`${project.name}.h`"
       language="cpp"
+      class="code-viewer"
     >
       <template #settings>
         <div class="flow">
@@ -186,5 +187,10 @@ header {
   overflow: hidden;
   white-space: nowrap;
   text-transform: capitalize;
+}
+
+.code-viewer {
+  flex: 1;
+  overflow: hidden;
 }
 </style>
