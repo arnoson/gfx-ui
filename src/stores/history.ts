@@ -72,6 +72,7 @@ export const useHistory = defineStore('history', () => {
     const state = history.stack.at(history.index)
     if (!state) return
 
+    storage.backupFrameDebounced(state)
     Object.assign(frame, clone(state))
     editor.blur()
   }
@@ -86,6 +87,7 @@ export const useHistory = defineStore('history', () => {
     const state = history.stack.at(history.index)
     if (!state) return
 
+    storage.backupFrameDebounced(state)
     Object.assign(frame, clone(state))
     editor.blur()
   }
