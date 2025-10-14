@@ -21,11 +21,14 @@ import LineIcon from '~/assets/icons/icon-layer-line.svg'
 import PolygonIcon from '~/assets/icons/icon-layer-polygon.svg'
 import RectIcon from '~/assets/icons/icon-layer-rect.svg'
 import TextIcon from '~/assets/icons/icon-layer-text.svg'
+import type { Item } from './items/item'
+import { useHistory } from './stores/history'
 
 const editor = useEditor()
 const project = useProject()
 const device = useDevice()
 const storage = useStorage()
+const history = useHistory()
 
 const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
@@ -53,6 +56,11 @@ const layerIcons = {
   instance: InstanceIcon,
   group: GroupIcon,
   polygon: PolygonIcon,
+}
+
+const removeItem = (item: Item) => {
+  project.removeItem(item)
+  history.saveState()
 }
 </script>
 
@@ -98,6 +106,7 @@ const layerIcons = {
             :items="editor.activeFrame?.children"
             :selected-items="editor.selectedItems"
             :icons="layerIcons"
+            @delete="removeItem"
           />
         </SplitterPanel>
       </SplitterGroup>

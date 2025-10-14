@@ -145,6 +145,10 @@ export const useProject = defineStore('project', () => {
   const removeItem = (item: Item, frame = editor.activeFrame) => {
     if (!frame) return
 
+    console.log('has item', editor.selectedItems.has(item))
+
+    if (editor.selectedItems.has(item)) editor.selectedItems.delete(item)
+
     // Since the item doesn't know anything about its parent, we have to find
     // the items parent (the current frame or any group) manually.
 
