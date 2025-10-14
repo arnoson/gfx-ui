@@ -1,5 +1,5 @@
 import type { CodeContext, Point } from '~/types'
-import { getTranslatedBounds, makeBounds } from '~/utils/bounds'
+import { emptyBounds, getTranslatedBounds, makeBounds } from '~/utils/bounds'
 import { composeRegex, metaRegex } from '~/utils/regex'
 import {
   drawItem,
@@ -57,6 +57,11 @@ const getBounds = (item: Pick<Group, 'type' | 'children'>) => {
     right: -Infinity,
   }
   findEdges(item as Item, edges)
+
+  // There could be no children, or only empty groups as children, in which
+  // case no edges are found.
+  if (edges.top === Infinity) return emptyBounds
+
   const width = edges.right - edges.left
   const height = edges.bottom - edges.top
   return makeBounds({ x: edges.left, y: edges.top }, { width, height })
