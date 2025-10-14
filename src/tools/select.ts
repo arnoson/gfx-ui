@@ -149,7 +149,12 @@ export const useSelect = defineTool('select', {
 
     const group = () => {
       if (!editor.selectedItems.size) return
-      const items = [...editor.selectedItems]
+
+      // Group the selected items in the correct order.
+      const items = editor.itemsFlat
+        .filter((item) => editor.selectedItems.has(item))
+        .reverse()
+
       for (const item of items) project.removeItem(item)
       const group = project.addItem({
         type: 'group',
@@ -174,7 +179,7 @@ export const useSelect = defineTool('select', {
 
         project.removeItem(item)
 
-        for (const child of item.children) {
+        for (const child of item.children.toReversed()) {
           const ungroupedChild = project.addItem(child)
           if (ungroupedChild) editor.selectedItems.add(ungroupedChild)
         }
