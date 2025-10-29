@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { GapField } from 'vue-toolkit'
+import { GapField } from 'tool-toolkit'
 import IconAlignBottom from '~/assets/icons/icon-align-bottom.svg'
 import IconAlignCenter from '~/assets/icons/icon-align-center.svg'
 import IconAlignLeft from '~/assets/icons/icon-align-left.svg'

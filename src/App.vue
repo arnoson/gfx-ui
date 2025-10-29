@@ -2,11 +2,15 @@
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 import { computed } from 'vue'
-import { LayersTree, ToolBar } from 'vue-toolkit'
+import {
+  LayersTree,
+  ToolBar,
+  ProjectProperties,
+  CheckboxField,
+} from 'tool-toolkit'
 import ComponentsPanel from './components/ComponentsPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
 import FramesPanel from './components/FramesPanel.vue'
-import ProjectProperties from './components/ProjectProperties.vue'
 import PropertiesPanel from './components/PropertiesPanel.vue'
 import { useDevice } from './stores/device'
 import { useEditor } from './stores/editor'
@@ -23,6 +27,7 @@ import RectIcon from '~/assets/icons/icon-layer-rect.svg'
 import TextIcon from '~/assets/icons/icon-layer-text.svg'
 import type { Item } from './items/item'
 import { useHistory } from './stores/history'
+import ProjectSettings from './components/ProjectSettings.vue'
 
 const editor = useEditor()
 const project = useProject()
@@ -62,6 +67,11 @@ const removeItem = (item: Item) => {
   project.removeItem(item)
   history.saveState()
 }
+
+const clear = () => {
+  project.clear()
+  storage.clear()
+}
 </script>
 
 <template>
@@ -70,7 +80,22 @@ const removeItem = (item: Item) => {
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
     >
-      <ProjectProperties />
+      <ProjectProperties
+        :file-type="storage.fileType"
+        :has-unsaved-changes="storage.hasUnsavedChanges"
+        :name="project.name"
+        @clear="clear"
+        @save="storage.save()"
+        @open="storage.open($event)"
+      >
+        <template #clear>
+          <p>Are you sure? This will remove all frames.</p>
+        </template>
+        <template #settings>
+          <ProjectSettings />
+        </template>
+      </ProjectProperties>
+
       <SplitterGroup direction="vertical" auto-save-id="sidebar-left">
         <SplitterPanel>
           <FramesPanel />

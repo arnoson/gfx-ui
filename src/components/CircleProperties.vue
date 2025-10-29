@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { CheckboxField, ColorField, NumberField, PointField } from 'vue-toolkit'
+import {
+  CheckboxField,
+  ColorField,
+  NumberField,
+  PointField,
+} from 'tool-toolkit'
 import { type Circle } from '~/items/circle'
 import { getItemBounds } from '~/items/item'
 import { useEditor } from '~/stores/editor'

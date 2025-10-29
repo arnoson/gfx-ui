@@ -8,7 +8,7 @@ import {
   NumberField,
   PointField,
   SelectField,
-} from 'vue-toolkit'
+} from 'tool-toolkit'
 import type { Polygon } from '~/items/polygon'
 import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'

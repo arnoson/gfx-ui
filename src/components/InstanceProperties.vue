@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { SelectField } from 'vue-toolkit'
+import { SelectField } from 'tool-toolkit'
 import type { Instance } from '~/items/instance'
 import { useHistory } from '~/stores/history'
 import { useProject } from '~/stores/project'

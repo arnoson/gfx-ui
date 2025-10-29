@@ -53,6 +53,7 @@ export const useHistory = defineStore('history', () => {
   const editor = useEditor()
   const storage = useStorage()
 
+  // ? does histories have to be a ref?
   const histories = ref(new Map<Id, History>())
   const maxStackSize = 50
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRaw } from 'vue'
-import { FramesList } from 'vue-toolkit'
+import { FramesList } from 'tool-toolkit'
 import type { Frame } from '~/frame'
 import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'
@@ -37,7 +37,9 @@ const rename = (frame: Frame, name: string) => {
     ref="frames"
     v-model="project.frames"
     :sortable="true"
+    :rename="true"
     :selected="editor.activeFrame?.id"
+    size="big"
     @update:selected="$event !== undefined && editor.activateFrame($event)"
     @add="add"
     @remove="remove"

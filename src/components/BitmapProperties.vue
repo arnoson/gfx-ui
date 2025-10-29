@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ColorField, PointField } from 'vue-toolkit'
+import { ColorField, PointField } from 'tool-toolkit'
 import { bitmap, type Bitmap } from '~/items/bitmap'
 import { useEditor } from '~/stores/editor'
 import { useHistory } from '~/stores/history'

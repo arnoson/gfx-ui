@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ColorField, PointField } from 'vue-toolkit'
+import { ColorField, PointField } from 'tool-toolkit'
 import { getItemBounds } from '~/items/item'
 import { type Line } from '~/items/line'
 import { useEditor } from '~/stores/editor'

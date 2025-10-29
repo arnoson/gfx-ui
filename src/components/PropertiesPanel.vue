@@ -8,7 +8,7 @@ import {
   CodeViewer,
   SelectField,
   SwitchField,
-} from 'vue-toolkit'
+} from 'tool-toolkit'
 import { toCode as frameToCode } from '~/frame'
 import { drawItem, itemToCode, type DrawContext } from '~/items/item'
 import { useEditor } from '~/stores/editor'

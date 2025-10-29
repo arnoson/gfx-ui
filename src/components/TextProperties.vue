@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import { ColorField, TextAreaField } from 'vue-toolkit'
+import { ColorField, TextAreaField } from 'tool-toolkit'
 import { getItemBounds } from '~/items/item'
 import { type Text } from '~/items/text'
 import { useEditor } from '~/stores/editor'

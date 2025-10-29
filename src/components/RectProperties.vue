@@ -5,7 +5,7 @@ import {
   NumberField,
   PointField,
   SizeField,
-} from 'vue-toolkit'
+} from 'tool-toolkit'
 import { getItemBounds } from '~/items/item'
 import { type Rect } from '~/items/rect'
 import { useEditor } from '~/stores/editor'

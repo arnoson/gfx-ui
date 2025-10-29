@@ -13,11 +13,11 @@ import {
 import type { CodeContext, Optional, Size } from '~/types'
 import { createCodeContext } from '~/utils/codeContext'
 import { serializeFont } from '~/utils/font'
-import { capitalizeFirstLetter } from '~/utils/text'
+import { upperFirst } from 'tool-toolkit'
 import { useEditor } from './editor'
 import { useFonts } from './fonts'
 import { useHistory } from './history'
-import { getMaxTreeId } from '~/utils/tree'
+import { getMaxTreeId } from 'tool-toolkit'
 
 type Id = number
 let nextId = 0
@@ -121,7 +121,7 @@ export const useProject = defineStore('project', () => {
     if (!editor.activeFrame) return
 
     const id = data.id ?? createId()
-    const name = capitalizeFirstLetter(data.type)
+    const name = upperFirst(data.type)
 
     const itemWithoutBounds: Omit<Item, 'bounds'> = {
       name,

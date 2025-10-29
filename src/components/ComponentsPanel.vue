@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core'
 import { toRaw } from 'vue'
-import { FramesList } from 'vue-toolkit'
+import { FramesList } from 'tool-toolkit'
 import type { Frame } from '~/frame'
 import type { Instance } from '~/items/instance'
 import { getItemBounds } from '~/items/item'
@@ -93,7 +93,7 @@ const dragCancel = () => {
 <template>
   <FramesList
     v-model="project.components"
-    size="small"
+    size="medium"
     :sortable="true"
     :draggable="true"
     :selected="editor.activeFrame?.id"

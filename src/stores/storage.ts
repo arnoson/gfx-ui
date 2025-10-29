@@ -1,4 +1,4 @@
-import { downloadFile, stripExtension } from '~/utils/file'
+import { downloadFile, stripExtension } from 'tool-toolkit'
 import { useProject } from './project'
 import type { Frame } from '~/frame'
 import { parse, stringify } from 'superjson'

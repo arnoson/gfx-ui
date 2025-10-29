@@ -1,4 +1,5 @@
 @layer reset, base, components, utilities;
+@import 'tool-toolkit/dist/index.css';
 
 :root {
   --color-accent: tomato;

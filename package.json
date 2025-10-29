@@ -19,6 +19,7 @@
     "prismjs": "^1.30.0",
     "reka-ui": "^2.4.1",
     "superjson": "^2.2.2",
+    "tool-toolkit": "github:arnoson/tool-toolkit",
     "vue": "^3.5.18",
     "vue-draggable-plus": "^0.6.0",
     "vue-toolkit": "file:../vue-toolkit"

@@ -9,6 +9,7 @@ import {
   getFiles,
 } from '@atlaskit/pragmatic-drag-and-drop/external/file'
 import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unhandled'
+import { getInputId, ModalDialog } from 'tool-toolkit'
 import {
   computed,
   onWatcherCleanup,
@@ -16,11 +17,9 @@ import {
   useTemplateRef,
   watchEffect,
 } from 'vue'
-import { ModalDialog } from 'vue-toolkit'
 import IconSettings from '~/assets/icons/icon-add.svg'
 import { useFonts } from '~/stores/fonts'
 import type { GfxFont } from '~/utils/font'
-import { getInputId } from '../utils/id'
 
 type Option = { value: string; label: string }
 type OptionGroup = { label: string; options: Option[] }
