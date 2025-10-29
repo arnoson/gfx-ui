@@ -1,4 +1,4 @@
-nom{
+{
   "name": "gfx-ui",
   "version": "0.0.0",
   "private": true,
@@ -20,9 +20,7 @@ nom{
     "reka-ui": "^2.4.1",
     "superjson": "^2.2.2",
     "tool-toolkit": "github:arnoson/tool-toolkit",
-    "vue": "^3.5.18",
-    "vue-draggable-plus": "^0.6.0",
-    "vue-toolkit": "file:../vue-toolkit"
+    "vue": "^3.5.18"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
