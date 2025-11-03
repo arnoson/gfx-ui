@@ -36,8 +36,8 @@ const storage = useStorage()
 const history = useHistory()
 
 const { width } = useWindowSize()
-const sidebarDefaultSize = computed(() => (200 / width.value) * 100)
-const sidebarMinSize = computed(() => (175 / width.value) * 100)
+const sidebarDefaultSize = computed(() => (312 / width.value) * 100)
+const sidebarMinSize = computed(() => (300 / width.value) * 100)
 
 if (import.meta.hot) {
   project.clear()
@@ -96,13 +96,17 @@ const clear = () => {
         </template>
       </ProjectProperties>
 
-      <SplitterGroup direction="vertical" auto-save-id="sidebar-left">
+      <SplitterGroup
+        direction="vertical"
+        auto-save-id="sidebar-left"
+        style="display: flex; flex-direction: column"
+      >
         <SplitterPanel>
-          <FramesPanel />
+          <FramesPanel style="height: 100%" />
         </SplitterPanel>
         <SplitterResizeHandle />
         <SplitterPanel>
-          <ComponentsPanel />
+          <ComponentsPanel style="height: 100%" />
         </SplitterPanel>
       </SplitterGroup>
     </SplitterPanel>
