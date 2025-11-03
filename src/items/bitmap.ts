@@ -77,10 +77,11 @@ const getBounds = (bitmap: Pick<Bitmap, 'pixels'>): Bounds => {
 const toCode = (bitmap: Bitmap, ctx: CodeContext) => {
   const { bounds: bounds, pixels, color, name } = bitmap
 
-  let bytesCount = Math.ceil((bounds.width * bounds.height) / 8)
-  const bytes = new Uint8Array(bytesCount)
-  let byteIndex = 0
-  let bitIndex = 7
+  // Calculate bytes per row (each row must be byte-aligned)
+  const bytesPerRow = Math.ceil(bounds.width / 8)
+  const totalBytes = bytesPerRow * bounds.height
+  const bytes = new Uint8Array(totalBytes)
+
   for (let y = 0; y < bounds.height; y++) {
     for (let x = 0; x < bounds.width; x++) {
       const pixel = packPixel(bounds.left + x, bounds.top + y)
@@ -88,23 +89,21 @@ const toCode = (bitmap: Bitmap, ctx: CodeContext) => {
       // GFX seems to do it the other way round.
       const value = !pixels.has(pixel)
 
-      if (bitIndex < 0) {
-        byteIndex++
-        bitIndex = 7
-      }
+      // Calculate byte and bit index within the row
+      const byteIndex = y * bytesPerRow + Math.floor(x / 8)
+      const bitIndex = 7 - (x % 8)
 
       setBit(bytes, byteIndex, bitIndex, value)
-      bitIndex--
     }
   }
 
   const uniqueName = ctx.getUniqueName(name)
   const bytesIdentifier = sanitizeIdentifier(`${uniqueName}_bytes`)
   let code = `static const byte ${bytesIdentifier}[] PROGMEM = {\n`
-  let bytesPerRow = 12
+  let bytesPerDisplayRow = 12
   for (let i = 0; i < bytes.length; i++) {
-    if (i > 0 && i % bytesPerRow === 0) code += '\n'
-    if (i % bytesPerRow === 0) code += '  '
+    if (i > 0 && i % bytesPerDisplayRow === 0) code += '\n'
+    if (i % bytesPerDisplayRow === 0) code += '  '
     code += `0x${bytes[i].toString(16).padStart(2, '0')}, `
   }
   if (code.at(-1) !== '\n') code += '\n'
@@ -140,12 +139,15 @@ const fromCode = (code: string) => {
   const bytes = new Uint8Array(bytesString.split(',').map((v) => +v))
   const [offsetX, offsetY, _, width, height, color] = parseItemArgs(args)
 
+  // Calculate bytes per row (each row is byte-aligned)
+  const bytesPerRow = Math.ceil(width / 8)
+
   const pixels: Pixels = new Set()
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const i = y * width + x
-      const byteIndex = Math.floor(i / 8)
-      const bitIndex = 7 - (i % 8)
+      // Calculate byte and bit index within the row
+      const byteIndex = y * bytesPerRow + Math.floor(x / 8)
+      const bitIndex = 7 - (x % 8)
       const bit = getBit(bytes, byteIndex, bitIndex)
 
       if (bit) {
