@@ -97,6 +97,7 @@ const dragCancel = () => {
     :sortable="true"
     :draggable="true"
     :selected="editor.activeFrame?.id"
+    :rename="true"
     @update:selected="$event !== undefined && editor.activateFrame($event)"
     @add="add"
     @remove="remove"
