@@ -108,7 +108,7 @@ const { scrolling } = useZoomPan(editorEl, { size, scale })
         class="canvas"
         :frame="frame"
         :key="frame.id"
-        :live-preview="device.isConnected"
+        :live-preview="frame.type === 'frame'"
       />
       <svg
         ref="overlay"

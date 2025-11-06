@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckboxField } from 'tool-toolkit'
+import { CheckboxField, SizeField } from 'tool-toolkit'
 import { useDevice } from '~/stores/device'
 import { useProject } from '~/stores/project'
 
@@ -14,6 +14,7 @@ const project = useProject()
       v-if="device.isConnected"
       @click="device.disconnect()"
       :disabled="!device.hasWebSerial"
+      style="background-color: var(--color-accent)"
     >
       disconnect
     </button>
@@ -22,4 +23,5 @@ const project = useProject()
     </button>
   </div>
   <CheckboxField v-model="project.settings.rememberDevice" label="Remember" />
+  <SizeField v-model="device.displaySize" label="Display" />
 </template>

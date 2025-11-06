@@ -15,6 +15,7 @@ export const useDevice = defineStore('device', () => {
     usbVendorId: undefined,
     usbProductId: undefined,
   })
+  const displaySize = ref({ width: 128, height: 64 })
 
   const openPort = async (port: SerialPort) => {
     await port.open({ baudRate: 9600 })
@@ -64,7 +65,7 @@ export const useDevice = defineStore('device', () => {
     )
   }
 
-  const sendScreenBuffer = useThrottleFn(
+  const sendFrameBuffer = useThrottleFn(
     async (bytes: Uint8Array) => {
       writer?.write(bytes)
     },
@@ -77,9 +78,10 @@ export const useDevice = defineStore('device', () => {
   return {
     hasWebSerial,
     isConnected,
+    displaySize,
     connect,
     disconnect,
-    sendFrameBuffer: sendScreenBuffer,
+    sendFrameBuffer,
   }
 })
 

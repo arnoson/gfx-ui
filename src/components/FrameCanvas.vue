@@ -25,18 +25,20 @@ const canvas = useTemplateRef('canvas')
 onMounted(() => (ctx.value = canvas.value?.getContext('2d') ?? null))
 
 const createFrameBuffer = () =>
-  new Uint8Array(Math.ceil((size.value.width * size.value.height) / 2))
+  new Uint8Array(
+    Math.ceil((device.displaySize.width * device.displaySize.height) / 2),
+  )
 
 const clearFrameBuffer = () => frameBuffer?.fill(0)
 
 const setFrameBufferPixel = (x: number, y: number, color: Color) => {
   if (!frameBuffer) return
 
-  const { width, height } = size.value
+  const { width, height } = device.displaySize
   if (x < 0 || x >= width) return
   if (y < 0 || y >= height) return
 
-  let pixelIndex = y * size.value.width + x
+  let pixelIndex = y * width + x
   let byteIndex = Math.floor(pixelIndex / 2)
   if (pixelIndex % 2 === 0) {
     frameBuffer[byteIndex] = (frameBuffer[byteIndex] & 0x0f) | (color << 4)
