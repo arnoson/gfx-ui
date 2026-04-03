@@ -35,13 +35,19 @@ export const useStorage = defineStore('storage', () => {
 
   const save = async () => {
     const code = project.toCode()
+    const hasFileSystemApi = 'showOpenFilePicker' in window
 
-    if (fileHandle) {
-      fileHandle ??= await window.showSaveFilePicker({
-        types: [fileType],
-        id: `gfx-ui-${project.name}`,
-        suggestedName: project.name,
-      })
+    if (fileHandle || hasFileSystemApi) {
+      try {
+        fileHandle ??= await window.showSaveFilePicker({
+          types: [fileType],
+          id: `gfx-ui-${project.name}`,
+          suggestedName: project.name,
+        })
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return
+        throw e
+      }
 
       const writable = await fileHandle.createWritable()
       await writable.write(new TextEncoder().encode(code))
