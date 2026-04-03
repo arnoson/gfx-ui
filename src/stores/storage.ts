@@ -89,9 +89,14 @@ export const useStorage = defineStore('storage', () => {
     ),
   )
 
+  const hasRecoveryData = computed(() =>
+    Object.keys(localStorage).some((k) => k.startsWith('gfxui:frame-')),
+  )
+
   return {
     fileType,
     hasUnsavedChanges,
+    hasRecoveryData,
     open,
     save,
     backupFrame,

@@ -7,7 +7,7 @@ import {
   ProjectProperties,
   ToolBar,
 } from 'tool-toolkit'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import ComponentsPanel from './components/ComponentsPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
 import FramesPanel from './components/FramesPanel.vue'
@@ -27,6 +27,7 @@ import PolygonIcon from '~/assets/icons/icon-layer-polygon.svg'
 import RectIcon from '~/assets/icons/icon-layer-rect.svg'
 import TextIcon from '~/assets/icons/icon-layer-text.svg'
 import ProjectSettings from './components/ProjectSettings.vue'
+import RecoveryDialog from './components/RecoveryDialog.vue'
 import type { Item } from './items/item'
 import { useHistory } from './stores/history'
 
@@ -40,12 +41,22 @@ const { width } = useWindowSize()
 const sidebarDefaultSize = computed(() => (312 / width.value) * 100)
 const sidebarMinSize = computed(() => (300 / width.value) * 100)
 
-if (import.meta.hot) {
-  project.clear()
-}
+const recoveryDialog = ref<InstanceType<typeof RecoveryDialog> | null>(null)
 
-storage.restoreBackup()
 if (project.settings.rememberDevice && device.hasWebSerial) device.connect()
+
+onMounted(async () => {
+  if (!storage.hasRecoveryData) return
+
+  const result = await recoveryDialog.value?.prompt()
+
+  if (result === 'restore') {
+    storage.restoreBackup()
+  } else {
+    storage.clear()
+    project.clear()
+  }
+})
 
 if (!import.meta.hot) {
   useEventListener(window, 'beforeunload', (e) => {
@@ -95,7 +106,7 @@ const handleAction = (type: string) => {
       <ProjectProperties
         :file-type="storage.fileType"
         :has-unsaved-changes="storage.hasUnsavedChanges"
-        :name="project.name"
+        v-model:name="project.name"
         :actions="[{ value: 'exportSvg', label: 'Export SVG' }]"
         @clear="clear"
         @save="storage.save()"
@@ -155,6 +166,7 @@ const handleAction = (type: string) => {
       </SplitterGroup>
     </SplitterPanel>
   </SplitterGroup>
+  <RecoveryDialog ref="recoveryDialog" />
 </template>
 
 <style scoped>
