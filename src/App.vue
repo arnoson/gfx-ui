@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useEventListener, useWindowSize } from '@vueuse/core'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
-import { computed } from 'vue'
 import {
+  downloadFile,
   LayersTree,
-  ToolBar,
   ProjectProperties,
-  CheckboxField,
+  ToolBar,
 } from 'tool-toolkit'
+import { computed } from 'vue'
 import ComponentsPanel from './components/ComponentsPanel.vue'
 import EditorPanel from './components/EditorPanel.vue'
 import FramesPanel from './components/FramesPanel.vue'
@@ -16,6 +16,7 @@ import { useDevice } from './stores/device'
 import { useEditor } from './stores/editor'
 import { useProject } from './stores/project'
 import { useStorage } from './stores/storage'
+import { frameToSvg } from './utils/svg'
 
 import CircleIcon from '~/assets/icons/icon-layer-circle.svg'
 import DrawIcon from '~/assets/icons/icon-layer-draw.svg'
@@ -25,9 +26,9 @@ import LineIcon from '~/assets/icons/icon-layer-line.svg'
 import PolygonIcon from '~/assets/icons/icon-layer-polygon.svg'
 import RectIcon from '~/assets/icons/icon-layer-rect.svg'
 import TextIcon from '~/assets/icons/icon-layer-text.svg'
+import ProjectSettings from './components/ProjectSettings.vue'
 import type { Item } from './items/item'
 import { useHistory } from './stores/history'
-import ProjectSettings from './components/ProjectSettings.vue'
 
 const editor = useEditor()
 const project = useProject()
@@ -72,6 +73,17 @@ const clear = () => {
   project.clear()
   storage.clear()
 }
+
+const handleAction = (type: string) => {
+  if (type === 'exportSvg') {
+    const frame = editor.activeFrame
+    if (!frame) return
+
+    const svg = frameToSvg(frame, editor.colors)
+    const blob = new Blob([svg], { type: 'image/svg+xml' })
+    downloadFile(`${project.name}.svg`, blob)
+  }
+}
 </script>
 
 <template>
@@ -84,9 +96,11 @@ const clear = () => {
         :file-type="storage.fileType"
         :has-unsaved-changes="storage.hasUnsavedChanges"
         :name="project.name"
+        :actions="[{ value: 'exportSvg', label: 'Export SVG' }]"
         @clear="clear"
         @save="storage.save()"
         @open="storage.open($event)"
+        @action="handleAction"
       >
         <template #clear>
           <p>Are you sure? This will remove all frames.</p>
