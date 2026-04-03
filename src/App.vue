@@ -102,6 +102,7 @@ const handleAction = (type: string) => {
     <SplitterPanel
       :default-size="sidebarDefaultSize"
       :min-size="sidebarMinSize"
+      style="display: flex; flex-direction: column"
     >
       <ProjectProperties
         :file-type="storage.fileType"
@@ -121,11 +122,7 @@ const handleAction = (type: string) => {
         </template>
       </ProjectProperties>
 
-      <SplitterGroup
-        direction="vertical"
-        auto-save-id="sidebar-left"
-        style="display: flex; flex-direction: column"
-      >
+      <SplitterGroup direction="vertical" auto-save-id="sidebar-left">
         <SplitterPanel>
           <FramesPanel style="height: 100%" />
         </SplitterPanel>
