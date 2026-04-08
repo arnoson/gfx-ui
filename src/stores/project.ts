@@ -258,7 +258,7 @@ export const useProject = defineStore('project', () => {
         const group = groups.at(-1)
         if (group) {
           removeItem(item, frame)
-          group.children.unshift(item)
+          group.children.push(item)
         }
 
         if (itemMatch.item.type === 'group') {
