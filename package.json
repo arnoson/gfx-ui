@@ -15,7 +15,7 @@
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.6",
     "@types/prismjs": "^1.26.5",
     "@types/wicg-file-system-access": "^2023.10.6",
-    "@vueuse/core": "^13.6.0",
+    "@vueuse/core": "^14.0.0",
     "pinia": "^3.0.3",
     "prismjs": "^1.30.0",
     "reka-ui": "^2.4.1",
